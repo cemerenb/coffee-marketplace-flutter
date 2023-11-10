@@ -223,40 +223,11 @@ class _CompanyLoginPageState extends State<CompanyLoginPage> {
             child: isLoggingIn
                 ? const Center(child: CircularProgressIndicator())
                 : MaterialButton(
+                    onPressed: onCompanyLoginPressed,
                     child: const Text(
                       'Login',
                       style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
-                    onPressed: () {
-                      setState(() {
-                        isLoggingIn = true;
-                        log(companyEmailController.text);
-                        log(companyPasswordController.text);
-                      });
-
-                      CompanyLoginApi()
-                          .loginCompany(context, companyEmailController.text,
-                              companyPasswordController.text)
-                          .then((success) async {
-                        final prefs = await SharedPreferences.getInstance();
-                        prefs.setString('email', companyEmailController.text);
-                        prefs.setString(
-                            'password', companyPasswordController.text);
-                        prefs.setString('accountType', 'company');
-                        if (context.mounted) {
-                          Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const CompanyHomePage(),
-                              ),
-                              (route) => false);
-                        }
-
-                        setState(() {
-                          isLoggingIn = false;
-                        });
-                      });
-                    },
                   ),
           ),
         ),
@@ -266,5 +237,43 @@ class _CompanyLoginPageState extends State<CompanyLoginPage> {
         const DontHaveAnAcoountTextButtonCompany()
       ],
     );
+  }
+
+  void onCompanyLoginPressed() async {
+    setState(() {
+      isLoggingIn = true;
+      log(companyEmailController.text);
+      log(companyPasswordController.text);
+    });
+
+    final success = await CompanyLoginApi().loginCompany(
+      context,
+      companyEmailController.text,
+      companyPasswordController.text,
+    );
+
+    if (!success) {
+      setState(() {
+        isLoggingIn = false;
+      });
+      return;
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('email', companyEmailController.text);
+    prefs.setString('password', companyPasswordController.text);
+    prefs.setString('accountType', 'company');
+    if (context.mounted) {
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const CompanyHomePage(),
+          ),
+          (route) => false);
+    }
+
+    setState(() {
+      isLoggingIn = false;
+    });
   }
 }

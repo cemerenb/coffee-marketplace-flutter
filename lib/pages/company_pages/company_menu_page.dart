@@ -1,3 +1,4 @@
+import 'package:coffee/pages/company_pages/widgets/product_details.dart';
 import 'package:coffee/utils/classes/menu_class.dart';
 import 'package:flutter/material.dart';
 
@@ -23,6 +24,13 @@ class _MenusListViewState extends State<MenusListView> {
 
   @override
   Widget build(BuildContext context) {
+    bool isFound2 = widget.menus
+            .where((element) => element.storeEmail == widget.email)
+            .isNotEmpty &&
+        widget.menus
+            .where((element) => element.menuItemCategory == category)
+            .isNotEmpty;
+
     return Column(
       children: [
         const SizedBox(
@@ -44,15 +52,22 @@ class _MenusListViewState extends State<MenusListView> {
             )
           ],
         ),
-        ListView.builder(
-          shrinkWrap: true,
-          itemCount: widget.menus.length,
-          itemBuilder: (context, index) {
-            if (widget.menus[index].storeEmail == widget.email &&
-                widget.menus[index].menuItemCategory == category) {
-              isFound = true;
+        if (isFound2)
+          ListView.builder(
+            shrinkWrap: true,
+            itemCount: widget.menus.length,
+            itemBuilder: (context, index) {
               return Card(
                 child: ListTile(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProductDetails(
+                            menus: widget.menus,
+                          ),
+                        ));
+                  },
                   leading: FadeInImage(
                     placeholder:
                         const AssetImage('assets/img/placeholder_image.png'),
@@ -67,11 +82,9 @@ class _MenusListViewState extends State<MenusListView> {
                   ),
                 ),
               );
-            }
-            return const SizedBox.shrink();
-          },
-        ),
-        if (!isFound)
+            },
+          )
+        else
           const Center(
             child: Text('No item found'),
           ),

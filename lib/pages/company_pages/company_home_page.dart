@@ -182,7 +182,7 @@ class _CompanyHomePageState extends State<CompanyHomePage> {
     try {
       final response = await http
           .get(Uri.parse('https://192.168.0.28:7094/api/Menu/get-all'));
-      log(response.body);
+
       if (response.statusCode == 200) {
         log(response.statusCode.toString());
         final data = json.decode(response.body);

@@ -9,7 +9,9 @@ import 'package:coffee/utils/database_operations/login_user.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-int page = 0;
+enum PageEnum { loginPage, companyHomePage, customerHomePage }
+
+PageEnum page = PageEnum.loginPage;
 void main() {
   HttpOverrides.global = MyHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
@@ -61,21 +63,22 @@ void checkUser(BuildContext context) async {
   final userEmail = prefs.getString('email');
   final userPassword = prefs.getString('password');
   final accountType = prefs.getString('accountType');
-  if (userEmail != null) {
-    log(userEmail);
-  }
-  if (userPassword != null) {
-    log(userPassword);
-  }
-  if (accountType != null) {
-    log(accountType);
-  }
+
+  log(userEmail.toString());
+
+  log(userPassword.toString());
+
+  log(accountType.toString());
+
   if (accountType == 'customer' &&
       userEmail != null &&
       userPassword != null &&
       context.mounted) {
     if (await LoginApi().loginUser(context, userEmail, userPassword)) {
-      page = 2;
+      page = PageEnum.customerHomePage;
+      log(userEmail);
+      log(userPassword);
+      log(accountType.toString());
     }
   } else if (accountType == 'company' &&
       userEmail != null &&
@@ -83,19 +86,22 @@ void checkUser(BuildContext context) async {
       context.mounted) {
     if (await CompanyLoginApi()
         .loginCompany(context, userEmail, userPassword)) {
-      page = 3;
+      page = PageEnum.companyHomePage;
     }
   } else {
-    page = 1;
+    page = PageEnum.loginPage;
   }
 }
 
 Widget pageSelector() {
-  if (page == 1) {
-    return LoginPage(isSwitched: false);
-  } else if (page == 2) {
-    return const CustomerHomePage();
-  } else {
-    return const CompanyHomePage();
+  switch (page) {
+    case PageEnum.loginPage:
+      return LoginPage(isSwitched: false);
+
+    case PageEnum.customerHomePage:
+      return const CustomerHomePage();
+
+    case PageEnum.companyHomePage:
+      return const CompanyHomePage();
   }
 }

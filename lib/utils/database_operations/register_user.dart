@@ -10,7 +10,7 @@ class RegistrationApi {
 
   RegistrationApi();
 
-  Future<bool> registerUser(
+  Future<(bool success, String message)> registerUser(
       BuildContext context,
       String userName,
       String fullname,
@@ -37,14 +37,14 @@ class RegistrationApi {
       if (context.mounted) {
         _showCompletedDialog(context, response.body);
       }
-      return true;
+      return (true, response.body);
     } else {
       if (context.mounted) {
         _showErrorDialog(context, response.body);
       }
       log('Error');
       log(response.body);
-      return false;
+      return (false, response.body);
     }
   }
 }

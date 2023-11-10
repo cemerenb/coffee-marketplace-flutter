@@ -29,13 +29,15 @@ class CompanyLoginApi {
       log('Successfully login');
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('email', email);
-      await prefs.setString('password', password);
-      if (context.mounted) {
-        emailController.text = "";
-        passwordController.text = "";
+      if (prefs.getString('email') == null &&
+          prefs.getString('password') == null) {
+        await prefs.setString('email', email);
+        await prefs.setString('password', password);
+        if (context.mounted) {
+          emailController.text = "";
+          passwordController.text = "";
+        }
       }
-
       return true;
     } else {
       _showErrorDialog(context, response.statusCode.toString());

@@ -4,6 +4,7 @@ import 'package:coffee/pages/signup/widgets/customer/full_name_field.dart';
 import 'package:coffee/pages/signup/widgets/customer/password_field.dart';
 import 'package:coffee/pages/signup/widgets/customer/email_field.dart';
 import 'package:coffee/pages/signup/widgets/customer/user_name_field.dart';
+import 'package:coffee/widgets/dialogs.dart';
 import '../../utils/database_operations/register_user.dart';
 import 'package:flutter/material.dart';
 
@@ -63,14 +64,21 @@ class _SignUpState extends State<SignUp> {
                         'Sign Up',
                         style: TextStyle(color: Colors.white, fontSize: 18),
                       ),
-                      onPressed: () {
-                        RegistrationApi().registerUser(
-                            context,
-                            userNameController.text,
-                            fullNameController.text,
-                            emailController.text,
-                            passwordController.text,
-                            passwordController.text);
+                      onPressed: () async {
+                        final (success, message) = await RegistrationApi()
+                            .registerUser(
+                                context,
+                                userNameController.text,
+                                fullNameController.text,
+                                emailController.text,
+                                passwordController.text,
+                                passwordController.text);
+
+                        if (success && context.mounted) {
+                          Dialogs.showCompletedDialog(context, message);
+                        } else {
+                          Dialogs.showErrorDialog(context, message);
+                        }
                       },
                     ),
                   ),

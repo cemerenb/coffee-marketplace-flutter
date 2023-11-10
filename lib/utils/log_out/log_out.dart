@@ -4,9 +4,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void logOut(context) async {
   final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('email', "");
-  await prefs.setString('password', "");
-  await prefs.setString('accountType', "");
+  await prefs.remove('email');
+  await prefs.remove('password');
+  await prefs.remove('accountType');
   Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
