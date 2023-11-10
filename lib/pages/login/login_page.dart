@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:ui';
 
 import 'package:coffee/pages/Login/widgets/customer/dont_have_account.dart';
+import 'package:coffee/pages/company_pages/company_home_page.dart';
 import 'package:coffee/pages/login/widgets/company/dont_have_account.dart';
 import 'package:coffee/pages/login/widgets/company/login_page_area.dart';
 import 'package:coffee/pages/login/widgets/company/login_welcome_text.dart';
@@ -10,10 +11,12 @@ import 'package:coffee/pages/login/widgets/customer/login_welcome_text.dart';
 import 'package:coffee/utils/database_operations/login_company.dart';
 import 'package:coffee/utils/database_operations/login_user.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+// ignore: must_be_immutable
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
-
+  LoginPage({super.key, required this.isSwitched});
+  late bool isSwitched;
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
@@ -24,13 +27,13 @@ final TextEditingController companyEmailController = TextEditingController();
 final TextEditingController companyPasswordController = TextEditingController();
 
 class _LoginPageState extends State<LoginPage> {
-  bool isSwitched = false;
+  @override
   @override
   Widget build(BuildContext context) {
     return Stack(children: [
       ImageFiltered(
         imageFilter: ImageFilter.blur(sigmaY: 5, sigmaX: 5),
-        child: !isSwitched
+        child: !widget.isSwitched
             ? Image.asset(
                 "assets/img/bg_login.png",
                 height: MediaQuery.of(context).size.height,
@@ -57,7 +60,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: Switch(
                   thumbIcon: MaterialStateProperty.resolveWith<Icon?>(
                       (Set<MaterialState> states) {
-                    if (!isSwitched) {
+                    if (!widget.isSwitched) {
                       return const Icon(
                         Icons.person,
                         color: Colors.black,
@@ -72,19 +75,19 @@ class _LoginPageState extends State<LoginPage> {
                     }
                   }),
                   onChanged: (value) {
-                    isSwitched = !isSwitched;
+                    widget.isSwitched = !widget.isSwitched;
                     setState(() {});
                   },
                   activeColor: Colors.transparent,
                   hoverColor: Colors.transparent,
                   focusColor: Colors.transparent,
                   inactiveThumbColor: Colors.white,
-                  value: isSwitched,
+                  value: widget.isSwitched,
                 ),
               ),
             ],
           ),
-          body: !isSwitched
+          body: !widget.isSwitched
               ? const SingleChildScrollView(child: PersonLoginPage())
               : const SingleChildScrollView(
                   child:
@@ -155,6 +158,7 @@ class _PersonLoginPageState extends State<PersonLoginPage> {
                     onPressed: () {
                       setState(() {
                         isLoggingIn = true;
+
                         log(emailController.text);
                         log(passwordController.text);
                       });
@@ -163,7 +167,11 @@ class _PersonLoginPageState extends State<PersonLoginPage> {
                           .loginUser(context, emailController.text,
                               passwordController.text)
                           .then((success) {
-                        setState(() {
+                        setState(() async {
+                          final prefs = await SharedPreferences.getInstance();
+                          prefs.setString('email', emailController.text);
+                          prefs.setString('password', passwordController.text);
+                          prefs.setString('accountType', 'customer');
                           isLoggingIn = false;
                         });
                       });
@@ -229,7 +237,21 @@ class _CompanyLoginPageState extends State<CompanyLoginPage> {
                       CompanyLoginApi()
                           .loginCompany(context, companyEmailController.text,
                               companyPasswordController.text)
-                          .then((success) {
+                          .then((success) async {
+                        final prefs = await SharedPreferences.getInstance();
+                        prefs.setString('email', companyEmailController.text);
+                        prefs.setString(
+                            'password', companyPasswordController.text);
+                        prefs.setString('accountType', 'company');
+                        if (context.mounted) {
+                          Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const CompanyHomePage(),
+                              ),
+                              (route) => false);
+                        }
+
                         setState(() {
                           isLoggingIn = false;
                         });

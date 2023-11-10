@@ -23,6 +23,7 @@ final TextEditingController passwordController = TextEditingController();
 final TextEditingController confirmPasswordController = TextEditingController();
 
 class _CompanySignUpState extends State<CompanySignUp> {
+  bool isLoggingIn = false;
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -41,7 +42,7 @@ class _CompanySignUpState extends State<CompanySignUp> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(
-                    height: 60,
+                    height: 20,
                   ),
                   StoreNameField(storeNameController: storeNameController),
                   EmailField(
@@ -59,21 +60,39 @@ class _CompanySignUpState extends State<CompanySignUp> {
                           color: const Color.fromARGB(255, 36, 36, 36)),
                       width: MediaQuery.of(context).size.width,
                       height: 60,
-                      child: MaterialButton(
-                        child: const Text(
-                          'Create Store',
-                          style: TextStyle(color: Colors.white, fontSize: 18),
-                        ),
-                        onPressed: () {
-                          StoreRegistrationApi().registerStore(
-                              context,
-                              storeNameController.text,
-                              taxIdController.text,
-                              emailController.text,
-                              passwordController.text,
-                              confirmPasswordController.text);
-                        },
-                      ),
+                      child: isLoggingIn
+                          ? const Center(child: CircularProgressIndicator())
+                          : MaterialButton(
+                              child: const Text(
+                                'Create Store',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 18),
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  isLoggingIn = true;
+                                });
+                                isLoggingIn = true;
+                                StoreRegistrationApi()
+                                    .registerStore(
+                                        context,
+                                        storeNameController.text,
+                                        taxIdController.text,
+                                        emailController.text,
+                                        passwordController.text,
+                                        confirmPasswordController.text)
+                                    .then((success) {
+                                  setState(() {
+                                    storeNameController.text = "";
+                                    taxIdController.text = "";
+                                    emailController.text = "";
+                                    passwordController.text = "";
+                                    confirmPasswordController.text = "";
+                                    isLoggingIn = false;
+                                  });
+                                });
+                              },
+                            ),
                     ),
                   ),
                   const CompanyBackToSignInButton()

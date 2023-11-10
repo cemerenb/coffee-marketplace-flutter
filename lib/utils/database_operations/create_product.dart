@@ -5,27 +5,32 @@ import 'package:coffee/pages/login/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-class StoreRegistrationApi {
-  StoreRegistrationApi();
+class CreateProductApi {
+  CreateProductApi();
 
-  Future<bool> registerStore(
-      BuildContext context,
-      String storeName,
-      String taxId,
-      String email,
-      String password,
-      String confirmPassword) async {
+  Future<bool> createProduct(
+    BuildContext context,
+    String storeEmail,
+    String menuItemName,
+    String menuItemDescription,
+    String menuItemImageLink,
+    int menuItemIsAvaliable,
+    int menuItemPrice,
+    int menuItemCategory,
+  ) async {
     final response = await http.post(
       Uri.parse('https://192.168.0.28:7094/api/Store/register'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },
-      body: jsonEncode(<String, String>{
-        'storeName': storeName,
-        'storeEmail': email,
-        'storeTaxId': taxId,
-        'storePassword': password,
-        'storeConfirmPassword': confirmPassword,
+      body: jsonEncode(<Object, Object>{
+        'storeEmail': storeEmail,
+        'menuItemName': menuItemName,
+        'menuItemDescription': menuItemDescription,
+        'menuItemImageLink': menuItemImageLink,
+        'menuItemIsAvaliable': menuItemIsAvaliable,
+        'menuItemPrice': menuItemPrice,
+        'menuItemCategory': menuItemCategory,
       }),
     );
 
@@ -91,9 +96,7 @@ Future<void> _showCompletedDialog(BuildContext context, String response) async {
                 Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => LoginPage(
-                        isSwitched: true,
-                      ),
+                      builder: (context) => const CompanyLoginPage(),
                     ),
                     (route) => false);
               },

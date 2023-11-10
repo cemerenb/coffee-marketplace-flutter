@@ -94,7 +94,9 @@ Future<void> _showCompletedDialog(BuildContext context, String response) async {
                 Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const LoginPage(),
+                      builder: (context) => LoginPage(
+                        isSwitched: false,
+                      ),
                     ),
                     (route) => false);
               },

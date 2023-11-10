@@ -1,111 +1,215 @@
-import 'package:coffee/pages/login/login_page.dart';
+import 'dart:convert';
+import 'dart:developer';
+
+import 'package:coffee/pages/company_pages/company_menu_page.dart';
+import 'package:coffee/pages/company_pages/company_orders_page.dart';
+import 'package:coffee/utils/classes/menu_class.dart';
+import 'package:coffee/utils/get_user/get_user_data.dart';
+import 'package:coffee/utils/log_out/log_out.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
-
-class Store {
-  final String storeName;
-  final String storeLogoLink;
-  final String openingTime;
-  final String closingTime;
-
-  Store({
-    required this.storeName,
-    required this.storeLogoLink,
-    required this.openingTime,
-    required this.closingTime,
-  });
-}
 
 class CompanyHomePage extends StatefulWidget {
   const CompanyHomePage({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
-  _CompanyHomePageState createState() => _CompanyHomePageState();
+  State<CompanyHomePage> createState() => _CompanyHomePageState();
 }
 
 class _CompanyHomePageState extends State<CompanyHomePage> {
-  List<Store> stores = [];
-  bool isLoading = true; // Added loading indicator state
+  List<Menu> menus = [];
+
+  late String email;
+  bool isLoading = true;
+  bool isLoadingPage2 = true;
 
   @override
   void initState() {
     super.initState();
-    fetchData();
+
+    fetchMenuData(getUserData()).then((success) async {
+      isLoadingPage2 = false;
+      email = await getUserData();
+    });
+    setState(() {});
   }
 
-  Future<void> fetchData() async {
-    final response = await http
-        .get(Uri.parse('https://192.168.0.28:7094/api/Store/get-all'));
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      setState(() {
-        stores = (data as List)
-            .map((storeData) {
-              if (storeData['storeOpeningTime'] != null) {
-                return Store(
-                  storeName: storeData['storeName'],
-                  storeLogoLink: storeData['storeLogoLink'],
-                  openingTime: storeData['storeOpeningTime'],
-                  closingTime: storeData['storeClosingTime'],
-                );
-              }
-              return null; // Skip this store
-            })
-            .where((store) => store != null)
-            .map((store) => store!)
-            .toList();
-        isLoading = false; // Data is loaded, set loading to false
-      });
-    }
-  }
+  int currentIndex = 1;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator()) // Show loading indicator
-          : stores.isNotEmpty
-              ? StoresListView(stores: stores)
-              : const Center(
-                  child: Text("There are no stores"),
-                ),
+      body: pageSelector(currentIndex),
+      bottomNavigationBar: bottomNavigationBar(),
     );
   }
-}
 
-class StoresListView extends StatelessWidget {
-  StoresListView({
-    super.key,
-    required this.stores,
-  });
+  Padding bottomNavigationBar() {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+        decoration: BoxDecoration(
+            color: const Color.fromARGB(255, 88, 88, 88).withOpacity(0.2),
+            borderRadius: BorderRadius.circular(20)),
+        height: 60,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white.withOpacity(0.2),
+                        shadowColor: Colors.transparent),
+                    onPressed: () async {
+                      currentIndex = 1;
 
-  final List<Store> stores;
+                      setState(() {});
+                    },
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Icon(Icons.list,
+                            size: currentIndex == 1 ? 30 : 35,
+                            color: currentIndex == 1
+                                ? Colors.brown.shade600
+                                : Colors.black),
+                        Container(
+                          height: 4,
+                          width: 30,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: currentIndex == 1
+                                  ? Colors.brown.shade600
+                                  : Colors.transparent),
+                        )
+                      ],
+                    )),
+                ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white.withOpacity(0.2),
+                        shadowColor: Colors.transparent),
+                    onPressed: () async {
+                      currentIndex = 2;
+                      setState(() {});
+                    },
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Icon(Icons.coffee,
+                            size: currentIndex == 2 ? 30 : 25,
+                            color: currentIndex == 2
+                                ? Colors.brown.shade600
+                                : Colors.black),
+                        Container(
+                          height: 4,
+                          width: 30,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: currentIndex == 2
+                                  ? Colors.brown.shade600
+                                  : Colors.transparent),
+                        )
+                      ],
+                    )),
+                ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white.withOpacity(0.2),
+                        shadowColor: Colors.transparent),
+                    onPressed: () {
+                      currentIndex = 3;
+                      setState(() {});
+                    },
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Icon(Icons.settings,
+                            size: currentIndex == 3 ? 30 : 25,
+                            color: currentIndex == 3
+                                ? Colors.brown.shade600
+                                : Colors.black),
+                        Container(
+                          height: 4,
+                          width: 30,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: currentIndex == 3
+                                  ? Colors.brown.shade600
+                                  : Colors.transparent),
+                        )
+                      ],
+                    )),
+              ]),
+        ),
+      ),
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    final filteredStores =
-        stores.where((store) => store.storeLogoLink.isNotEmpty).toList();
-
-    if (filteredStores.isEmpty) {
-      return Center(
-        child: Text("There is not any stores"),
-      );
-    } else {
-      return ListView.builder(
-          itemCount: filteredStores.length,
-          itemBuilder: (context, index) {
-            return Card(
-              child: ListTile(
-                leading: Image.network(stores[index].storeLogoLink),
-                title: Text(stores[index].storeName),
-                subtitle: Text(
-                    'Open: ${stores[index].openingTime} - Close: ${stores[index].closingTime}'),
-              ),
-            );
-          });
+  Widget pageSelector(int currentIndex) {
+    if (currentIndex == 1) {
+      return isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : const OrdersListView();
     }
+    if (currentIndex == 2) {
+      return isLoadingPage2
+          ? const Center(child: CircularProgressIndicator())
+          : MenusListView(
+              menus: menus,
+              email: email,
+            );
+    }
+    // Handle other pages as needed.
+    else {
+      return Center(
+        child: IconButton(
+            onPressed: () {
+              logOut(context);
+            },
+            icon: const Icon(Icons.logout)),
+      );
+    }
+  }
+
+  Future<void> fetchMenuData(email) async {
+    log(await email);
+    if (!isEmailValid(await email)) {
+      log('Invalid email address');
+      return;
+    }
+
+    try {
+      final response = await http
+          .get(Uri.parse('https://192.168.0.28:7094/api/Menu/get-all'));
+      log(response.body);
+      if (response.statusCode == 200) {
+        log(response.statusCode.toString());
+        final data = json.decode(response.body);
+
+        menus = (data as List).map((menuData) {
+          return Menu(
+            menuItemName: menuData['menuItemName'],
+            menuItemDescription: menuData['menuItemDescription'],
+            menuItemImageLink: menuData['menuItemImageLink'],
+            storeEmail: menuData['storeEmail'],
+            menuItemIsAvaliable: menuData['menuItemIsAvaliable'],
+            menuItemPrice: menuData['menuItemPrice'],
+            menuItemCategory: menuData['menuItemCategory'],
+          );
+        }).toList();
+        setState(() {});
+      } else {
+        log('Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      log('Error: $e');
+    }
+  }
+
+  bool isEmailValid(String email) {
+    final emailRegex =
+        RegExp(r'^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$');
+    return emailRegex.hasMatch(email);
   }
 }

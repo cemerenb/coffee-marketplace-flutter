@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:coffee/pages/company_pages/company_home_page.dart';
+import 'package:coffee/pages/customer_pages/customer_main_page.dart';
 import 'package:coffee/pages/login/login_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
@@ -38,7 +38,7 @@ class LoginApi {
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-              builder: (context) => const CompanyHomePage(),
+              builder: (context) => const CustomerHomePage(),
             ),
             (route) => false);
       }

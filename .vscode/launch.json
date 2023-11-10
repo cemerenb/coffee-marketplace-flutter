@@ -1,28 +1,28 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "coffee",
-            "cwd": "coffee",
-            "request": "launch",
-            "type": "dart"
-        },
-        {
-            "name": "coffee (profile mode)",
-            "cwd": "coffee",
+            "name": "",
+            "cwd": "",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "profile"
+            "program": "lib/main.dart" // Specify the entry point of your app
         },
         {
-            "name": "coffee (release mode)",
-            "cwd": "coffee",
+            "name": " (profile mode)",
+            "cwd": "",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "release"
+            "flutterMode": "profile",
+            "program": "lib/main.dart" // Specify the entry point of your app
+        },
+        {
+            "name": " (release mode)",
+            "cwd": "",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+            "program": "lib/main.dart" // Specify the entry point of your app
         }
     ]
 }
