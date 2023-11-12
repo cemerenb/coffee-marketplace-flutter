@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:developer';
 
 import 'package:coffee/pages/company_pages/company_home_page.dart';
+import 'package:coffee/pages/company_pages/add_product.dart';
 import 'package:coffee/pages/customer_pages/customer_main_page.dart';
 import 'package:coffee/pages/login/login_page.dart';
 import 'package:coffee/utils/database_operations/login_company.dart';
@@ -30,22 +31,34 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   @override
-  void initState() {
-    super.initState();
-    checkUser(context);
-  }
-
-  @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Flutter Demo',
-        scaffoldMessengerKey: scaffoldMessengerKey,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.black, primary: Colors.black),
-          useMaterial3: true,
+      title: 'Flutter Demo',
+      scaffoldMessengerKey: scaffoldMessengerKey,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.black,
+          primary: Colors.black,
         ),
-        home: pageSelector());
+        useMaterial3: true,
+      ),
+      home: FutureBuilder(
+        future: checkUser(context),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return const AddNewProduct(
+              email: 'cemerenbadur@hotmail.com',
+            );
+          } else {
+            return const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+        },
+      ),
+    );
   }
 }
 
@@ -58,16 +71,14 @@ class MyHttpOverrides extends HttpOverrides {
   }
 }
 
-void checkUser(BuildContext context) async {
+Future<void> checkUser(context) async {
   final prefs = await SharedPreferences.getInstance();
   final userEmail = prefs.getString('email');
   final userPassword = prefs.getString('password');
   final accountType = prefs.getString('accountType');
 
   log(userEmail.toString());
-
   log(userPassword.toString());
-
   log(accountType.toString());
 
   if (accountType == 'customer' &&

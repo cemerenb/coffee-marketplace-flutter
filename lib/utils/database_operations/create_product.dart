@@ -15,8 +15,13 @@ class CreateProductApi {
     int menuItemPrice,
     int menuItemCategory,
   ) async {
+    if (menuItemName.isEmpty ||
+        menuItemDescription.isEmpty ||
+        menuItemImageLink.isEmpty) {
+      return (false, 'One or more field is empty. Please try again.');
+    }
     final response = await http.post(
-      Uri.parse('https://192.168.0.28:7094/api/Store/register'),
+      Uri.parse('https://localhost:7094/api/Menu/create'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },
@@ -32,7 +37,7 @@ class CreateProductApi {
     );
 
     if (response.statusCode == 200) {
-      log('Successfully registered');
+      log('Item successfully added to menu');
       return (true, response.body);
     } else {
       log('Error');

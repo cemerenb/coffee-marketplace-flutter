@@ -15,7 +15,7 @@ class CompanyLoginApi {
     String password,
   ) async {
     final response = await http.post(
-      Uri.parse('https://192.168.0.28:7094/api/Store/login'),
+      Uri.parse('https://localhost:7094/api/Store/login'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },

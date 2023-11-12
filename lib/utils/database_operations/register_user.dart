@@ -19,7 +19,7 @@ class RegistrationApi {
       String confirmPassword) async {
     final response = await http.post(
       Uri.parse(
-          'https://192.168.0.28:7094/api/User/register'), // Replace with your registration API endpoint
+          'https://localhost:7094/api/User/register'), // Replace with your registration API endpoint
       headers: <String, String>{
         'Content-Type': 'application/json',
       },

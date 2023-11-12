@@ -1,3 +1,4 @@
+import 'package:coffee/pages/company_pages/add_product.dart';
 import 'package:coffee/pages/company_pages/widgets/product_details.dart';
 import 'package:coffee/utils/classes/menu_class.dart';
 import 'package:flutter/material.dart';
@@ -44,7 +45,13 @@ class _MenusListViewState extends State<MenusListView> {
             categoryItem(4),
             const Spacer(),
             IconButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddNewProduct(email: widget.email),
+                    ));
+              },
               icon: const Icon(
                 Icons.add,
                 color: Colors.black,

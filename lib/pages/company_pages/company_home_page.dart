@@ -26,7 +26,7 @@ class _CompanyHomePageState extends State<CompanyHomePage> {
   @override
   void initState() {
     super.initState();
-
+    log('Company Home Page');
     fetchMenuData(getUserData()).then((success) async {
       isLoadingPage2 = false;
       email = await getUserData();
@@ -155,9 +155,12 @@ class _CompanyHomePageState extends State<CompanyHomePage> {
     if (currentIndex == 2) {
       return isLoadingPage2
           ? const Center(child: CircularProgressIndicator())
-          : MenusListView(
-              menus: menus,
-              email: email,
+          : Padding(
+              padding: const EdgeInsets.all(0.0),
+              child: MenusListView(
+                menus: menus,
+                email: email,
+              ),
             );
     }
     // Handle other pages as needed.
@@ -180,8 +183,8 @@ class _CompanyHomePageState extends State<CompanyHomePage> {
     }
 
     try {
-      final response = await http
-          .get(Uri.parse('https://192.168.0.28:7094/api/Menu/get-all'));
+      final response =
+          await http.get(Uri.parse('https://localhost:7094/api/Menu/get-all'));
 
       if (response.statusCode == 200) {
         log(response.statusCode.toString());

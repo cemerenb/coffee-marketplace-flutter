@@ -157,8 +157,8 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
   }
 
   Future<void> fetchData() async {
-    final response = await http
-        .get(Uri.parse('https://192.168.0.28:7094/api/Store/get-all'));
+    final response =
+        await http.get(Uri.parse('https://localhost:7094/api/Store/get-all'));
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       setState(() {
