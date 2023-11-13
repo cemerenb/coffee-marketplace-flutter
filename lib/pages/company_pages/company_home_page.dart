@@ -9,11 +9,13 @@ import 'package:coffee/utils/log_out/log_out.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+// ignore: must_be_immutable
 class CompanyHomePage extends StatefulWidget {
-  const CompanyHomePage({super.key});
+  CompanyHomePage({super.key, required this.currentIndex});
 
   @override
   State<CompanyHomePage> createState() => _CompanyHomePageState();
+  late int currentIndex;
 }
 
 class _CompanyHomePageState extends State<CompanyHomePage> {
@@ -34,12 +36,10 @@ class _CompanyHomePageState extends State<CompanyHomePage> {
     setState(() {});
   }
 
-  int currentIndex = 1;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: pageSelector(currentIndex),
+      body: pageSelector(widget.currentIndex),
       bottomNavigationBar: bottomNavigationBar(),
     );
   }
@@ -63,7 +63,7 @@ class _CompanyHomePageState extends State<CompanyHomePage> {
                         backgroundColor: Colors.white.withOpacity(0.2),
                         shadowColor: Colors.transparent),
                     onPressed: () async {
-                      currentIndex = 1;
+                      widget.currentIndex = 1;
 
                       setState(() {});
                     },
@@ -71,8 +71,8 @@ class _CompanyHomePageState extends State<CompanyHomePage> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Icon(Icons.list,
-                            size: currentIndex == 1 ? 30 : 35,
-                            color: currentIndex == 1
+                            size: widget.currentIndex == 1 ? 30 : 35,
+                            color: widget.currentIndex == 1
                                 ? Colors.brown.shade600
                                 : Colors.black),
                         Container(
@@ -80,7 +80,7 @@ class _CompanyHomePageState extends State<CompanyHomePage> {
                           width: 30,
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
-                              color: currentIndex == 1
+                              color: widget.currentIndex == 1
                                   ? Colors.brown.shade600
                                   : Colors.transparent),
                         )
@@ -91,15 +91,15 @@ class _CompanyHomePageState extends State<CompanyHomePage> {
                         backgroundColor: Colors.white.withOpacity(0.2),
                         shadowColor: Colors.transparent),
                     onPressed: () async {
-                      currentIndex = 2;
+                      widget.currentIndex = 2;
                       setState(() {});
                     },
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Icon(Icons.coffee,
-                            size: currentIndex == 2 ? 30 : 25,
-                            color: currentIndex == 2
+                            size: widget.currentIndex == 2 ? 30 : 25,
+                            color: widget.currentIndex == 2
                                 ? Colors.brown.shade600
                                 : Colors.black),
                         Container(
@@ -107,7 +107,7 @@ class _CompanyHomePageState extends State<CompanyHomePage> {
                           width: 30,
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
-                              color: currentIndex == 2
+                              color: widget.currentIndex == 2
                                   ? Colors.brown.shade600
                                   : Colors.transparent),
                         )
@@ -118,15 +118,15 @@ class _CompanyHomePageState extends State<CompanyHomePage> {
                         backgroundColor: Colors.white.withOpacity(0.2),
                         shadowColor: Colors.transparent),
                     onPressed: () {
-                      currentIndex = 3;
+                      widget.currentIndex = 3;
                       setState(() {});
                     },
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Icon(Icons.settings,
-                            size: currentIndex == 3 ? 30 : 25,
-                            color: currentIndex == 3
+                            size: widget.currentIndex == 3 ? 30 : 25,
+                            color: widget.currentIndex == 3
                                 ? Colors.brown.shade600
                                 : Colors.black),
                         Container(
@@ -134,7 +134,7 @@ class _CompanyHomePageState extends State<CompanyHomePage> {
                           width: 30,
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
-                              color: currentIndex == 3
+                              color: widget.currentIndex == 3
                                   ? Colors.brown.shade600
                                   : Colors.transparent),
                         )
@@ -183,8 +183,8 @@ class _CompanyHomePageState extends State<CompanyHomePage> {
     }
 
     try {
-      final response =
-          await http.get(Uri.parse('https://localhost:7094/api/Menu/get-all'));
+      final response = await http
+          .get(Uri.parse('http://192.168.0.28:7094/api/Menu/get-all'));
 
       if (response.statusCode == 200) {
         log(response.statusCode.toString());

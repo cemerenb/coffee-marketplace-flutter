@@ -267,7 +267,9 @@ class _CompanyLoginPageState extends State<CompanyLoginPage> {
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
-            builder: (context) => const CompanyHomePage(),
+            builder: (context) => CompanyHomePage(
+              currentIndex: 1,
+            ),
           ),
           (route) => false);
     }

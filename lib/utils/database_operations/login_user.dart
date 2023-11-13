@@ -16,7 +16,7 @@ class LoginApi {
     String password,
   ) async {
     final response = await http.post(
-      Uri.parse('https://localhost:7094/api/User/login'),
+      Uri.parse('http://192.168.0.28:7094/api/User/login'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },
@@ -44,7 +44,7 @@ class LoginApi {
       }
 
       return true;
-    } else {
+    } else if (response.statusCode != 200 && context.mounted) {
       _showErrorDialog(context, response.statusCode.toString());
     }
 

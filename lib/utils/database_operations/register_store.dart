@@ -16,7 +16,7 @@ class StoreRegistrationApi {
       String password,
       String confirmPassword) async {
     final response = await http.post(
-      Uri.parse('https://localhost:7094/api/Store/register'),
+      Uri.parse('http://192.168.0.28:7094/api/Store/register'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },

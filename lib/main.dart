@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:developer';
 
 import 'package:coffee/pages/company_pages/company_home_page.dart';
-import 'package:coffee/pages/company_pages/add_product.dart';
 import 'package:coffee/pages/customer_pages/customer_main_page.dart';
 import 'package:coffee/pages/login/login_page.dart';
 import 'package:coffee/utils/database_operations/login_company.dart';
@@ -46,9 +45,7 @@ class _MyAppState extends State<MyApp> {
         future: checkUser(context),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return const AddNewProduct(
-              email: 'cemerenbadur@hotmail.com',
-            );
+            return pageSelector();
           } else {
             return const Scaffold(
               body: Center(
@@ -113,6 +110,8 @@ Widget pageSelector() {
       return const CustomerHomePage();
 
     case PageEnum.companyHomePage:
-      return const CompanyHomePage();
+      return CompanyHomePage(
+        currentIndex: 1,
+      );
   }
 }

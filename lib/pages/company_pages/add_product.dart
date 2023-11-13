@@ -73,21 +73,31 @@ class _AddNewProductState extends State<AddNewProduct> {
                       ElevatedButton(
                         onPressed: () async {
                           if (widget.email.isNotEmpty &&
-                              productNameController.text.isNotEmpty) {}
-                          var (isSuccess, responseMessage) =
-                              await CreateProductApi().createProduct(
-                                  widget.email,
-                                  productNameController.text,
-                                  descriptionController.text,
-                                  imageUrl,
-                                  1,
-                                  int.parse(priceController.text),
-                                  chosenCategory);
-                          if (isSuccess && context.mounted) {
-                            Dialogs.showCompletedDialog(
-                                context, responseMessage);
+                              productNameController.text.isNotEmpty &&
+                              descriptionController.text.isNotEmpty &&
+                              imageUrl.isNotEmpty &&
+                              priceController.text.isNotEmpty) {
+                            log(widget.email);
+                            log(int.parse(priceController.text).toString());
+                            var (isSuccess, responseMessage) =
+                                await CreateProductApi().createProduct(
+                                    widget.email,
+                                    productNameController.text,
+                                    descriptionController.text,
+                                    imageUrl,
+                                    "1",
+                                    1,
+                                    int.parse(priceController.text),
+                                    chosenCategory);
+                            if (isSuccess && context.mounted) {
+                              Dialogs.showProductCreatedDialog(
+                                  context, responseMessage);
+                            } else {
+                              Dialogs.showErrorDialog(context, responseMessage);
+                            }
                           } else {
-                            Dialogs.showErrorDialog(context, responseMessage);
+                            Dialogs.showErrorDialog(context,
+                                'One or mor field empty. Please try again');
                           }
                         },
                         child: const Padding(
@@ -185,7 +195,6 @@ class _AddNewProductState extends State<AddNewProduct> {
       padding: const EdgeInsets.symmetric(vertical: 18.0),
       child: Container(
         width: MediaQuery.of(context).size.width / 2.5,
-        height: 55,
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
             border: Border.all(

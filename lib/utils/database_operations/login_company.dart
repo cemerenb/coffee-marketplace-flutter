@@ -15,7 +15,7 @@ class CompanyLoginApi {
     String password,
   ) async {
     final response = await http.post(
-      Uri.parse('https://localhost:7094/api/Store/login'),
+      Uri.parse('http://192.168.0.28:7094/api/Store/login'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },
@@ -32,14 +32,17 @@ class CompanyLoginApi {
       if (prefs.getString('email') == null &&
           prefs.getString('password') == null) {
         await prefs.setString('email', email);
-        await prefs.setString('password', password);
+        await prefs.setString(
+          'password',
+          password,
+        );
         if (context.mounted) {
           emailController.text = "";
           passwordController.text = "";
         }
       }
       return true;
-    } else {
+    } else if (response.statusCode != 200 && context.mounted) {
       _showErrorDialog(context, response.statusCode.toString());
     }
 

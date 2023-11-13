@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import '../../../utils/classes/menu_class.dart';
 
 class ProductDetails extends StatelessWidget {
-  const ProductDetails({super.key, required this.menus});
+  const ProductDetails({super.key, required this.index, required this.menus});
   final List<Menu> menus;
+  final int index;
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +16,7 @@ class ProductDetails extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Image.network(
-              menus[0].menuItemImageLink,
+              menus[index].menuItemImageLink,
               width: 200,
             ),
           ],

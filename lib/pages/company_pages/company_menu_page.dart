@@ -22,80 +22,87 @@ class _MenusListViewState extends State<MenusListView> {
   bool visibility2 = false;
   bool visibility3 = false;
   bool visibility4 = false;
-
+  int count = 0;
   @override
   Widget build(BuildContext context) {
-    bool isFound2 = widget.menus
-            .where((element) => element.storeEmail == widget.email)
-            .isNotEmpty &&
-        widget.menus
-            .where((element) => element.menuItemCategory == category)
-            .isNotEmpty;
-
-    return Column(
-      children: [
-        const SizedBox(
-          height: 50,
-        ),
-        Row(
-          children: [
-            categoryItem(1),
-            categoryItem(2),
-            categoryItem(3),
-            categoryItem(4),
-            const Spacer(),
-            IconButton(
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AddNewProduct(email: widget.email),
-                    ));
-              },
-              icon: const Icon(
-                Icons.add,
-                color: Colors.black,
-              ),
-            )
-          ],
-        ),
-        if (isFound2)
-          ListView.builder(
-            shrinkWrap: true,
-            itemCount: widget.menus.length,
-            itemBuilder: (context, index) {
-              return Card(
-                child: ListTile(
-                  onTap: () {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: Column(
+        children: [
+          const SizedBox(
+            height: 50,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 20.0),
+            child: Row(
+              children: [
+                categoryItem(1),
+                categoryItem(2),
+                categoryItem(3),
+                categoryItem(4),
+                const Spacer(),
+                IconButton(
+                  onPressed: () {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ProductDetails(
-                            menus: widget.menus,
-                          ),
+                          builder: (context) =>
+                              AddNewProduct(email: widget.email),
                         ));
                   },
-                  leading: FadeInImage(
-                    placeholder:
-                        const AssetImage('assets/img/placeholder_image.png'),
-                    image: NetworkImage(widget.menus[index].menuItemImageLink),
-                    fit: BoxFit.cover,
+                  icon: const Icon(
+                    Icons.add,
+                    color: Colors.black,
                   ),
-                  title: Text(widget.menus[index].menuItemName),
-                  subtitle: Text(widget.menus[index].menuItemDescription),
-                  trailing: Text(
-                    "${widget.menus[index].menuItemPrice} ₺",
-                    style: const TextStyle(fontSize: 20),
-                  ),
-                ),
-              );
-            },
-          )
-        else
-          const Center(
-            child: Text('No item found'),
+                )
+              ],
+            ),
           ),
-      ],
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10.0),
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: widget.menus.length,
+              itemBuilder: (context, index) {
+                if (widget.menus[index].storeEmail == widget.email &&
+                    widget.menus[index].menuItemCategory == category) {
+                  return Card(
+                    child: ListTile(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProductDetails(
+                                index: index,
+                                menus: widget.menus,
+                              ),
+                            ));
+                      },
+                      leading: FadeInImage(
+                        placeholder: const AssetImage(
+                            'assets/img/placeholder_image.png'),
+                        image:
+                            NetworkImage(widget.menus[index].menuItemImageLink),
+                        fit: BoxFit.cover,
+                      ),
+                      title: Text(widget.menus[index].menuItemName),
+                      subtitle: Text(
+                        widget.menus[index].menuItemDescription,
+                        style: const TextStyle(fontSize: 10),
+                      ),
+                      trailing: Text(
+                        "${widget.menus[index].menuItemPrice} ₺",
+                        style: const TextStyle(fontSize: 25),
+                      ),
+                    ),
+                  );
+                }
+                return const SizedBox();
+              },
+            ),
+          )
+        ],
+      ),
     );
   }
 

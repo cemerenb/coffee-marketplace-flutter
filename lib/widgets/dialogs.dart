@@ -1,3 +1,4 @@
+import 'package:coffee/pages/company_pages/company_home_page.dart';
 import 'package:coffee/pages/login/login_page.dart';
 import 'package:flutter/material.dart';
 
@@ -51,6 +52,37 @@ class Dialogs {
                       MaterialPageRoute(
                         builder: (context) => LoginPage(isSwitched: false),
                       ),
+                      (route) => false);
+                },
+              ),
+            ],
+          );
+        });
+  }
+
+  static Future<void> showProductCreatedDialog(
+      BuildContext context, String response) async {
+    return showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Text(response),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Okay'),
+                onPressed: () {
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              CompanyHomePage(currentIndex: 2)),
                       (route) => false);
                 },
               ),
