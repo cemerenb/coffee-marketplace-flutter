@@ -262,7 +262,7 @@ class _CompanyLoginPageState extends State<CompanyLoginPage> {
           context,
           MaterialPageRoute(
             builder: (context) => CompanyHomePage(
-              currentIndex: 1,
+              currentIndex: 3,
               email: companyEmailController.text,
             ),
           ),
