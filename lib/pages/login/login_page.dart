@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:ui';
 
 import 'package:coffee/pages/Login/widgets/customer/dont_have_account.dart';
@@ -158,9 +157,6 @@ class _PersonLoginPageState extends State<PersonLoginPage> {
                     onPressed: () {
                       setState(() {
                         isLoggingIn = true;
-
-                        log(emailController.text);
-                        log(passwordController.text);
                       });
 
                       LoginApi()
@@ -242,8 +238,6 @@ class _CompanyLoginPageState extends State<CompanyLoginPage> {
   void onCompanyLoginPressed() async {
     setState(() {
       isLoggingIn = true;
-      log(companyEmailController.text);
-      log(companyPasswordController.text);
     });
 
     final success = await CompanyLoginApi().loginCompany(
@@ -269,6 +263,7 @@ class _CompanyLoginPageState extends State<CompanyLoginPage> {
           MaterialPageRoute(
             builder: (context) => CompanyHomePage(
               currentIndex: 1,
+              email: companyEmailController.text,
             ),
           ),
           (route) => false);

@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 enum PageEnum { loginPage, companyHomePage, customerHomePage }
 
+late String email;
 PageEnum page = PageEnum.loginPage;
 void main() {
   HttpOverrides.global = MyHttpOverrides();
@@ -84,10 +85,8 @@ Future<void> checkUser(context) async {
       context.mounted) {
     if (await LoginApi().loginUser(context, userEmail, userPassword)) {
       page = PageEnum.customerHomePage;
-      log(userEmail);
-      log(userPassword);
-      log(accountType.toString());
     }
+    email = userEmail;
   } else if (accountType == 'company' &&
       userEmail != null &&
       userPassword != null &&
@@ -96,6 +95,7 @@ Future<void> checkUser(context) async {
         .loginCompany(context, userEmail, userPassword)) {
       page = PageEnum.companyHomePage;
     }
+    email = userEmail;
   } else {
     page = PageEnum.loginPage;
   }
@@ -112,6 +112,7 @@ Widget pageSelector() {
     case PageEnum.companyHomePage:
       return CompanyHomePage(
         currentIndex: 1,
+        email: email,
       );
   }
 }

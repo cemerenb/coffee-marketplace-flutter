@@ -16,6 +16,12 @@ class MenusListView extends StatefulWidget {
 }
 
 class _MenusListViewState extends State<MenusListView> {
+  @override
+  void initState() {
+    super.initState();
+    setState(() {});
+  }
+
   bool isFound = false;
   int category = 1;
   bool visibility1 = true;

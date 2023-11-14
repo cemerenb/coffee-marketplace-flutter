@@ -3,36 +3,40 @@ import 'dart:developer';
 
 import 'package:coffee/pages/company_pages/company_menu_page.dart';
 import 'package:coffee/pages/company_pages/company_orders_page.dart';
+import 'package:coffee/pages/company_pages/company_settings.dart';
 import 'package:coffee/utils/classes/menu_class.dart';
 import 'package:coffee/utils/get_user/get_user_data.dart';
-import 'package:coffee/utils/log_out/log_out.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import '../../utils/classes/stores.dart';
+
 // ignore: must_be_immutable
 class CompanyHomePage extends StatefulWidget {
-  CompanyHomePage({super.key, required this.currentIndex});
+  CompanyHomePage({super.key, required this.currentIndex, required this.email});
 
   @override
   State<CompanyHomePage> createState() => _CompanyHomePageState();
   late int currentIndex;
+  late String email;
 }
 
 class _CompanyHomePageState extends State<CompanyHomePage> {
   List<Menu> menus = [];
-
-  late String email;
+  List<Store> store = [];
   bool isLoading = true;
   bool isLoadingPage2 = true;
 
   @override
   void initState() {
     super.initState();
+
     log('Company Home Page');
-    fetchMenuData(getUserData()).then((success) async {
+    fetchMenuData().then((success) async {
       isLoadingPage2 = false;
-      email = await getUserData();
     });
+    fetchStoreData().then((success) async {});
+
     setState(() {});
   }
 
@@ -159,29 +163,25 @@ class _CompanyHomePageState extends State<CompanyHomePage> {
               padding: const EdgeInsets.all(0.0),
               child: MenusListView(
                 menus: menus,
-                email: email,
+                email: widget.email,
               ),
             );
     }
     // Handle other pages as needed.
     else {
-      return Center(
-        child: IconButton(
-            onPressed: () {
-              logOut(context);
-            },
-            icon: const Icon(Icons.logout)),
-      );
+      return isLoadingPage2
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(0.0),
+              child: StoreInfoPage(
+                store: store,
+                email: widget.email,
+              ),
+            );
     }
   }
 
-  Future<void> fetchMenuData(email) async {
-    log(await email);
-    if (!isEmailValid(await email)) {
-      log('Invalid email address');
-      return;
-    }
-
+  Future<void> fetchMenuData() async {
     try {
       final response = await http
           .get(Uri.parse('http://192.168.0.28:7094/api/Menu/get-all'));
@@ -201,6 +201,41 @@ class _CompanyHomePageState extends State<CompanyHomePage> {
             menuItemCategory: menuData['menuItemCategory'],
           );
         }).toList();
+        setState(() {});
+      } else {
+        log('Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      log('Error: $e');
+    }
+  }
+
+  Future<void> fetchStoreData() async {
+    final String email = await getUserData(0);
+    log('Fetch Store $email');
+    try {
+      final response = await http
+          .get(Uri.parse('http://192.168.0.28:7094/api/Store/get-all'));
+
+      if (response.statusCode == 200) {
+        log(response.statusCode.toString());
+        final data = json.decode(response.body);
+
+        // Filter the list based on the provided email
+        store = (data as List)
+            .map((storeData) {
+              return Store(
+                storeEmail: storeData['storeEmail'],
+                storeLogoLink: storeData['storeLogoLink'],
+                storeName: storeData['storeName'],
+                storeTaxId: storeData['storeTaxId'],
+                openingTime: storeData['storeOpeningTime'],
+                closingTime: storeData['storeClosingTime'],
+              );
+            })
+            .where((store) => store.storeEmail == email)
+            .toList();
+        log(store.length.toString());
         setState(() {});
       } else {
         log('Error: ${response.statusCode}');

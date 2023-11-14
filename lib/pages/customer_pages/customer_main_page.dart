@@ -1,8 +1,8 @@
-import 'dart:convert';
 import 'package:coffee/pages/customer_pages/customer_list_stores.dart';
-import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
+
+import '../../utils/classes/stores.dart';
 
 class CustomerHomePage extends StatefulWidget {
   const CustomerHomePage({super.key});
@@ -11,27 +11,12 @@ class CustomerHomePage extends StatefulWidget {
   State<CustomerHomePage> createState() => _CustomerHomePageState();
 }
 
-class Store {
-  final String storeName;
-  final String storeLogoLink;
-  final String openingTime;
-  final String closingTime;
-
-  Store({
-    required this.storeName,
-    required this.storeLogoLink,
-    required this.openingTime,
-    required this.closingTime,
-  });
-}
-
 class _CustomerHomePageState extends State<CustomerHomePage> {
   List<Store> stores = [];
   bool isLoading = true;
   @override
   void initState() {
     super.initState();
-    fetchData();
   }
 
   int currentIndex = 1;
@@ -153,32 +138,6 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
       return const Column();
     } else {
       return const Column();
-    }
-  }
-
-  Future<void> fetchData() async {
-    final response =
-        await http.get(Uri.parse('http://192.168.0.28:7094/api/Store/get-all'));
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      setState(() {
-        stores = (data as List)
-            .map((storeData) {
-              if (storeData['storeOpeningTime'] != null) {
-                return Store(
-                  storeName: storeData['storeName'],
-                  storeLogoLink: storeData['storeLogoLink'],
-                  openingTime: storeData['storeOpeningTime'],
-                  closingTime: storeData['storeClosingTime'],
-                );
-              }
-              return null; // Skip this store
-            })
-            .where((store) => store != null)
-            .map((store) => store!)
-            .toList();
-        isLoading = false; // Data is loaded, set loading to false
-      });
     }
   }
 }

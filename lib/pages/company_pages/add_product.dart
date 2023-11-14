@@ -77,8 +77,6 @@ class _AddNewProductState extends State<AddNewProduct> {
                               descriptionController.text.isNotEmpty &&
                               imageUrl.isNotEmpty &&
                               priceController.text.isNotEmpty) {
-                            log(widget.email);
-                            log(int.parse(priceController.text).toString());
                             var (isSuccess, responseMessage) =
                                 await CreateProductApi().createProduct(
                                     widget.email,
@@ -91,7 +89,7 @@ class _AddNewProductState extends State<AddNewProduct> {
                                     chosenCategory);
                             if (isSuccess && context.mounted) {
                               Dialogs.showProductCreatedDialog(
-                                  context, responseMessage);
+                                  context, responseMessage, widget.email);
                             } else {
                               Dialogs.showErrorDialog(context, responseMessage);
                             }

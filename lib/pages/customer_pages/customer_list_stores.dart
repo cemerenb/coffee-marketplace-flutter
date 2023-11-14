@@ -1,5 +1,6 @@
-import 'package:coffee/pages/customer_pages/customer_main_page.dart';
 import 'package:flutter/material.dart';
+
+import '../../utils/classes/stores.dart';
 
 // ignore: must_be_immutable
 class StoresListView extends StatelessWidget {

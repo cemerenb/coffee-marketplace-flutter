@@ -61,33 +61,37 @@ class Dialogs {
   }
 
   static Future<void> showProductCreatedDialog(
-      BuildContext context, String response) async {
-    return showDialog<void>(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            content: SingleChildScrollView(
-              child: ListBody(
-                children: <Widget>[
-                  Text(response),
-                ],
+      BuildContext context, String response, String email) async {
+    if (context.mounted) {
+      return showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    Text(response),
+                  ],
+                ),
               ),
-            ),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('Okay'),
-                onPressed: () {
-                  Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              CompanyHomePage(currentIndex: 2)),
-                      (route) => false);
-                },
-              ),
-            ],
-          );
-        });
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('Okay'),
+                  onPressed: () {
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => CompanyHomePage(
+                                  currentIndex: 2,
+                                  email: email,
+                                )),
+                        (route) => false);
+                  },
+                ),
+              ],
+            );
+          });
+    }
   }
 }
