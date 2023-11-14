@@ -1,4 +1,4 @@
-import 'package:coffee/pages/company_pages/company_home_page.dart';
+import 'package:coffee/pages/company_pages/company_orders_page.dart';
 import 'package:coffee/pages/login/login_page.dart';
 import 'package:flutter/material.dart';
 
@@ -82,10 +82,7 @@ class Dialogs {
                     Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => CompanyHomePage(
-                                  currentIndex: 2,
-                                  email: email,
-                                )),
+                            builder: (context) => const OrdersListView()),
                         (route) => false);
                   },
                 ),

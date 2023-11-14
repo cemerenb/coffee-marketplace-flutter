@@ -100,14 +100,9 @@ class _AddNewProductState extends State<AddNewProduct> {
                         },
                         child: const Padding(
                           padding: EdgeInsets.all(8.0),
-                          child: Row(
-                            children: [
-                              Text(
-                                'Add Item',
-                                style: TextStyle(fontSize: 16),
-                              ),
-                              Icon(Icons.add)
-                            ],
+                          child: Text(
+                            'Add item',
+                            style: TextStyle(fontSize: 16),
                           ),
                         ),
                       ),

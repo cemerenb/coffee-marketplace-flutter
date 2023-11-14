@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:developer';
 
-import 'package:coffee/pages/company_pages/company_home_page.dart';
+import 'package:coffee/pages/company_pages/company_orders_page.dart';
 import 'package:coffee/pages/customer_pages/customer_main_page.dart';
 import 'package:coffee/pages/login/login_page.dart';
 import 'package:coffee/utils/database_operations/login_company.dart';
@@ -12,7 +12,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 enum PageEnum { loginPage, companyHomePage, customerHomePage }
 
 late String email;
-PageEnum page = PageEnum.loginPage;
 void main() {
   HttpOverrides.global = MyHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,30 +32,16 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      scaffoldMessengerKey: scaffoldMessengerKey,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.black,
-          primary: Colors.black,
+        title: 'Flutter Demo',
+        scaffoldMessengerKey: scaffoldMessengerKey,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.black,
+            primary: Colors.black,
+          ),
+          useMaterial3: true,
         ),
-        useMaterial3: true,
-      ),
-      home: FutureBuilder(
-        future: checkUser(context),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return pageSelector();
-          } else {
-            return const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
-            );
-          }
-        },
-      ),
-    );
+        home: const PageNavigator());
   }
 }
 
@@ -69,50 +54,68 @@ class MyHttpOverrides extends HttpOverrides {
   }
 }
 
-Future<void> checkUser(context) async {
-  final prefs = await SharedPreferences.getInstance();
-  final userEmail = prefs.getString('email');
-  final userPassword = prefs.getString('password');
-  final accountType = prefs.getString('accountType');
+class PageNavigator extends StatefulWidget {
+  const PageNavigator({super.key});
 
-  log(userEmail.toString());
-  log(userPassword.toString());
-  log(accountType.toString());
-
-  if (accountType == 'customer' &&
-      userEmail != null &&
-      userPassword != null &&
-      context.mounted) {
-    if (await LoginApi().loginUser(context, userEmail, userPassword)) {
-      page = PageEnum.customerHomePage;
-    }
-    email = userEmail;
-  } else if (accountType == 'company' &&
-      userEmail != null &&
-      userPassword != null &&
-      context.mounted) {
-    if (await CompanyLoginApi()
-        .loginCompany(context, userEmail, userPassword)) {
-      page = PageEnum.companyHomePage;
-    }
-    email = userEmail;
-  } else {
-    page = PageEnum.loginPage;
-  }
+  @override
+  State<PageNavigator> createState() => _PageNavigatorState();
 }
 
-Widget pageSelector() {
-  switch (page) {
-    case PageEnum.loginPage:
-      return LoginPage(isSwitched: false);
+class _PageNavigatorState extends State<PageNavigator> {
+  PageEnum page = PageEnum.loginPage;
 
-    case PageEnum.customerHomePage:
-      return const CustomerHomePage();
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: checkUser(context),
+      builder: (context, snapshot) {
+        return pageSelector();
+      },
+    );
+  }
 
-    case PageEnum.companyHomePage:
-      return CompanyHomePage(
-        currentIndex: 1,
-        email: email,
-      );
+  Future<void> checkUser(context) async {
+    final prefs = await SharedPreferences.getInstance();
+    final userEmail = prefs.getString('email');
+    final userPassword = prefs.getString('password');
+    final accountType = prefs.getString('accountType');
+
+    log(userEmail.toString());
+    log(userPassword.toString());
+    log(accountType.toString());
+
+    if (accountType == 'customer' &&
+        userEmail != null &&
+        userPassword != null &&
+        context.mounted) {
+      if (await LoginApi().loginUser(context, userEmail, userPassword)) {
+        page = PageEnum.customerHomePage;
+      }
+      email = userEmail;
+    } else if (accountType == 'company' &&
+        userEmail != null &&
+        userPassword != null &&
+        context.mounted) {
+      if (await CompanyLoginApi()
+          .loginCompany(context, userEmail, userPassword)) {
+        page = PageEnum.companyHomePage;
+      }
+      email = userEmail;
+    } else {
+      page = PageEnum.loginPage;
+    }
+  }
+
+  Widget pageSelector() {
+    switch (page) {
+      case PageEnum.loginPage:
+        return LoginPage(isSwitched: false);
+
+      case PageEnum.customerHomePage:
+        return const CustomerHomePage();
+
+      case PageEnum.companyHomePage:
+        return const OrdersListView();
+    }
   }
 }

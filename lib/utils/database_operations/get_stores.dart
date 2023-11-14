@@ -23,6 +23,7 @@ class ApiService {
               storeName: data['storeName'],
               storeTaxId: data['storeTaxId'],
               storeLogoLink: data['storeLogoLink'],
+              storeIsOn: data['storeIsOn'],
               openingTime: data['openingTime'],
               closingTime: data['closingTime'],
             );
@@ -38,6 +39,7 @@ class ApiService {
               storeName: storeData['storeName'],
               storeTaxId: storeData['storeTaxId'],
               storeLogoLink: storeData['storeLogoLink'],
+              storeIsOn: storeData['storeIsOn'],
               openingTime: storeData['openingTime'],
               closingTime: storeData['closingTime'],
             );

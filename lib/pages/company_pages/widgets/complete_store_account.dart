@@ -13,16 +13,14 @@ class CompleteAccount extends StatefulWidget {
   State<CompleteAccount> createState() => _CompleteAccountState();
 }
 
+TimeOfDay selectedOpeningTime = TimeOfDay.now();
+TimeOfDay selectedClosingTime = TimeOfDay.now();
 String imageUrl = '';
 bool isImageValid = false;
 bool isReSubmitEnabled = false;
-TimeOfDay selectedOpeningTime =
-    TimeOfDay.now().replacing(hour: TimeOfDay.now().hour + 3);
-
-TimeOfDay selectedClosingTime =
-    TimeOfDay.now().replacing(hour: TimeOfDay.now().hour + 3);
 
 class _CompleteAccountState extends State<CompleteAccount> {
+  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,8 +85,8 @@ class _CompleteAccountState extends State<CompleteAccount> {
           await UpdateStoreApi().updateStore(
             context,
             widget.email,
-            selectedOpeningTime.toString(),
-            selectedClosingTime.toString(),
+            "${selectedOpeningTime.hour}:${selectedOpeningTime.minute > 9 ? selectedOpeningTime.minute : "0${selectedOpeningTime.minute}"}",
+            "${selectedClosingTime.hour}:${selectedClosingTime.minute > 9 ? selectedClosingTime.minute : "0${selectedClosingTime.minute}"}",
             imageUrl,
           );
         } else {
@@ -101,7 +99,7 @@ class _CompleteAccountState extends State<CompleteAccount> {
         child: Row(
           children: [
             Text(
-              'Add Item',
+              'Update store',
               style: TextStyle(fontSize: 16),
             ),
             Icon(Icons.add)

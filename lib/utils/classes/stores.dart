@@ -3,6 +3,7 @@ class Store {
   final String storeName;
   final String storeTaxId;
   final String storeLogoLink;
+  final int storeIsOn;
   final String openingTime;
   final String closingTime;
 
@@ -11,6 +12,7 @@ class Store {
     required this.storeName,
     required this.storeTaxId,
     required this.storeLogoLink,
+    required this.storeIsOn,
     required this.openingTime,
     required this.closingTime,
   });

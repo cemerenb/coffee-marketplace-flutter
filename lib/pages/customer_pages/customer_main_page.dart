@@ -1,29 +1,50 @@
+import 'dart:developer';
+
 import 'package:coffee/pages/customer_pages/customer_list_stores.dart';
+import 'package:coffee/utils/log_out/log_out.dart';
 
 import 'package:flutter/material.dart';
 
 import '../../utils/classes/stores.dart';
 
+// ignore: must_be_immutable
 class CustomerHomePage extends StatefulWidget {
-  const CustomerHomePage({super.key});
+  const CustomerHomePage({
+    super.key,
+  });
 
   @override
   State<CustomerHomePage> createState() => _CustomerHomePageState();
 }
 
+List<Store> stores = [];
+
 class _CustomerHomePageState extends State<CustomerHomePage> {
-  List<Store> stores = [];
   bool isLoading = true;
   @override
   void initState() {
     super.initState();
+    log("store lenhgt:");
+    log(stores.length.toString());
+    if (stores.isNotEmpty) {
+      isLoading = false;
+    }
   }
 
   int currentIndex = 1;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: pageSelector(currentIndex),
+      appBar: AppBar(
+        actions: [
+          IconButton(
+              onPressed: () {
+                logOut(context);
+              },
+              icon: const Icon(Icons.logout))
+        ],
+      ),
+      body: StoresListView(stores: stores),
       bottomNavigationBar: bottomNavigationBar(),
     );
   }
@@ -123,23 +144,4 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
       ),
     );
   }
-
-  Widget pageSelector(int currentIndex) {
-    if (currentIndex == 1) {
-      return isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : stores.isNotEmpty
-              ? StoresListView(stores: stores)
-              : const Center(
-                  child: Text("There are no stores"),
-                );
-    }
-    if (currentIndex == 2) {
-      return const Column();
-    } else {
-      return const Column();
-    }
-  }
 }
-
-// ignore: must_be_immutable

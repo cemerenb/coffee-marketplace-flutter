@@ -3,18 +3,24 @@ import 'dart:developer';
 
 import 'package:coffee/pages/customer_pages/customer_main_page.dart';
 import 'package:coffee/pages/login/login_page.dart';
+import 'package:coffee/utils/database_operations/get_store_data.dart';
+import 'package:coffee/utils/database_operations/get_store_data_user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import '../classes/stores.dart';
+
 class LoginApi {
   LoginApi();
+  List<Store> stores = [];
   bool isCompleted = false;
   Future<bool> loginUser(
     BuildContext context,
     String email,
     String password,
   ) async {
+    await fetchStoreUserData();
     final response = await http.post(
       Uri.parse('http://192.168.0.28:7094/api/User/login'),
       headers: <String, String>{
@@ -32,6 +38,7 @@ class LoginApi {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('email', email);
       await prefs.setString('password', password);
+      await prefs.setString('accountType', 'customer');
       if (context.mounted) {
         emailController.text = "";
         passwordController.text = "";

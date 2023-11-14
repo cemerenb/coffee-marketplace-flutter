@@ -1,12 +1,13 @@
 import 'dart:ui';
 
 import 'package:coffee/pages/Login/widgets/customer/dont_have_account.dart';
-import 'package:coffee/pages/company_pages/company_home_page.dart';
+import 'package:coffee/pages/company_pages/company_orders_page.dart';
 import 'package:coffee/pages/login/widgets/company/dont_have_account.dart';
 import 'package:coffee/pages/login/widgets/company/login_page_area.dart';
 import 'package:coffee/pages/login/widgets/company/login_welcome_text.dart';
 import 'package:coffee/pages/login/widgets/customer/login_user_email_field.dart';
 import 'package:coffee/pages/login/widgets/customer/login_welcome_text.dart';
+import 'package:coffee/utils/database_operations/get_store_data.dart';
 import 'package:coffee/utils/database_operations/login_company.dart';
 import 'package:coffee/utils/database_operations/login_user.dart';
 import 'package:flutter/material.dart';
@@ -162,14 +163,10 @@ class _PersonLoginPageState extends State<PersonLoginPage> {
                       LoginApi()
                           .loginUser(context, emailController.text,
                               passwordController.text)
-                          .then((success) {
-                        setState(() async {
-                          final prefs = await SharedPreferences.getInstance();
-                          prefs.setString('email', emailController.text);
-                          prefs.setString('password', passwordController.text);
-                          prefs.setString('accountType', 'customer');
-                          isLoggingIn = false;
-                        });
+                          .then((success) async {
+                        await fetchStoreData();
+
+                        isLoggingIn = false;
                       });
                     },
                   ),
@@ -260,12 +257,7 @@ class _CompanyLoginPageState extends State<CompanyLoginPage> {
     if (context.mounted) {
       Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(
-            builder: (context) => CompanyHomePage(
-              currentIndex: 3,
-              email: companyEmailController.text,
-            ),
-          ),
+          MaterialPageRoute(builder: (context) => const OrdersListView()),
           (route) => false);
     }
 

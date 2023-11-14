@@ -1,8 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:coffee/main.dart';
-import 'package:coffee/pages/company_pages/company_home_page.dart';
+import 'package:coffee/pages/company_pages/company_orders_page.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -92,8 +91,7 @@ Future<void> _showCompletedDialog(BuildContext context, String response) async {
                 Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(
-                        builder: (context) =>
-                            CompanyHomePage(currentIndex: 3, email: email)),
+                        builder: (context) => const OrdersListView()),
                     (route) => false);
               },
             ),
