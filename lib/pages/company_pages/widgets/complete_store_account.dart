@@ -16,8 +16,11 @@ class CompleteAccount extends StatefulWidget {
 TimeOfDay selectedOpeningTime = TimeOfDay.now();
 TimeOfDay selectedClosingTime = TimeOfDay.now();
 String imageUrl = '';
+String coverImageUrl = "";
 bool isImageValid = false;
+bool isCoverImageValid = false;
 bool isReSubmitEnabled = false;
+bool isReSubmitCoverEnabled = false;
 
 class _CompleteAccountState extends State<CompleteAccount> {
   @override
@@ -45,6 +48,7 @@ class _CompleteAccountState extends State<CompleteAccount> {
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Column(
             children: [
+              coverImageArea(context),
               imageArea(context),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 20.0),
@@ -83,12 +87,12 @@ class _CompleteAccountState extends State<CompleteAccount> {
             selectedOpeningTime.minute.toString().isNotEmpty &&
             imageUrl.isNotEmpty) {
           await UpdateStoreApi().updateStore(
-            context,
-            widget.email,
-            "${selectedOpeningTime.hour}:${selectedOpeningTime.minute > 9 ? selectedOpeningTime.minute : "0${selectedOpeningTime.minute}"}",
-            "${selectedClosingTime.hour}:${selectedClosingTime.minute > 9 ? selectedClosingTime.minute : "0${selectedClosingTime.minute}"}",
-            imageUrl,
-          );
+              context,
+              widget.email,
+              "${selectedOpeningTime.hour}:${selectedOpeningTime.minute > 9 ? selectedOpeningTime.minute : "0${selectedOpeningTime.minute}"}",
+              "${selectedClosingTime.hour}:${selectedClosingTime.minute > 9 ? selectedClosingTime.minute : "0${selectedClosingTime.minute}"}",
+              imageUrl,
+              coverImageUrl);
         } else {
           Dialogs.showErrorDialog(
               context, 'One or mor field empty. Please try again');
@@ -293,6 +297,64 @@ class _CompleteAccountState extends State<CompleteAccount> {
     );
   }
 
+  Padding coverImageArea(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 20.0),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              spreadRadius: 0,
+              blurRadius: 20,
+              color: Colors.grey.withOpacity(0.4),
+              blurStyle: BlurStyle.outer,
+              offset: const Offset(2, 2),
+            ),
+          ],
+        ),
+        width: MediaQuery.of(context).size.width,
+        height: 200,
+        child: coverImageUrl == ''
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          _showCoverImageInputSheet(context);
+                        },
+                        child: const Text('Add Cover Image'),
+                      ),
+                    ],
+                  ),
+                ],
+              )
+            : ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.network(
+                  coverImageUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (BuildContext context, Object error,
+                      StackTrace? stackTrace) {
+                    isCoverImageValid = false;
+
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(15.0),
+                        child: Text('Error loading image. Please try again.'),
+                      ),
+                    );
+                  },
+                ),
+              ),
+      ),
+    );
+  }
+
   void _showImageInputSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -329,6 +391,54 @@ class _CompleteAccountState extends State<CompleteAccount> {
                     // Optionally, you can update the image in the parent widget
                     setState(() {
                       imageUrl = imageUrl;
+                    });
+                  },
+                  child: const Text('Submit'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showCoverImageInputSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        isReSubmitCoverEnabled = true;
+        return SingleChildScrollView(
+          child: Container(
+            height: 600,
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Enter Cover Image URL',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                TextField(
+                  onChanged: (value) {
+                    coverImageUrl = value;
+                  },
+                  decoration: const InputDecoration(
+                    labelText: 'Image URL',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    // Optionally, you can update the image in the parent widget
+                    setState(() {
+                      coverImageUrl = coverImageUrl;
                     });
                   },
                   child: const Text('Submit'),

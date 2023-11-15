@@ -26,6 +26,7 @@ class ApiService {
               storeIsOn: data['storeIsOn'],
               openingTime: data['openingTime'],
               closingTime: data['closingTime'],
+              storeCoverImageLink: data['storeCoverImageLink'],
             );
           } else {
             return null;
@@ -42,6 +43,7 @@ class ApiService {
               storeIsOn: storeData['storeIsOn'],
               openingTime: storeData['openingTime'],
               closingTime: storeData['closingTime'],
+              storeCoverImageLink: storeData['storeCoverImageLink'],
             );
           } else {
             return null;

@@ -18,20 +18,18 @@ Future<void> fetchStoreUserData() async {
       final data = json.decode(response.body);
 
       // Filter the list based on the provided email
-      stores = (data as List)
-          .map((storeData) {
-            return Store(
-              storeEmail: storeData['storeEmail'],
-              storeLogoLink: storeData['storeLogoLink'],
-              storeIsOn: storeData['storeIsOn'],
-              storeName: storeData['storeName'],
-              storeTaxId: storeData['storeTaxId'],
-              openingTime: storeData['storeOpeningTime'],
-              closingTime: storeData['storeClosingTime'],
-            );
-          })
-          .where((store) => store.storeEmail == email)
-          .toList();
+      stores = (data as List).map((storeData) {
+        return Store(
+          storeEmail: storeData['storeEmail'],
+          storeLogoLink: storeData['storeLogoLink'],
+          storeIsOn: storeData['storeIsOn'],
+          storeName: storeData['storeName'],
+          storeTaxId: storeData['storeTaxId'],
+          openingTime: storeData['storeOpeningTime'],
+          closingTime: storeData['storeClosingTime'],
+          storeCoverImageLink: storeData['storeCoverImageLink'],
+        );
+      }).toList();
     } else {
       log('Error: ${response.statusCode}');
     }

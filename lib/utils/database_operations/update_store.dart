@@ -14,6 +14,7 @@ class UpdateStoreApi {
     String storeOpeningTime,
     String storeClosingTime,
     String storeLogoLink,
+    String storeCoverImageLink,
   ) async {
     final response = await http.put(
       Uri.parse('http://192.168.0.28:7094/api/Store/update'),
@@ -25,6 +26,7 @@ class UpdateStoreApi {
         'storeLogoLink': storeLogoLink,
         'storeOpeningTime': storeOpeningTime,
         'storeClosingTime': storeClosingTime,
+        'storeCoverImageLink': storeCoverImageLink,
       }),
     );
 

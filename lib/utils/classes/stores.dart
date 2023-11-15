@@ -6,6 +6,7 @@ class Store {
   final int storeIsOn;
   final String openingTime;
   final String closingTime;
+  final String storeCoverImageLink;
 
   Store({
     required this.storeEmail,
@@ -15,5 +16,6 @@ class Store {
     required this.storeIsOn,
     required this.openingTime,
     required this.closingTime,
+    required this.storeCoverImageLink,
   });
 }

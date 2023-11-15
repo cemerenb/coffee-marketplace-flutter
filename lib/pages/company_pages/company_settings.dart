@@ -347,6 +347,7 @@ class AccountNotCompleted extends StatelessWidget {
                     top: 15,
                   ),
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       const Text(
@@ -356,15 +357,19 @@ class AccountNotCompleted extends StatelessWidget {
                           fontWeight: FontWeight.w300,
                         ),
                       ),
-                      Text(
-                        store[0].storeName,
-                        style: const TextStyle(fontSize: 25),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 2,
+                        child: Text(
+                          store[0].storeName,
+                          overflow: TextOverflow.clip,
+                          style: const TextStyle(fontSize: 25),
+                        ),
                       )
                     ],
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(15.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [

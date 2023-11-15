@@ -29,6 +29,7 @@ Future<void> fetchStoreData() async {
               storeTaxId: storeData['storeTaxId'],
               openingTime: storeData['storeOpeningTime'],
               closingTime: storeData['storeClosingTime'],
+              storeCoverImageLink: storeData['storeCoverImageLink'],
             );
           })
           .where((store) => store.storeEmail == email)

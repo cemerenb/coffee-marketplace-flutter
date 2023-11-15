@@ -82,32 +82,40 @@ class _MenusListViewState extends State<MenusListView> {
                 itemBuilder: (context, index) {
                   if (menus[index].storeEmail == widget.email &&
                       menus[index].menuItemCategory == category) {
-                    return Card(
-                      child: ListTile(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ProductDetails(
-                                  index: index,
-                                  menus: menus,
-                                ),
-                              ));
-                        },
-                        leading: FadeInImage(
-                          placeholder: const AssetImage(
-                              'assets/img/placeholder_image.png'),
-                          image: NetworkImage(menus[index].menuItemImageLink),
-                          fit: BoxFit.cover,
-                        ),
-                        title: Text(menus[index].menuItemName),
-                        subtitle: Text(
-                          menus[index].menuItemDescription,
-                          style: const TextStyle(fontSize: 10),
-                        ),
-                        trailing: Text(
-                          "${menus[index].menuItemPrice} ₺",
-                          style: const TextStyle(fontSize: 25),
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Card(
+                        child: ListTile(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ProductDetails(
+                                    index: index,
+                                    menus: menus,
+                                  ),
+                                ));
+                          },
+                          leading: SizedBox(
+                            height: 80,
+                            width: 80,
+                            child: FadeInImage(
+                              placeholder: const AssetImage(
+                                  'assets/img/placeholder_image.png'),
+                              image:
+                                  NetworkImage(menus[index].menuItemImageLink),
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                          title: Text(menus[index].menuItemName),
+                          subtitle: Text(
+                            menus[index].menuItemDescription,
+                            style: const TextStyle(fontSize: 10),
+                          ),
+                          trailing: Text(
+                            "${menus[index].menuItemPrice} ₺",
+                            style: const TextStyle(fontSize: 25),
+                          ),
                         ),
                       ),
                     );
