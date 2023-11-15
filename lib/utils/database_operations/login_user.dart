@@ -1,9 +1,8 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:coffee/pages/customer_pages/customer_main_page.dart';
+import 'package:coffee/pages/customer_pages/customer_list_stores.dart';
 import 'package:coffee/pages/login/login_page.dart';
-import 'package:coffee/utils/database_operations/get_store_data.dart';
 import 'package:coffee/utils/database_operations/get_store_data_user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
@@ -45,7 +44,7 @@ class LoginApi {
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-              builder: (context) => const CustomerHomePage(),
+              builder: (context) => StoresListView(stores: stores),
             ),
             (route) => false);
       }

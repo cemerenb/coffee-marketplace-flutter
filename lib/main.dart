@@ -2,12 +2,15 @@ import 'dart:io';
 import 'dart:developer';
 
 import 'package:coffee/pages/company_pages/company_orders_page.dart';
-import 'package:coffee/pages/customer_pages/customer_main_page.dart';
+import 'package:coffee/pages/customer_pages/customer_list_stores.dart';
 import 'package:coffee/pages/login/login_page.dart';
+import 'package:coffee/utils/database_operations/get_store_data.dart';
 import 'package:coffee/utils/database_operations/login_company.dart';
 import 'package:coffee/utils/database_operations/login_user.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'utils/classes/stores.dart';
 
 enum PageEnum { loginPage, companyHomePage, customerHomePage }
 
@@ -27,6 +30,8 @@ class MyApp extends StatefulWidget {
   @override
   State<MyApp> createState() => _MyAppState();
 }
+
+List<Store> stores = [];
 
 class _MyAppState extends State<MyApp> {
   @override
@@ -79,7 +84,7 @@ class _PageNavigatorState extends State<PageNavigator> {
     final userEmail = prefs.getString('email');
     final userPassword = prefs.getString('password');
     final accountType = prefs.getString('accountType');
-
+    fetchStoreData();
     log(userEmail.toString());
     log(userPassword.toString());
     log(accountType.toString());
@@ -112,7 +117,7 @@ class _PageNavigatorState extends State<PageNavigator> {
         return LoginPage(isSwitched: false);
 
       case PageEnum.customerHomePage:
-        return const CustomerHomePage();
+        return StoresListView(stores: stores);
 
       case PageEnum.companyHomePage:
         return const OrdersListView();

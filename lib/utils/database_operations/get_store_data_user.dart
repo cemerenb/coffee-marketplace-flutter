@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import '../../pages/customer_pages/customer_main_page.dart';
+import '../../main.dart';
 import '../classes/stores.dart';
 import 'package:http/http.dart' as http;
 
@@ -15,7 +15,6 @@ Future<void> fetchStoreUserData() async {
         await http.get(Uri.parse('http://192.168.0.28:7094/api/Store/get-all'));
 
     if (response.statusCode == 200) {
-      log(response.statusCode.toString());
       final data = json.decode(response.body);
 
       // Filter the list based on the provided email
@@ -33,7 +32,6 @@ Future<void> fetchStoreUserData() async {
           })
           .where((store) => store.storeEmail == email)
           .toList();
-      log(stores.length.toString());
     } else {
       log('Error: ${response.statusCode}');
     }
