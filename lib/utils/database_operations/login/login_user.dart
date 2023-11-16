@@ -3,12 +3,12 @@ import 'dart:developer';
 
 import 'package:coffee/pages/customer_pages/customer_list_stores.dart';
 import 'package:coffee/pages/login/login_page.dart';
-import 'package:coffee/utils/database_operations/get_store_data_user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import '../classes/stores.dart';
+import '../../classes/stores.dart';
+import '../user/get_store_data_user.dart';
 
 class LoginApi {
   LoginApi();

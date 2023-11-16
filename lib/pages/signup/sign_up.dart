@@ -5,8 +5,9 @@ import 'package:coffee/pages/signup/widgets/customer/password_field.dart';
 import 'package:coffee/pages/signup/widgets/customer/email_field.dart';
 import 'package:coffee/pages/signup/widgets/customer/user_name_field.dart';
 import 'package:coffee/widgets/dialogs.dart';
-import '../../utils/database_operations/register_user.dart';
 import 'package:flutter/material.dart';
+
+import '../../utils/database_operations/register/register_user.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});

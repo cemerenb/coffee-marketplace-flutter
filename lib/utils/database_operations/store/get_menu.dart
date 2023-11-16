@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
 
-import '../../pages/company_pages/company_menu_page.dart';
-import '../classes/menu_class.dart';
+import '../../../pages/company_pages/company_menu_page.dart';
+import '../../classes/menu_class.dart';
 
 Future<void> fetchMenuData() async {
   try {
@@ -23,6 +23,7 @@ Future<void> fetchMenuData() async {
           menuItemIsAvaliable: menuData['menuItemIsAvaliable'],
           menuItemPrice: menuData['menuItemPrice'],
           menuItemCategory: menuData['menuItemCategory'],
+          menuItemId: menuData['menuItemId'],
         );
       }).toList();
     } else {

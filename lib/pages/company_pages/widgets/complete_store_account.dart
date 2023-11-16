@@ -1,7 +1,7 @@
-import 'package:coffee/utils/database_operations/update_store.dart';
 import 'package:flutter/material.dart';
 
 import '../../../utils/classes/stores.dart';
+import '../../../utils/database_operations/store/update_store.dart';
 import '../../../widgets/dialogs.dart';
 
 class CompleteAccount extends StatefulWidget {

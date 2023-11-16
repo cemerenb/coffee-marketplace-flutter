@@ -4,13 +4,14 @@ import 'dart:developer';
 import 'package:coffee/pages/company_pages/company_orders_page.dart';
 import 'package:coffee/pages/customer_pages/customer_list_stores.dart';
 import 'package:coffee/pages/login/login_page.dart';
-import 'package:coffee/utils/database_operations/get_store_data.dart';
-import 'package:coffee/utils/database_operations/login_company.dart';
-import 'package:coffee/utils/database_operations/login_user.dart';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'utils/classes/stores.dart';
+import 'utils/database_operations/login/login_company.dart';
+import 'utils/database_operations/login/login_user.dart';
+import 'utils/database_operations/store/get_store_data.dart';
 
 enum PageEnum { loginPage, companyHomePage, customerHomePage }
 

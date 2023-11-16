@@ -6,8 +6,9 @@ import 'package:coffee/pages/signup/widgets/company/company_password_field.dart'
 import 'package:coffee/pages/signup/widgets/company/store_name_field.dart';
 import 'package:coffee/pages/signup/widgets/company/tax_id_field.dart';
 import 'package:coffee/pages/signup/widgets/customer/email_field.dart';
-import 'package:coffee/utils/database_operations/register_store.dart';
 import 'package:flutter/material.dart';
+
+import '../../utils/database_operations/register/register_store.dart';
 
 class CompanySignUp extends StatefulWidget {
   const CompanySignUp({super.key});

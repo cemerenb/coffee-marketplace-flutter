@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import '../../pages/company_pages/company_settings.dart';
-import '../classes/stores.dart';
 import 'package:http/http.dart' as http;
 
-import '../get_user/get_user_data.dart';
+import '../../../pages/company_pages/company_settings.dart';
+import '../../classes/stores.dart';
+import '../../get_user/get_user_data.dart';
 
 Future<void> fetchStoreData() async {
   final String email = await getUserData(0);

@@ -1,15 +1,15 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import '../../main.dart';
-import '../classes/stores.dart';
 import 'package:http/http.dart' as http;
 
-import '../get_user/get_user_data.dart';
+import '../../../main.dart';
+import '../../classes/stores.dart';
+import '../../get_user/get_user_data.dart';
 
 Future<void> fetchStoreUserData() async {
   final String email = await getUserData(0);
-  log('Fetch Store $email');
+  log('Fetch all store for: $email');
   try {
     final response =
         await http.get(Uri.parse('http://192.168.0.28:7094/api/Store/get-all'));

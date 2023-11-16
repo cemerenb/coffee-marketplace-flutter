@@ -6,12 +6,12 @@ import 'package:coffee/main.dart';
 import 'package:coffee/pages/company_pages/company_menu_page.dart';
 import 'package:coffee/pages/company_pages/company_orders_page.dart';
 import 'package:coffee/pages/company_pages/widgets/complete_store_account.dart';
-import 'package:coffee/utils/database_operations/toggle_store.dart';
 import 'package:coffee/utils/get_user/get_user_data.dart';
 import 'package:coffee/utils/log_out/log_out.dart';
 import 'package:flutter/material.dart';
 import '../../utils/classes/stores.dart';
-import '../../utils/database_operations/get_store_data.dart';
+import '../../utils/database_operations/store/get_store_data.dart';
+import '../../utils/database_operations/store/toggle_store.dart';
 
 class StoreInfoPage extends StatefulWidget {
   final String email;

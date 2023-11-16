@@ -3,7 +3,8 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
-import '../classes/stores.dart';
+
+import '../../classes/stores.dart';
 
 class ApiService {
   static Future<Store?> getStoreInfo(String email) async {

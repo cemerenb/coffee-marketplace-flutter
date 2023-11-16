@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
 
-import '../../pages/customer_pages/customer_list_stores.dart';
-import '../classes/menu_class.dart';
+import '../../../pages/customer_pages/customer_list_stores.dart';
+import '../../classes/menu_class.dart';
 
 Future<void> fetchMenuUserData() async {
   try {
@@ -23,6 +23,7 @@ Future<void> fetchMenuUserData() async {
           menuItemIsAvaliable: menuData['menuItemIsAvaliable'],
           menuItemPrice: menuData['menuItemPrice'],
           menuItemCategory: menuData['menuItemCategory'],
+          menuItemId: menuData['menuItemId'],
         );
       }).toList();
     } else {

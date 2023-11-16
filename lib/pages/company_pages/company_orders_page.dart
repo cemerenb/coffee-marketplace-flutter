@@ -1,8 +1,9 @@
 import 'package:coffee/pages/company_pages/company_menu_page.dart';
 import 'package:coffee/pages/company_pages/company_settings.dart';
-import 'package:coffee/utils/database_operations/get_store_data.dart';
 import 'package:coffee/utils/get_user/get_user_data.dart';
 import 'package:flutter/material.dart';
+
+import '../../utils/database_operations/store/get_store_data.dart';
 
 class OrdersListView extends StatefulWidget {
   // ignore: prefer_const_constructors_in_immutables

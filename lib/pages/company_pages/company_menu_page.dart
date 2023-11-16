@@ -7,8 +7,8 @@ import 'package:coffee/pages/company_pages/widgets/product_details.dart';
 import 'package:coffee/utils/classes/menu_class.dart';
 import 'package:flutter/material.dart';
 
-import '../../utils/database_operations/get_menu.dart';
-import '../../utils/database_operations/get_store_data.dart';
+import '../../utils/database_operations/store/get_store_data.dart';
+import '../../utils/database_operations/store/get_menu.dart';
 
 class MenusListView extends StatefulWidget {
   final String email;

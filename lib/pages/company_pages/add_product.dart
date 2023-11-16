@@ -1,8 +1,9 @@
 import 'dart:developer';
 
-import 'package:coffee/utils/database_operations/create_product.dart';
 import 'package:coffee/widgets/dialogs.dart';
 import 'package:flutter/material.dart';
+
+import '../../utils/database_operations/user/create_product.dart';
 
 class AddNewProduct extends StatefulWidget {
   const AddNewProduct({Key? key, required this.email}) : super(key: key);
