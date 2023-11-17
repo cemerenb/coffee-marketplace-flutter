@@ -6,6 +6,7 @@ import 'package:coffee/main.dart';
 import 'package:coffee/pages/company_pages/company_menu_page.dart';
 import 'package:coffee/pages/company_pages/company_orders_page.dart';
 import 'package:coffee/pages/company_pages/widgets/complete_store_account.dart';
+import 'package:coffee/utils/database_operations/store/get_menu.dart';
 import 'package:coffee/utils/get_user/get_user_data.dart';
 import 'package:coffee/utils/log_out/log_out.dart';
 import 'package:flutter/material.dart';
@@ -197,6 +198,7 @@ class _StoreInfoPageState extends State<StoreInfoPage> {
                         shadowColor: Colors.transparent),
                     onPressed: () async {
                       final String email = await getUserData(0);
+                      await fetchMenuData();
                       if (context.mounted) {
                         Navigator.push(
                             context,

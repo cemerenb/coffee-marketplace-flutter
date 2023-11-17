@@ -1,5 +1,7 @@
-import 'package:coffee/pages/company_pages/company_orders_page.dart';
+import 'package:coffee/pages/company_pages/company_menu_page.dart';
 import 'package:coffee/pages/login/login_page.dart';
+import 'package:coffee/utils/database_operations/store/get_menu.dart';
+import 'package:coffee/utils/get_user/get_user_data.dart';
 import 'package:flutter/material.dart';
 
 class Dialogs {
@@ -62,6 +64,7 @@ class Dialogs {
 
   static Future<void> showProductCreatedDialog(
       BuildContext context, String response, String email) async {
+    final String email = await getUserData(0);
     if (context.mounted) {
       return showDialog<void>(
           context: context,
@@ -78,12 +81,17 @@ class Dialogs {
               actions: <Widget>[
                 TextButton(
                   child: const Text('Okay'),
-                  onPressed: () {
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const OrdersListView()),
-                        (route) => false);
+                  onPressed: () async {
+                    await fetchMenuData();
+                    if (context.mounted) {
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => MenusListView(
+                                    email: email,
+                                  )),
+                          (route) => false);
+                    }
                   },
                 ),
               ],

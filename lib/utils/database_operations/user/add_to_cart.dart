@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 
 import '../../get_user/get_user_data.dart';
 
-Future<(bool, String)> addToDart(
+Future<(bool, String)> addToCart(
     String storeEmail, String userEmail, String menuItemId) async {
   final String email = await getUserData(0);
   log('Cart is owned by $email');

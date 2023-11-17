@@ -1,13 +1,17 @@
+import 'dart:developer';
+
 import 'package:coffee/pages/company_pages/widgets/product_details.dart';
-import 'package:coffee/pages/customer_pages/customer_list_stores.dart';
-import 'package:coffee/utils/database_operations/user/get_cart.dart';
+import 'package:coffee/pages/customer_pages/customer_cart.dart';
+import 'package:coffee/utils/database_operations/user/update_cart.dart';
 
 import 'package:coffee/utils/get_user/get_user_data.dart';
+import 'package:coffee/utils/notifiers/menu_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../../main.dart';
+import '../../utils/notifiers/cart_notifier.dart';
 import '../../utils/database_operations/user/add_to_cart.dart';
-import '../../utils/database_operations/user/get_menu_user.dart';
+import '../../utils/notifiers/store_notifier.dart';
 
 class StoreDetails extends StatefulWidget {
   const StoreDetails({super.key, required this.index});
@@ -24,41 +28,46 @@ bool visibility1 = true;
 bool visibility2 = false;
 bool visibility3 = false;
 bool visibility4 = false;
+int totalItem = 0;
 
 class _StoreDetailsState extends State<StoreDetails> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<CartNotifier>().getCart();
+
+    log("item count ${totalItem.toString()}");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: Stack(
-              children: [
-                IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.shopping_cart_outlined,
-                      size: 25,
-                    )),
-                Positioned(
-                  right: 5,
-                  top: 5,
-                  child: Container(
-                    height: 17,
-                    width: 17,
-                    decoration: const BoxDecoration(
-                        shape: BoxShape.circle, color: Colors.red),
-                    child: const Center(
-                        child: Text(
-                      "3",
-                      style: TextStyle(fontSize: 12),
-                    )),
-                  ),
-                )
-              ],
-            ),
-          ),
+          IconButton(
+              onPressed: () async {
+                if (context.mounted) {
+                  await context.read<MenuNotifier>().fetchMenuUserData();
+                }
+                if (context.mounted) {
+                  await context.read<StoreNotifier>().fetchStoreUserData();
+                }
+                if (context.mounted) {
+                  await context.read<CartNotifier>().getCart();
+                }
+
+                if (context.mounted) {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CartPage(),
+                      ));
+                }
+              },
+              icon: const Icon(
+                Icons.shopping_bag_outlined,
+                size: 25,
+              )),
         ],
       ),
       body: SingleChildScrollView(
@@ -86,13 +95,16 @@ class _StoreDetailsState extends State<StoreDetails> {
   }
 
   Padding listMenuItems() {
+    var cartNotifier = context.watch<CartNotifier>();
+    var menuNotifier = context.watch<MenuNotifier>();
+    var storeNotifier = context.watch<StoreNotifier>();
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: Column(
-        children: menu.indexed.map((item) {
-          int count = 0;
+        children: menuNotifier.menu.indexed.map((item) {
           var (index, menuItem) = item;
-          if (menuItem.storeEmail == stores[widget.index].storeEmail &&
+          if (menuItem.storeEmail ==
+                  storeNotifier.stores[widget.index].storeEmail &&
               menuItem.menuItemCategory == category) {
             return Padding(
               padding: const EdgeInsets.only(bottom: 5.0),
@@ -109,7 +121,7 @@ class _StoreDetailsState extends State<StoreDetails> {
                               MaterialPageRoute(
                                 builder: (context) => ProductDetails(
                                   index: index,
-                                  menus: menu,
+                                  menus: menuNotifier.menu,
                                 ),
                               ));
                         },
@@ -141,15 +153,42 @@ class _StoreDetailsState extends State<StoreDetails> {
                       child: GestureDetector(
                         onTap: () async {
                           final userEmail = await getUserData(0);
-                          var (bool isCompleted, String responseMessage) =
-                              await addToDart(menuItem.storeEmail, userEmail,
-                                  menuItem.menuItemId);
-                          if (isCompleted && context.mounted) {
-                            showSnackbar(context, "Added to cart");
-                            setState(() {});
-                          } else if (!isCompleted && context.mounted) {
-                            showSnackbar(context, responseMessage);
-                            setState(() {});
+                          log(menuItem.menuItemId);
+                          if (cartNotifier.cart
+                              .where((cart) =>
+                                  cart.menuItemId == menuItem.menuItemId)
+                              .toList()
+                              .isEmpty) {
+                            var (bool isCompleted, String responseMessage) =
+                                await addToCart(menuItem.storeEmail, userEmail,
+                                    menuItem.menuItemId);
+
+                            if (isCompleted && context.mounted) {
+                              showSnackbar(context, "Added to cart");
+                              context.read<CartNotifier>();
+                              setState(() {});
+                            } else if (!isCompleted && context.mounted) {
+                              showSnackbar(context, responseMessage);
+                              setState(() {});
+                            }
+                          } else {
+                            final int itemCount = cartNotifier.cart
+                                .where((cart) =>
+                                    cart.menuItemId == menuItem.menuItemId &&
+                                    cart.storeEmail == menuItem.storeEmail)
+                                .toList()[0]
+                                .itemCount;
+                            if (context.mounted) {
+                              var isCompleted = await UpdateCartApi()
+                                  .updateCart(context, menuItem.menuItemId,
+                                      itemCount + 1);
+
+                              if (isCompleted && context.mounted) {
+                                setState(() {
+                                  context.read<CartNotifier>().getCart();
+                                });
+                              }
+                            }
                           }
                         },
                         child: Container(
@@ -159,7 +198,22 @@ class _StoreDetailsState extends State<StoreDetails> {
                               shape: BoxShape.circle,
                               color: Colors.brown.shade400,
                             ),
-                            child: const Icon(Icons.add)),
+                            child: Center(
+                              child: cartNotifier.cart
+                                      .where((cart) =>
+                                          cart.menuItemId ==
+                                          menuItem.menuItemId)
+                                      .toList()
+                                      .isEmpty
+                                  ? const Icon(Icons.add)
+                                  : Text(cartNotifier.cart
+                                      .where((cart) =>
+                                          cart.menuItemId ==
+                                          menuItem.menuItemId)
+                                      .toList()[0]
+                                      .itemCount
+                                      .toString()),
+                            )),
                       ))
                 ],
               ),
@@ -181,6 +235,7 @@ class _StoreDetailsState extends State<StoreDetails> {
   }
 
   Padding storeInfoArea(BuildContext context) {
+    var storeNotifier = context.watch<StoreNotifier>();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15.0),
       child: Container(
@@ -208,7 +263,7 @@ class _StoreDetailsState extends State<StoreDetails> {
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Image.network(
-                              stores[widget.index].storeLogoLink,
+                              storeNotifier.stores[widget.index].storeLogoLink,
                               fit: BoxFit.contain,
                             ),
                           )),
@@ -222,7 +277,7 @@ class _StoreDetailsState extends State<StoreDetails> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              stores[widget.index].storeName,
+                              storeNotifier.stores[widget.index].storeName,
                               style: const TextStyle(fontSize: 16),
                               overflow: TextOverflow.clip,
                             ),
@@ -284,7 +339,7 @@ class _StoreDetailsState extends State<StoreDetails> {
                               fontSize: 10),
                         ),
                         Text(
-                            '${stores[widget.index].openingTime.replaceAll(" ", "")} - ${stores[widget.index].closingTime.replaceAll(" ", "")}'),
+                            '${storeNotifier.stores[widget.index].openingTime.replaceAll(" ", "")} - ${storeNotifier.stores[widget.index].closingTime.replaceAll(" ", "")}'),
                       ],
                     )
                   ],
@@ -299,10 +354,12 @@ class _StoreDetailsState extends State<StoreDetails> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 5.0),
       child: GestureDetector(
-        onTap: () {
+        onTap: () async {
           category = selectedCategory;
           setVisibility(selectedCategory);
-          fetchMenuUserData();
+          if (context.mounted) {
+            await context.read<MenuNotifier>().fetchMenuUserData();
+          }
           setState(() {});
         },
         child: Container(

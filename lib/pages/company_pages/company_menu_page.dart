@@ -43,100 +43,104 @@ class _MenusListViewState extends State<MenusListView> {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Column(
-          children: [
-            const SizedBox(
-              height: 50,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 20.0),
-              child: Row(
-                children: [
-                  categoryItem(1),
-                  categoryItem(2),
-                  categoryItem(3),
-                  categoryItem(4),
-                  const Spacer(),
-                  IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                AddNewProduct(email: widget.email),
-                          ));
-                    },
-                    icon: const Icon(
-                      Icons.add,
-                      color: Colors.black,
-                    ),
-                  )
-                ],
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              const SizedBox(
+                height: 50,
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: menus.length,
-                itemBuilder: (context, index) {
-                  if (menus[index].storeEmail == widget.email &&
-                      menus[index].menuItemCategory == category) {
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Card(
-                        child: ListTile(
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ProductDetails(
-                                    index: index,
-                                    menus: menus,
-                                  ),
-                                ));
-                          },
-                          leading: SizedBox(
-                            height: 80,
-                            width: 80,
-                            child: FadeInImage(
-                              placeholder: const AssetImage(
-                                  'assets/img/placeholder_image.png'),
-                              image:
-                                  NetworkImage(menus[index].menuItemImageLink),
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                          title: Text(menus[index].menuItemName),
-                          subtitle: Text(
-                            menus[index].menuItemDescription,
-                            style: const TextStyle(fontSize: 10),
-                          ),
-                          trailing: Text(
-                            "${menus[index].menuItemPrice} ₺",
-                            style: const TextStyle(fontSize: 25),
-                          ),
-                        ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20.0),
+                child: Row(
+                  children: [
+                    categoryItem(1),
+                    categoryItem(2),
+                    categoryItem(3),
+                    categoryItem(4),
+                    const Spacer(),
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  AddNewProduct(email: widget.email),
+                            ));
+                      },
+                      icon: const Icon(
+                        Icons.add,
+                        color: Colors.black,
                       ),
-                    );
-                  }
-                  return const SizedBox();
-                },
+                    )
+                  ],
+                ),
               ),
-            )
-          ],
+              listMenuItems(context)
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: bottomNavigationBar(),
     );
   }
 
+  Padding listMenuItems(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Column(
+        children: menus.indexed.map((item) {
+          var (index, menusItem) = item;
+          if (menusItem.storeEmail == widget.email &&
+              menusItem.menuItemCategory == category) {
+            return Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Card(
+                child: ListTile(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProductDetails(
+                            index: index,
+                            menus: menus,
+                          ),
+                        ));
+                  },
+                  leading: SizedBox(
+                    height: 80,
+                    width: 80,
+                    child: FadeInImage(
+                      placeholder:
+                          const AssetImage('assets/img/placeholder_image.png'),
+                      image: NetworkImage(menusItem.menuItemImageLink),
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  title: Text(menusItem.menuItemName),
+                  subtitle: Text(
+                    menusItem.menuItemDescription,
+                    style: const TextStyle(fontSize: 10),
+                  ),
+                  trailing: Text(
+                    "${menusItem.menuItemPrice} ₺",
+                    style: const TextStyle(fontSize: 25),
+                  ),
+                ),
+              ),
+            );
+          }
+          return const SizedBox();
+        }).toList(),
+      ),
+    );
+  }
+
   Padding bottomNavigationBar() {
     return Padding(
-      padding: const EdgeInsets.all(10.0),
+      padding: const EdgeInsets.only(bottom: 10.0, left: 10, right: 10),
       child: Container(
         decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 88, 88, 88).withOpacity(0.2),
+            color: const Color.fromARGB(255, 88, 88, 88).withOpacity(0.3),
             borderRadius: BorderRadius.circular(20)),
         height: 60,
         child: Padding(

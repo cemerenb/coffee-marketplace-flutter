@@ -1,18 +1,17 @@
 import 'dart:developer';
 
+import 'package:coffee/pages/customer_pages/customer_cart.dart';
 import 'package:coffee/pages/customer_pages/customer_store_details.dart';
 
 import 'package:coffee/utils/log_out/log_out.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../../main.dart';
-import '../../utils/classes/cart_class.dart';
-import '../../utils/classes/menu_class.dart';
+import '../../utils/notifiers/cart_notifier.dart';
 import '../../utils/classes/stores.dart';
-import '../../utils/database_operations/user/get_store_data_user.dart';
-import '../../utils/database_operations/user/get_menu_user.dart';
+import '../../utils/notifiers/menu_notifier.dart';
+import '../../utils/notifiers/store_notifier.dart';
 
-// ignore: must_be_immutable
 class StoresListView extends StatefulWidget {
   const StoresListView({
     super.key,
@@ -25,8 +24,6 @@ class StoresListView extends StatefulWidget {
   State<StoresListView> createState() => _StoresListViewState();
 }
 
-List<Menu> menu = [];
-List<Cart> cart = [];
 bool isSearchBarOn = false;
 final TextEditingController search = TextEditingController();
 
@@ -60,13 +57,13 @@ class _StoresListViewState extends State<StoresListView> {
   }
 
   Expanded listStores() {
+    var storeNotifier = context.watch<StoreNotifier>();
     return Expanded(
       child: ListView.builder(
-        itemCount: stores.length,
+        itemCount: storeNotifier.stores.length,
         itemBuilder: (context, index) {
-          if (stores[index].storeLogoLink.isNotEmpty &&
-              stores[index]
-                  .storeName
+          if (storeNotifier.stores[index].storeLogoLink.isNotEmpty &&
+              storeNotifier.stores[index].storeName
                   .toLowerCase()
                   .contains(search.text.toLowerCase())) {
             count++;
@@ -77,10 +74,19 @@ class _StoresListViewState extends State<StoresListView> {
                   children: [
                     GestureDetector(
                       onTap: () async {
-                        if (stores[index].storeIsOn == 1) {
+                        if (storeNotifier.stores[index].storeIsOn == 1) {
                           log(index.toString());
-                          await fetchStoreUserData();
-                          await fetchMenuUserData();
+                          if (context.mounted) {
+                            await context
+                                .read<StoreNotifier>()
+                                .fetchStoreUserData();
+                          }
+                          if (context.mounted) {
+                            await context
+                                .read<MenuNotifier>()
+                                .fetchMenuUserData();
+                          }
+
                           if (context.mounted) {
                             Navigator.push(
                                 context,
@@ -102,12 +108,13 @@ class _StoresListViewState extends State<StoresListView> {
                               width: MediaQuery.of(context).size.width,
                               height: 100,
                               child: Image.network(
-                                stores[index].storeCoverImageLink,
+                                storeNotifier.stores[index].storeCoverImageLink,
                                 fit: BoxFit.cover,
                               ),
                             ),
                             Visibility(
-                              visible: stores[index].storeIsOn == 0,
+                              visible:
+                                  storeNotifier.stores[index].storeIsOn == 0,
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
@@ -132,11 +139,22 @@ class _StoresListViewState extends State<StoresListView> {
                       ),
                     ),
                     ListTile(
-                      enabled: stores[index].storeIsOn == 1,
+                      enabled: storeNotifier.stores[index].storeIsOn == 1,
                       onTap: () async {
                         log(index.toString());
-                        await fetchStoreUserData();
-                        await fetchMenuUserData();
+                        if (context.mounted) {
+                          await context
+                              .read<StoreNotifier>()
+                              .fetchStoreUserData();
+                        }
+                        if (context.mounted) {
+                          await context
+                              .read<MenuNotifier>()
+                              .fetchMenuUserData();
+                        }
+                        if (context.mounted) {
+                          await context.read<CartNotifier>().getCart();
+                        }
 
                         if (context.mounted) {
                           Navigator.push(
@@ -151,16 +169,16 @@ class _StoresListViewState extends State<StoresListView> {
                         height: 80,
                         width: 80,
                         child: Image.network(
-                          stores[index].storeLogoLink,
+                          storeNotifier.stores[index].storeLogoLink,
                           fit: BoxFit.contain,
                         ),
                       ),
-                      title: Text(stores[index].storeName),
+                      title: Text(storeNotifier.stores[index].storeName),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                              '${stores[index].openingTime.replaceAll(" ", "")} - ${stores[index].closingTime.replaceAll(" ", "")}'),
+                              '${storeNotifier.stores[index].openingTime.replaceAll(" ", "")} - ${storeNotifier.stores[index].closingTime.replaceAll(" ", "")}'),
                           const Row(
                             children: [
                               Text('-'),
@@ -252,7 +270,9 @@ class _StoresListViewState extends State<StoresListView> {
                     backgroundColor: Colors.white.withOpacity(0.2),
                     shadowColor: Colors.transparent),
                 onPressed: () async {
-                  fetchStoreUserData();
+                  if (context.mounted) {
+                    await context.read<StoreNotifier>().fetchStoreUserData();
+                  }
                   setState(() {});
                 },
                 child: Column(
@@ -275,8 +295,22 @@ class _StoresListViewState extends State<StoresListView> {
                     backgroundColor: Colors.white.withOpacity(0.2),
                     shadowColor: Colors.transparent),
                 onPressed: () async {
-                  await fetchStoreUserData();
-                  await fetchMenuUserData();
+                  if (context.mounted) {
+                    await context.read<StoreNotifier>().fetchStoreUserData();
+                  }
+                  if (context.mounted) {
+                    await context.read<MenuNotifier>().fetchMenuUserData();
+                  }
+                  if (context.mounted) {
+                    await context.read<CartNotifier>().getCart();
+                  }
+                  if (context.mounted) {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CartPage(),
+                        ));
+                  }
                 },
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,

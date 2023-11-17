@@ -4,11 +4,14 @@ import 'dart:developer';
 import 'package:coffee/pages/company_pages/company_orders_page.dart';
 import 'package:coffee/pages/customer_pages/customer_list_stores.dart';
 import 'package:coffee/pages/login/login_page.dart';
+import 'package:coffee/utils/notifiers/cart_notifier.dart';
+import 'package:coffee/utils/notifiers/menu_notifier.dart';
+import 'package:coffee/utils/notifiers/store_notifier.dart';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'utils/classes/stores.dart';
 import 'utils/database_operations/login/login_company.dart';
 import 'utils/database_operations/login/login_user.dart';
 import 'utils/database_operations/store/get_store_data.dart';
@@ -32,22 +35,33 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-List<Store> stores = [];
-
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        title: 'Flutter Demo',
-        scaffoldMessengerKey: scaffoldMessengerKey,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.black,
-            primary: Colors.black,
-          ),
-          useMaterial3: true,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<CartNotifier>(
+          create: (_) => CartNotifier(),
         ),
-        home: const PageNavigator());
+        ChangeNotifierProvider<MenuNotifier>(
+          create: (_) => MenuNotifier(),
+        ),
+        ChangeNotifierProvider<StoreNotifier>(
+          create: (_) => StoreNotifier(),
+        ),
+      ],
+      child: MaterialApp(
+          title: 'Flutter Demo',
+          scaffoldMessengerKey: scaffoldMessengerKey,
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.black,
+              primary: Colors.black,
+            ),
+            useMaterial3: true,
+          ),
+          home: const PageNavigator()),
+    );
   }
 }
 
@@ -118,7 +132,7 @@ class _PageNavigatorState extends State<PageNavigator> {
         return LoginPage(isSwitched: false);
 
       case PageEnum.customerHomePage:
-        return StoresListView(stores: stores);
+        return StoresListView(stores: context.read<StoreNotifier>().stores);
 
       case PageEnum.companyHomePage:
         return const OrdersListView();

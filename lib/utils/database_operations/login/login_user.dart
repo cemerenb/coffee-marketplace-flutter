@@ -3,12 +3,13 @@ import 'dart:developer';
 
 import 'package:coffee/pages/customer_pages/customer_list_stores.dart';
 import 'package:coffee/pages/login/login_page.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../../classes/stores.dart';
-import '../user/get_store_data_user.dart';
+import '../../notifiers/store_notifier.dart';
 
 class LoginApi {
   LoginApi();
@@ -19,7 +20,9 @@ class LoginApi {
     String email,
     String password,
   ) async {
-    await fetchStoreUserData();
+    if (context.mounted) {
+      await context.read<StoreNotifier>().fetchStoreUserData();
+    }
     final response = await http.post(
       Uri.parse('http://192.168.0.28:7094/api/User/login'),
       headers: <String, String>{

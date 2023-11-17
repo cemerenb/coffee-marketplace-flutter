@@ -3,6 +3,7 @@ import 'package:coffee/pages/company_pages/company_settings.dart';
 import 'package:coffee/utils/get_user/get_user_data.dart';
 import 'package:flutter/material.dart';
 
+import '../../utils/database_operations/store/get_menu.dart';
 import '../../utils/database_operations/store/get_store_data.dart';
 
 class OrdersListView extends StatefulWidget {
@@ -65,6 +66,7 @@ class _OrdersListViewState extends State<OrdersListView> {
                         shadowColor: Colors.transparent),
                     onPressed: () async {
                       final String email = await getUserData(0);
+                      await fetchMenuData();
                       if (context.mounted) {
                         Navigator.push(
                             context,
