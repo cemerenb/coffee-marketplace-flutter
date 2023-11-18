@@ -27,8 +27,10 @@ class CartNotifier extends ChangeNotifier {
               menuItemId: cartData['menuItemId'],
               itemCount: cartData['itemCount']);
         }).toList();
+        notifyListeners();
       } else {
         log('Error: ${response.statusCode}');
+        cart.clear();
       }
     } catch (e) {
       log('Error: $e');

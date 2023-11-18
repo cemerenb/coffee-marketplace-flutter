@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:coffee/pages/customer_pages/customer_cart.dart';
 import 'package:coffee/pages/customer_pages/customer_store_details.dart';
+import 'package:coffee/utils/get_user/get_user_data.dart';
 
 import 'package:coffee/utils/log_out/log_out.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,7 @@ final TextEditingController search = TextEditingController();
 
 class _StoresListViewState extends State<StoresListView> {
   int count = 0;
+  late String email;
 
   @override
   Widget build(BuildContext context) {
@@ -86,13 +88,15 @@ class _StoresListViewState extends State<StoresListView> {
                                 .read<MenuNotifier>()
                                 .fetchMenuUserData();
                           }
-
+                          email = await getUserData(0);
                           if (context.mounted) {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      StoreDetails(index: index),
+                                  builder: (context) => StoreDetails(
+                                    index: index,
+                                    email: email,
+                                  ),
                                 ));
                           }
                         }
@@ -155,13 +159,15 @@ class _StoresListViewState extends State<StoresListView> {
                         if (context.mounted) {
                           await context.read<CartNotifier>().getCart();
                         }
-
+                        email = await getUserData(0);
                         if (context.mounted) {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    StoreDetails(index: index),
+                                builder: (context) => StoreDetails(
+                                  index: index,
+                                  email: email,
+                                ),
                               ));
                         }
                       },
