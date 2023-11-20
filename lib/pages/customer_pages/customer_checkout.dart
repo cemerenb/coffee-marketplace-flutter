@@ -1,6 +1,8 @@
 import 'dart:developer';
 
 import 'package:coffee/utils/database_operations/order/create_order.dart';
+import 'package:coffee/utils/database_operations/order/create_order_details.dart';
+import 'package:coffee/utils/random_string_generator.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -8,7 +10,6 @@ import '../../utils/classes/stores.dart';
 import '../../utils/database_operations/user/remove_from_cart.dart';
 import '../../utils/get_user/get_user_data.dart';
 import '../../utils/notifiers/cart_notifier.dart';
-import '../../utils/notifiers/menu_notifier.dart';
 import '../../utils/notifiers/store_notifier.dart';
 import '../../widgets/dialogs.dart';
 
@@ -44,6 +45,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
             checkoutStoreInfoArea(),
             const Text("Order Note"),
             TextField(
+              textInputAction: TextInputAction.done,
               controller: orderNote,
               maxLength: 200,
               maxLines: 7,
@@ -87,6 +89,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
                 style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.brown.shade400),
                 onPressed: () async {
+                  String orderId = generateRandomHex();
                   int itemCount = 0;
                   for (var i = 0; i < cartNotifier.cart.length; i++) {
                     itemCount += cartNotifier.cart[i].itemCount;
@@ -94,6 +97,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
                   log(itemCount.toString());
                   bool isCompleted = false;
                   bool isCleared = false;
+                  bool orderDetailsSent = false;
                   String responseMessage = "";
                   String email = await getUserData(0);
                   if (context.mounted) {
@@ -107,9 +111,22 @@ class _CheckOutPageState extends State<CheckOutPage> {
                                 .storeEmail,
                             email,
                             orderNote.text,
+                            orderId,
                             itemCount,
                             widget.cartTotal);
                   }
+
+                  if (context.mounted) {
+                    orderDetailsSent = await createOrderDetails(
+                        storeNotifier.stores
+                            .where((store) =>
+                                store.storeEmail == widget.storeEmail)
+                            .first
+                            .storeEmail,
+                        email,
+                        orderId);
+                  }
+
                   isCleared = await removeFromCart(
                       storeNotifier.stores
                           .where(
@@ -117,7 +134,10 @@ class _CheckOutPageState extends State<CheckOutPage> {
                           .first
                           .storeEmail,
                       email);
-                  if (isCompleted && isCleared && context.mounted) {
+                  if (isCompleted &&
+                      isCleared &&
+                      context.mounted &&
+                      orderDetailsSent) {
                     Dialogs.showCartPlacedDialog(context, responseMessage);
                   }
                 },
@@ -133,6 +153,28 @@ class _CheckOutPageState extends State<CheckOutPage> {
         ),
       ),
     );
+  }
+
+  Future<bool> createOrderDetails(
+      String storeEmail, String userEmail, String orderId) async {
+    bool isCompleted = false;
+    String responseMessage = "";
+    var cartNotifier = context.read<CartNotifier>();
+    for (var i = 0; i < cartNotifier.cart.length; i++) {
+      (isCompleted, responseMessage) = await CreateOrderDetails().createOrder(
+          context,
+          storeEmail,
+          userEmail,
+          orderId,
+          cartNotifier.cart[i].menuItemId,
+          cartNotifier.cart[i].itemCount);
+    }
+    if (isCompleted && context.mounted) {
+      log(responseMessage);
+      return true;
+    } else {
+      return false;
+    }
   }
 
   Future<bool> removeFromCart(String storeEmail, String userEmail) async {
@@ -156,8 +198,6 @@ class _CheckOutPageState extends State<CheckOutPage> {
   }
 
   Padding checkoutStoreInfoArea() {
-    var cartNotifier = context.watch<CartNotifier>();
-    var menuNotifier = context.watch<MenuNotifier>();
     var storeNotifier = context.watch<StoreNotifier>();
     Iterable<Store> store = storeNotifier.stores
         .where((store) => store.storeEmail == widget.storeEmail);

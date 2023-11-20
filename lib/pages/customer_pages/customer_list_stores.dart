@@ -1,15 +1,17 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:coffee/pages/customer_pages/customer_cart.dart';
 import 'package:coffee/pages/customer_pages/customer_store_details.dart';
 import 'package:coffee/pages/customer_pages/settings_page.dart';
+import 'package:coffee/utils/classes/order_class.dart';
 import 'package:coffee/utils/get_user/get_user_data.dart';
+import 'package:coffee/utils/notifiers/order_notifier.dart';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../utils/notifiers/cart_notifier.dart';
-import '../../utils/classes/stores.dart';
 import '../../utils/notifiers/menu_notifier.dart';
 import '../../utils/notifiers/store_notifier.dart';
 
@@ -23,10 +25,38 @@ class StoresListView extends StatefulWidget {
 }
 
 bool isSearchBarOn = false;
+bool isLoading = true;
+bool activeOrderFound = false;
+int index = 0;
+bool c1 = false;
+bool c2 = false;
+bool c3 = false;
+bool c4 = false;
+bool check = true;
+late Timer timer;
 final TextEditingController search = TextEditingController();
 
 class _StoresListViewState extends State<StoresListView> {
+  @override
+  void initState() {
+    var orderNotifier = context.read<OrderNotifier>();
+    super.initState();
+
+    timer = Timer.periodic(
+      const Duration(seconds: 1),
+      (Timer t) => checkOrder(),
+    );
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    check = false;
+    super.dispose();
+  }
+
   int count = 0;
+  int orderStatus = 1;
   late String email;
 
   @override
@@ -66,12 +96,116 @@ class _StoresListViewState extends State<StoresListView> {
         child: Column(
           children: [
             searchField(),
+            orderInfoArea(context),
             listStores(),
           ],
         ),
       ),
       bottomNavigationBar: bottomNavigationBar(),
     );
+  }
+
+  Container orderInfoArea(BuildContext context) {
+    var orderNotifier = context.watch<OrderNotifier>();
+
+    return Container(
+        height: 130,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: Colors.red,
+        ),
+        child: Container(
+            height: 150,
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.4),
+                borderRadius: BorderRadius.circular(20)),
+            child: isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : orderNotifier.order.isEmpty
+                    ? const Text("No order to shown")
+                    : Container(
+                        decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.4),
+                            borderRadius: BorderRadius.circular(20)),
+                        height: 150,
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Text(orderNotifier.order[index].orderId),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Container(
+                                    width:
+                                        MediaQuery.of(context).size.width / 7,
+                                    height: 5,
+                                    color: orderStatus > 0
+                                        ? Colors.brown.shade400
+                                        : Colors.black.withOpacity(0.3),
+                                  ),
+                                  Container(
+                                    width:
+                                        MediaQuery.of(context).size.width / 7,
+                                    height: 5,
+                                    color: orderStatus > 1
+                                        ? Colors.brown.shade400
+                                        : Colors.black.withOpacity(0.3),
+                                  ),
+                                  Container(
+                                    width:
+                                        MediaQuery.of(context).size.width / 7,
+                                    height: 5,
+                                    color: orderStatus > 2
+                                        ? Colors.brown.shade400
+                                        : Colors.black.withOpacity(0.3),
+                                  ),
+                                  Container(
+                                    width:
+                                        MediaQuery.of(context).size.width / 7,
+                                    height: 5,
+                                    color: orderStatus > 3
+                                        ? Colors.brown.shade400
+                                        : Colors.black.withOpacity(0.3),
+                                  ),
+                                ],
+                              )
+                            ],
+                          ),
+                        ),
+                      )));
+  }
+
+  Future<bool> checkOrder() async {
+    if (!context.mounted) return false;
+
+    var orderNotifier = context.read<OrderNotifier>();
+    await context.read<OrderNotifier>().fetchOrderData();
+    if (orderNotifier.order.isNotEmpty) {
+      for (var i = 0; i < orderNotifier.order.length; i++) {
+        if (orderNotifier.order[i].orderStatus < 5) {
+          index = i;
+          isLoading = false;
+          setState(() {});
+        }
+      }
+      if (orderNotifier.order.isNotEmpty) {
+        orderStatus = orderNotifier.order[index].orderStatus;
+
+        setState(() {});
+        log("c1: $c1, c2: $c2, c3: $c3, c4: $c4");
+      }
+      setState(() {});
+      return true;
+    } else {
+      isLoading = false;
+      setState(() {});
+      log("No order found");
+      return false;
+    }
   }
 
   Expanded listStores() {

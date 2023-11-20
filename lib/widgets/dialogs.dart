@@ -103,7 +103,6 @@ class Dialogs {
 
   static Future<void> showCartPlacedDialog(
       BuildContext context, String response) async {
-    final String email = await getUserData(0);
     if (context.mounted) {
       return showDialog<void>(
           context: context,

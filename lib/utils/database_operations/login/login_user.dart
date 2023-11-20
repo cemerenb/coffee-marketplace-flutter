@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../../classes/stores.dart';
+import '../../notifiers/order_notifier.dart';
 import '../../notifiers/store_notifier.dart';
 
 class LoginApi {
@@ -36,7 +37,7 @@ class LoginApi {
 
     if (response.statusCode == 200 && context.mounted) {
       log('Successfully login');
-
+      context.read<OrderNotifier>().fetchOrderData();
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('email', email);
       await prefs.setString('password', password);

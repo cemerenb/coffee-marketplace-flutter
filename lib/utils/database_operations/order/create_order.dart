@@ -2,8 +2,6 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:coffee/pages/customer_pages/customer_list_stores.dart';
-import 'package:coffee/pages/login/login_page.dart';
-import 'package:coffee/utils/random_string_generator.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -17,6 +15,7 @@ class CreateOrder {
       String storeEmail,
       String userEmail,
       String orderNote,
+      String orderId,
       int itemCount,
       double orderTotalPrice) async {
     final response = await http.post(
@@ -26,7 +25,7 @@ class CreateOrder {
       },
       body: jsonEncode(<Object, Object>{
         'storeEmail': storeEmail,
-        'orderId': generateRandomHex(),
+        'orderId': orderId,
         'userEmail': userEmail,
         'orderStatus': 1,
         'orderNote': orderNote,
