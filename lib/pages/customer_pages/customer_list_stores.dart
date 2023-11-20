@@ -2,9 +2,9 @@ import 'dart:developer';
 
 import 'package:coffee/pages/customer_pages/customer_cart.dart';
 import 'package:coffee/pages/customer_pages/customer_store_details.dart';
+import 'package:coffee/pages/customer_pages/settings_page.dart';
 import 'package:coffee/utils/get_user/get_user_data.dart';
 
-import 'package:coffee/utils/log_out/log_out.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -16,10 +16,7 @@ import '../../utils/notifiers/store_notifier.dart';
 class StoresListView extends StatefulWidget {
   const StoresListView({
     super.key,
-    required this.stores,
   });
-
-  final List<Store> stores;
 
   @override
   State<StoresListView> createState() => _StoresListViewState();
@@ -37,11 +34,30 @@ class _StoresListViewState extends State<StoresListView> {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          IconButton(
-            onPressed: () {
-              logOut(context);
-            },
-            icon: const Icon(Icons.logout),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5.0),
+            child: IconButton(
+              onPressed: () async {
+                if (context.mounted) {
+                  await context.read<StoreNotifier>().fetchStoreUserData();
+                }
+                if (context.mounted) {
+                  await context.read<MenuNotifier>().fetchMenuUserData();
+                }
+                if (context.mounted) {
+                  await context.read<CartNotifier>().getCart();
+                }
+                if (context.mounted) {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CartPage(),
+                      ));
+                }
+              },
+              icon: const Icon(Icons.shopping_cart_outlined,
+                  size: 25, color: Colors.black),
+            ),
           )
         ],
       ),
@@ -300,24 +316,7 @@ class _StoresListViewState extends State<StoresListView> {
                 style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white.withOpacity(0.2),
                     shadowColor: Colors.transparent),
-                onPressed: () async {
-                  if (context.mounted) {
-                    await context.read<StoreNotifier>().fetchStoreUserData();
-                  }
-                  if (context.mounted) {
-                    await context.read<MenuNotifier>().fetchMenuUserData();
-                  }
-                  if (context.mounted) {
-                    await context.read<CartNotifier>().getCart();
-                  }
-                  if (context.mounted) {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const CartPage(),
-                        ));
-                  }
-                },
+                onPressed: () {},
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -337,7 +336,13 @@ class _StoresListViewState extends State<StoresListView> {
                 style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white.withOpacity(0.2),
                     shadowColor: Colors.transparent),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const Settings(),
+                      ));
+                },
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [

@@ -66,7 +66,7 @@ class _StoreDetailsState extends State<StoreDetails> {
                 }
               },
               icon: const Icon(
-                Icons.shopping_bag_outlined,
+                Icons.shopping_cart_outlined,
                 size: 25,
               )),
         ],
@@ -99,6 +99,7 @@ class _StoreDetailsState extends State<StoreDetails> {
     var cartNotifier = context.watch<CartNotifier>();
     var menuNotifier = context.watch<MenuNotifier>();
     var storeNotifier = context.watch<StoreNotifier>();
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: Column(
@@ -151,137 +152,75 @@ class _StoreDetailsState extends State<StoreDetails> {
                   Positioned(
                     right: 10,
                     top: 10,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      width: cartNotifier.cart
+                    child: AnimatedQuantitySelector(
+                      itemCount: cartNotifier.cart
                               .where((cart) =>
                                   cart.menuItemId == menuItem.menuItemId)
                               .toList()
                               .isNotEmpty
-                          ? 90.0
-                          : 30.0,
-                      height: 30.0,
-                      decoration: BoxDecoration(
-                          color: Colors.brown.shade400,
-                          borderRadius: BorderRadius.circular(30)),
-                      child: cartNotifier.cart
+                          ? cartNotifier.cart
                               .where((cart) =>
-                                  cart.menuItemId == menuItem.menuItemId)
-                              .toList()
-                              .isNotEmpty
-                          ? Row(
-                              children: [
-                                SizedBox(
-                                  width: 30,
-                                  child: cartNotifier.cart
-                                              .where((cart) =>
-                                                  cart.menuItemId ==
-                                                      menuItem.menuItemId &&
-                                                  cart.storeEmail ==
-                                                      menuItem.storeEmail)
-                                              .toList()[0]
-                                              .itemCount ==
-                                          1
-                                      ? IconButton(
-                                          onPressed: () {
-                                            removeFromCart(
-                                                menuItem.storeEmail,
-                                                widget.email,
-                                                menuItem.menuItemId);
-                                            context
-                                                .read<CartNotifier>()
-                                                .getCart();
-                                            setState(() {});
-                                          },
-                                          icon: const Icon(
-                                            Icons.delete,
-                                            size: 15,
-                                          ))
-                                      : IconButton(
-                                          onPressed: () async {
-                                            decrementItemCount(
-                                                menuItem.menuItemId,
-                                                cartNotifier.cart
-                                                        .where((cart) =>
-                                                            cart.menuItemId ==
-                                                                menuItem
-                                                                    .menuItemId &&
-                                                            cart.storeEmail ==
-                                                                menuItem
-                                                                    .storeEmail)
-                                                        .toList()[0]
-                                                        .itemCount -
-                                                    1);
-                                            await context
-                                                .read<CartNotifier>()
-                                                .getCart();
-                                            setState(() {});
-                                          },
-                                          icon: const Icon(
-                                            Icons.remove,
-                                            size: 15,
-                                          )),
-                                ),
-                                SizedBox(
-                                  width: 30,
-                                  child: Center(
-                                    child: Text(cartNotifier.cart
-                                        .where((cart) =>
-                                            cart.menuItemId ==
-                                                menuItem.menuItemId &&
-                                            cart.storeEmail ==
-                                                menuItem.storeEmail)
-                                        .toList()[0]
-                                        .itemCount
-                                        .toString()),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 30,
-                                  child: IconButton(
-                                      onPressed: () async {
-                                        await incrementItemCount(
-                                            menuItem.menuItemId,
-                                            cartNotifier.cart
-                                                    .where((cart) =>
-                                                        cart.menuItemId ==
-                                                            menuItem
-                                                                .menuItemId &&
-                                                        cart.storeEmail ==
-                                                            menuItem.storeEmail)
-                                                    .toList()[0]
-                                                    .itemCount +
-                                                1);
-                                        if (context.mounted) {
-                                          await context
-                                              .read<CartNotifier>()
-                                              .getCart();
-                                        }
-                                        setState(() {});
-                                      },
-                                      icon: const Icon(
-                                        Icons.add,
-                                        size: 15,
-                                      )),
-                                )
-                              ],
-                            )
-                          : IconButton(
-                              onPressed: () async {
-                                await addToCart(menuItem.storeEmail,
-                                    widget.email, menuItem.menuItemId);
-                                if (context.mounted) {
-                                  await context.read<CartNotifier>().getCart();
-                                }
-                                if (context.mounted) {
-                                  showSnackbar(context, 'Item added to cart');
-                                }
-                                setState(() {});
-                              },
-                              icon: const Icon(
-                                Icons.add,
-                                size: 15,
-                              )),
+                                  cart.menuItemId == menuItem.menuItemId &&
+                                  cart.storeEmail == menuItem.storeEmail)
+                              .toList()[0]
+                              .itemCount
+                          : 0,
+                      isInCart: cartNotifier.cart
+                          .where(
+                              (cart) => cart.menuItemId == menuItem.menuItemId)
+                          .toList()
+                          .isNotEmpty,
+                      onRemoveFromCartPressed: () async {
+                        await removeFromCart(menuItem.storeEmail, widget.email,
+                            menuItem.menuItemId);
+                        if (context.mounted) {
+                          await context.read<CartNotifier>().getCart();
+                        }
+
+                        setState(() {});
+                      },
+                      onDecrementPressed: () async {
+                        decrementItemCount(
+                            menuItem.menuItemId,
+                            cartNotifier.cart
+                                    .where((cart) =>
+                                        cart.menuItemId ==
+                                            menuItem.menuItemId &&
+                                        cart.storeEmail == menuItem.storeEmail)
+                                    .toList()[0]
+                                    .itemCount -
+                                1);
+                        await context.read<CartNotifier>().getCart();
+                        setState(() {});
+                      },
+                      onIncrementPressed: () async {
+                        await incrementItemCount(
+                            menuItem.menuItemId,
+                            cartNotifier.cart
+                                    .where((cart) =>
+                                        cart.menuItemId ==
+                                            menuItem.menuItemId &&
+                                        cart.storeEmail == menuItem.storeEmail)
+                                    .toList()[0]
+                                    .itemCount +
+                                1);
+                        if (context.mounted) {
+                          await context.read<CartNotifier>().getCart();
+                        }
+                        setState(() {});
+                      },
+                      onAddNewPressed: () async {
+                        await addToCart(menuItem.storeEmail, widget.email,
+                            menuItem.menuItemId);
+                        if (context.mounted) {
+                          await context.read<CartNotifier>().getCart();
+                        }
+
+                        if (context.mounted) {
+                          showSnackbar(context, 'Item added to cart');
+                        }
+                        setState(() {});
+                      },
                     ),
                   )
                 ],
@@ -545,5 +484,91 @@ class _StoreDetailsState extends State<StoreDetails> {
     visibility2 = selected == 2;
     visibility3 = selected == 3;
     visibility4 = selected == 4;
+  }
+}
+
+class AnimatedQuantitySelector extends StatefulWidget {
+  final int itemCount;
+  final bool isInCart;
+  final Function() onRemoveFromCartPressed;
+  final Function() onDecrementPressed;
+  final Function() onIncrementPressed;
+  final Function() onAddNewPressed;
+
+  const AnimatedQuantitySelector({
+    super.key,
+    required this.itemCount,
+    required this.isInCart,
+    required this.onRemoveFromCartPressed,
+    required this.onDecrementPressed,
+    required this.onIncrementPressed,
+    required this.onAddNewPressed,
+  });
+
+  @override
+  State<AnimatedQuantitySelector> createState() =>
+      _AnimatedQuantitySelectorState();
+}
+
+class _AnimatedQuantitySelectorState extends State<AnimatedQuantitySelector> {
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 100),
+      width: widget.isInCart ? 90 : 30,
+      height: 30.0,
+      decoration: BoxDecoration(
+          color: Colors.brown.shade400,
+          borderRadius: BorderRadius.circular(30)),
+      child: widget.isInCart
+          ? Visibility(
+              visible: widget.isInCart,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 100),
+                    width: widget.isInCart ? 30 : 0,
+                    child: widget.itemCount == 1
+                        ? IconButton(
+                            onPressed: widget.onRemoveFromCartPressed,
+                            icon: const Icon(
+                              Icons.delete,
+                              size: 15,
+                            ))
+                        : IconButton(
+                            onPressed: widget.onDecrementPressed,
+                            icon: const Icon(
+                              Icons.remove,
+                              size: 15,
+                            )),
+                  ),
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 100),
+                    width: widget.isInCart ? 30 : 0,
+                    child: Center(
+                      child: Text(widget.itemCount.toString()),
+                    ),
+                  ),
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 100),
+                    width: widget.isInCart ? 30 : 0,
+                    child: IconButton(
+                        onPressed: widget.onIncrementPressed,
+                        icon: const Icon(
+                          Icons.add,
+                          size: 15,
+                        )),
+                  )
+                ],
+              ),
+            )
+          : IconButton(
+              onPressed: widget.onAddNewPressed,
+              icon: const Icon(
+                Icons.add,
+                size: 15,
+              )),
+    );
   }
 }

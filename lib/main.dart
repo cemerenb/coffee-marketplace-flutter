@@ -132,7 +132,7 @@ class _PageNavigatorState extends State<PageNavigator> {
         return LoginPage(isSwitched: false);
 
       case PageEnum.customerHomePage:
-        return StoresListView(stores: context.read<StoreNotifier>().stores);
+        return const StoresListView();
 
       case PageEnum.companyHomePage:
         return const OrdersListView();
