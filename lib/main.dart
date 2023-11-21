@@ -6,6 +6,7 @@ import 'package:coffee/pages/customer_pages/customer_list_stores.dart';
 import 'package:coffee/pages/login/login_page.dart';
 import 'package:coffee/utils/notifiers/cart_notifier.dart';
 import 'package:coffee/utils/notifiers/menu_notifier.dart';
+import 'package:coffee/utils/notifiers/order_details_notifier.dart';
 import 'package:coffee/utils/notifiers/order_notifier.dart';
 import 'package:coffee/utils/notifiers/store_notifier.dart';
 
@@ -52,6 +53,9 @@ class _MyAppState extends State<MyApp> {
         ),
         ChangeNotifierProvider<OrderNotifier>(
           create: (_) => OrderNotifier(),
+        ),
+        ChangeNotifierProvider<OrderDetailsNotifier>(
+          create: (_) => OrderDetailsNotifier(),
         ),
       ],
       child: MaterialApp(

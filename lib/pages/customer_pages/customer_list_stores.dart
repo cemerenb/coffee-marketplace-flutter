@@ -4,7 +4,6 @@ import 'dart:developer';
 import 'package:coffee/pages/customer_pages/customer_cart.dart';
 import 'package:coffee/pages/customer_pages/customer_store_details.dart';
 import 'package:coffee/pages/customer_pages/settings_page.dart';
-import 'package:coffee/utils/classes/order_class.dart';
 import 'package:coffee/utils/get_user/get_user_data.dart';
 import 'package:coffee/utils/notifiers/order_notifier.dart';
 
@@ -39,20 +38,12 @@ final TextEditingController search = TextEditingController();
 class _StoresListViewState extends State<StoresListView> {
   @override
   void initState() {
-    var orderNotifier = context.read<OrderNotifier>();
     super.initState();
-
+    log("init");
     timer = Timer.periodic(
       const Duration(seconds: 1),
       (Timer t) => checkOrder(),
     );
-  }
-
-  @override
-  void dispose() {
-    timer.cancel();
-    check = false;
-    super.dispose();
   }
 
   int count = 0;
@@ -348,6 +339,7 @@ class _StoresListViewState extends State<StoresListView> {
                           }
                           email = await getUserData(0);
                           if (context.mounted) {
+                            timer.cancel();
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -419,6 +411,7 @@ class _StoresListViewState extends State<StoresListView> {
                         }
                         email = await getUserData(0);
                         if (context.mounted) {
+                          timer.cancel();
                           Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -579,11 +572,13 @@ class _StoresListViewState extends State<StoresListView> {
                     backgroundColor: Colors.white.withOpacity(0.2),
                     shadowColor: Colors.transparent),
                 onPressed: () {
-                  Navigator.push(
+                  timer.cancel();
+                  Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
                         builder: (context) => const Settings(),
-                      ));
+                      ),
+                      (route) => false);
                 },
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,

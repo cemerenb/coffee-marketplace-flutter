@@ -4,7 +4,8 @@ import 'dart:developer';
 import 'package:coffee/pages/company_pages/company_menu_page.dart';
 import 'package:coffee/pages/company_pages/company_settings.dart';
 import 'package:coffee/utils/get_user/get_user_data.dart';
-import 'package:coffee/utils/notifiers/cart_notifier.dart';
+import 'package:coffee/utils/notifiers/menu_notifier.dart';
+import 'package:coffee/utils/notifiers/order_details_notifier.dart';
 import 'package:coffee/utils/notifiers/order_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -36,8 +37,11 @@ class _OrdersListViewState extends State<OrdersListView> {
   @override
   void initState() {
     super.initState();
+    context.read<OrderDetailsNotifier>().fetchOrderDetailsData();
+    context.read<MenuNotifier>().fetchMenuUserData();
+    log("init");
     timer = Timer.periodic(
-      const Duration(seconds: 1),
+      const Duration(seconds: 3),
       (Timer t) => checkOrder(),
     );
   }
@@ -57,33 +61,97 @@ class _OrdersListViewState extends State<OrdersListView> {
     );
   }
 
-  Column listCompanyOrders() {
-    var orderNotifier = context.watch<OrderNotifier>();
-    return Column(
-      children: [
-        ListView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: orderNotifier.order
-                .where((order) => order.storeEmail == widget.email)
-                .length,
-            itemBuilder: (context, index) {
-              var order = orderNotifier.order
-                  .where((order) => order.storeEmail == widget.email);
-              return Card(
-                child: ListTile(
-                  title: Text(order.first.orderId),
-                ),
-              );
-            })
-      ],
+  Padding listCompanyOrders() {
+    var orderNotifier = context.read<OrderNotifier>();
+    var orderDetailsNotifier = context.read<OrderDetailsNotifier>();
+    var menuNotifier = context.read<MenuNotifier>();
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            ListView.builder(
+                reverse: true,
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: orderNotifier.order
+                    .where((order) => order.storeEmail == widget.email)
+                    .length,
+                itemBuilder: (context, index) {
+                  return Card(
+                    child: ListTile(
+                      leading: SizedBox(
+                        width: 70,
+                        height: 70,
+                        child: Stack(
+                          children: [
+                            Container(
+                              height: 80,
+                              width: 80,
+                              decoration: const BoxDecoration(
+                                  color: Color.fromARGB(255, 219, 214, 214),
+                                  shape: BoxShape.circle),
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Image.network(
+                                  menuNotifier.menu
+                                      .where((m) =>
+                                          m.menuItemId ==
+                                          orderDetailsNotifier.orderDetails
+                                              .where((o) =>
+                                                  o.orderId ==
+                                                  orderNotifier
+                                                      .order[index].orderId)
+                                              .first
+                                              .menuItemId)
+                                      .first
+                                      .menuItemImageLink,
+                                  fit: BoxFit.fitHeight,
+                                ),
+                              ),
+                            ),
+                            Visibility(
+                              visible: orderNotifier.order[index].itemCount > 1,
+                              child: Positioned(
+                                  right: 0,
+                                  child: Container(
+                                    height: 23,
+                                    width: 23,
+                                    decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.brown.shade400),
+                                    child: Center(
+                                      child: Text(
+                                          "+${orderNotifier.order[index].itemCount - 1}"),
+                                    ),
+                                  )),
+                            ),
+                          ],
+                        ),
+                      ),
+                      title: Text(orderNotifier.order[index].orderId),
+                      subtitle:
+                          Text(orderNotifier.order[index].itemCount.toString()),
+                    ),
+                  );
+                })
+          ],
+        ),
+      ),
     );
   }
 
   Future<bool> checkOrder() async {
     if (mounted) {
       var orderNotifier = context.read<OrderNotifier>();
-      await context.read<OrderNotifier>().fetchCompanyOrderData();
+      await context.read<OrderDetailsNotifier>().fetchOrderDetailsData();
+      if (mounted) {
+        await context.read<MenuNotifier>().fetchMenuUserData();
+      }
+      if (mounted) {
+        await context.read<OrderNotifier>().fetchCompanyOrderData();
+      }
+
       if (orderNotifier.order.isNotEmpty) {
         isLoading = false;
         setState(() {});
