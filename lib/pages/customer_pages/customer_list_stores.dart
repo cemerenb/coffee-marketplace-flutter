@@ -96,7 +96,10 @@ class _StoresListViewState extends State<StoresListView> {
         child: Column(
           children: [
             searchField(),
-            orderInfoArea(context),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              child: orderInfoArea(context),
+            ),
             listStores(),
           ],
         ),
@@ -105,107 +108,212 @@ class _StoresListViewState extends State<StoresListView> {
     );
   }
 
-  Container orderInfoArea(BuildContext context) {
+  Widget orderInfoArea(BuildContext context) {
     var orderNotifier = context.watch<OrderNotifier>();
+    var storeNotifier = context.watch<StoreNotifier>();
 
-    return Container(
-        height: 130,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: Colors.red,
-        ),
-        child: Container(
-            height: 150,
-            width: MediaQuery.of(context).size.width,
+    return orderNotifier.order.isNotEmpty &&
+            search.text.isEmpty &&
+            orderNotifier.order.last.orderStatus < 5
+        ? Container(
+            height: 130,
             decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.4),
-                borderRadius: BorderRadius.circular(20)),
-            child: isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : orderNotifier.order.isEmpty
-                    ? const Text("No order to shown")
-                    : Container(
-                        decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.4),
-                            borderRadius: BorderRadius.circular(20)),
-                        height: 150,
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Text(orderNotifier.order[index].orderId),
-                              Row(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Container(
+                height: 150,
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(20)),
+                child: isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : orderNotifier.order.isEmpty
+                        ? const Text("No order to shown")
+                        : Container(
+                            decoration: BoxDecoration(
+                              color: const Color.fromARGB(255, 249, 241, 246),
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color:
+                                      const Color.fromARGB(255, 215, 211, 215)
+                                          .withOpacity(0.5),
+                                  spreadRadius: 1,
+                                  blurRadius: 0,
+                                  offset: const Offset(
+                                      1, 1), // changes position of shadow
+                                ),
+                              ],
+                            ),
+                            height: 150,
+                            child: Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Column(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Container(
-                                    width:
-                                        MediaQuery.of(context).size.width / 7,
-                                    height: 5,
-                                    color: orderStatus > 0
-                                        ? Colors.brown.shade400
-                                        : Colors.black.withOpacity(0.3),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          Text(
+                                            storeNotifier.stores
+                                                .where((store) =>
+                                                    store.storeEmail ==
+                                                    orderNotifier
+                                                        .order.last.storeEmail)
+                                                .first
+                                                .storeName,
+                                            style:
+                                                const TextStyle(fontSize: 20),
+                                          ),
+                                          Text(
+                                            "Order Id : ${orderNotifier.order.last.orderId}",
+                                            style:
+                                                const TextStyle(fontSize: 12),
+                                          ),
+                                          Text(
+                                            "${orderNotifier.order.last.orderCreatingTime.split(":").first}:${orderNotifier.order.last.orderCreatingTime.split(":")[1]}",
+                                            style:
+                                                const TextStyle(fontSize: 12),
+                                          ),
+                                        ],
+                                      ),
+                                      Column(
+                                        children: [
+                                          ElevatedButton(
+                                              onPressed: () {},
+                                              child: const Text("All Orders")),
+                                        ],
+                                      ),
+                                    ],
                                   ),
-                                  Container(
-                                    width:
-                                        MediaQuery.of(context).size.width / 7,
-                                    height: 5,
-                                    color: orderStatus > 1
-                                        ? Colors.brown.shade400
-                                        : Colors.black.withOpacity(0.3),
-                                  ),
-                                  Container(
-                                    width:
-                                        MediaQuery.of(context).size.width / 7,
-                                    height: 5,
-                                    color: orderStatus > 2
-                                        ? Colors.brown.shade400
-                                        : Colors.black.withOpacity(0.3),
-                                  ),
-                                  Container(
-                                    width:
-                                        MediaQuery.of(context).size.width / 7,
-                                    height: 5,
-                                    color: orderStatus > 3
-                                        ? Colors.brown.shade400
-                                        : Colors.black.withOpacity(0.3),
-                                  ),
+                                  Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(
+                                          orderStatus == 1
+                                              ? "Order Placed"
+                                              : orderStatus == 2
+                                                  ? "Order Confirmed"
+                                                  : orderStatus == 3
+                                                      ? "Order Preparing"
+                                                      : orderStatus == 4
+                                                          ? "Order Ready"
+                                                          : "",
+                                          style: const TextStyle(fontSize: 17),
+                                        ),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          Container(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width /
+                                                6,
+                                            height: 7,
+                                            decoration: BoxDecoration(
+                                                color: orderStatus > 0
+                                                    ? Colors.brown.shade400
+                                                    : Colors.black
+                                                        .withOpacity(0.3),
+                                                borderRadius:
+                                                    BorderRadius.circular(10)),
+                                          ),
+                                          Container(
+                                            decoration: BoxDecoration(
+                                                color: orderStatus > 1
+                                                    ? Colors.brown.shade400
+                                                    : Colors.black
+                                                        .withOpacity(0.3),
+                                                borderRadius:
+                                                    BorderRadius.circular(10)),
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width /
+                                                6,
+                                            height: 7,
+                                          ),
+                                          Container(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width /
+                                                6,
+                                            height: 7,
+                                            decoration: BoxDecoration(
+                                                color: orderStatus > 2
+                                                    ? Colors.brown.shade400
+                                                    : Colors.black
+                                                        .withOpacity(0.3),
+                                                borderRadius:
+                                                    BorderRadius.circular(10)),
+                                          ),
+                                          Container(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width /
+                                                6,
+                                            height: 7,
+                                            decoration: BoxDecoration(
+                                                color: orderStatus > 3
+                                                    ? Colors.brown.shade400
+                                                    : Colors.black
+                                                        .withOpacity(0.3),
+                                                borderRadius:
+                                                    BorderRadius.circular(10)),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  )
                                 ],
-                              )
-                            ],
-                          ),
-                        ),
-                      )));
+                              ),
+                            ),
+                          )))
+        : const SizedBox(
+            height: 1,
+          );
   }
 
   Future<bool> checkOrder() async {
-    if (!context.mounted) return false;
-
-    var orderNotifier = context.read<OrderNotifier>();
-    await context.read<OrderNotifier>().fetchOrderData();
-    if (orderNotifier.order.isNotEmpty) {
-      for (var i = 0; i < orderNotifier.order.length; i++) {
-        if (orderNotifier.order[i].orderStatus < 5) {
-          index = i;
-          isLoading = false;
-          setState(() {});
-        }
-      }
+    if (mounted) {
+      var orderNotifier = context.read<OrderNotifier>();
+      await context.read<OrderNotifier>().fetchOrderData();
       if (orderNotifier.order.isNotEmpty) {
-        orderStatus = orderNotifier.order[index].orderStatus;
-
+        isLoading = false;
         setState(() {});
-        log("c1: $c1, c2: $c2, c3: $c3, c4: $c4");
+        if (orderNotifier.order.isNotEmpty) {
+          orderStatus = orderNotifier.order.last.orderStatus;
+          if (context.mounted) {
+            context.read<OrderNotifier>().fetchOrderData();
+          }
+
+          setState(() {});
+          log("c1: $c1, c2: $c2, c3: $c3, c4: $c4");
+        }
+        setState(() {});
+        return true;
+      } else {
+        isLoading = false;
+        setState(() {});
+        log("No order found");
+        return false;
       }
-      setState(() {});
-      return true;
-    } else {
-      isLoading = false;
-      setState(() {});
-      log("No order found");
-      return false;
     }
+    return false;
   }
 
   Expanded listStores() {

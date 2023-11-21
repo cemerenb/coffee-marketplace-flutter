@@ -7,7 +7,7 @@ import '../../../pages/company_pages/company_settings.dart';
 import '../../classes/stores.dart';
 import '../../get_user/get_user_data.dart';
 
-Future<void> fetchStoreData() async {
+Future<bool> fetchStoreData() async {
   final String email = await getUserData(0);
   log('Fetch Store $email');
   try {
@@ -35,10 +35,13 @@ Future<void> fetchStoreData() async {
           .where((store) => store.storeEmail == email)
           .toList();
       log(store.length.toString());
+      return true;
     } else {
       log('Error: ${response.statusCode}');
+      return false;
     }
   } catch (e) {
     log('Error: $e');
+    return false;
   }
 }

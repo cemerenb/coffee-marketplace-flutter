@@ -1,31 +1,115 @@
+import 'dart:async';
+import 'dart:developer';
+
 import 'package:coffee/pages/company_pages/company_menu_page.dart';
 import 'package:coffee/pages/company_pages/company_settings.dart';
 import 'package:coffee/utils/get_user/get_user_data.dart';
+import 'package:coffee/utils/notifiers/cart_notifier.dart';
+import 'package:coffee/utils/notifiers/order_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../utils/database_operations/store/get_menu.dart';
 import '../../utils/database_operations/store/get_store_data.dart';
 
 class OrdersListView extends StatefulWidget {
   // ignore: prefer_const_constructors_in_immutables
-  const OrdersListView({
-    super.key,
-  });
-
+  const OrdersListView({super.key, required this.email});
+  final String email;
   @override
   State<OrdersListView> createState() => _OrdersListViewState();
 }
 
+bool isLoading = true;
+bool activeOrderFound = false;
+int index = 0;
+bool c1 = false;
+bool c2 = false;
+bool c3 = false;
+bool c4 = false;
+bool check = true;
+int orderStatus = 1;
+
+late Timer timer;
+
 class _OrdersListViewState extends State<OrdersListView> {
+  @override
+  void initState() {
+    super.initState();
+    timer = Timer.periodic(
+      const Duration(seconds: 1),
+      (Timer t) => checkOrder(),
+    );
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    check = false;
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: const Text('Order Page'),
+      body: listCompanyOrders(),
       bottomNavigationBar: bottomNavigationBar(),
     );
   }
 
+  Column listCompanyOrders() {
+    var orderNotifier = context.watch<OrderNotifier>();
+    return Column(
+      children: [
+        ListView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: orderNotifier.order
+                .where((order) => order.storeEmail == widget.email)
+                .length,
+            itemBuilder: (context, index) {
+              var order = orderNotifier.order
+                  .where((order) => order.storeEmail == widget.email);
+              return Card(
+                child: ListTile(
+                  title: Text(order.first.orderId),
+                ),
+              );
+            })
+      ],
+    );
+  }
+
+  Future<bool> checkOrder() async {
+    if (mounted) {
+      var orderNotifier = context.read<OrderNotifier>();
+      await context.read<OrderNotifier>().fetchCompanyOrderData();
+      if (orderNotifier.order.isNotEmpty) {
+        isLoading = false;
+        setState(() {});
+        if (orderNotifier.order.isNotEmpty) {
+          orderStatus = orderNotifier.order.last.orderStatus;
+          if (context.mounted) {
+            context.read<OrderNotifier>().fetchCompanyOrderData();
+          }
+
+          setState(() {});
+          log("order data fetched");
+        }
+        setState(() {});
+        return true;
+      } else {
+        isLoading = false;
+        setState(() {});
+        log("No order found");
+        return false;
+      }
+    }
+    return false;
+  }
+
   Padding bottomNavigationBar() {
+    var orderNotifier = context.watch<OrderNotifier>();
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
@@ -44,6 +128,10 @@ class _OrdersListViewState extends State<OrdersListView> {
                         backgroundColor: Colors.white.withOpacity(0.2),
                         shadowColor: Colors.transparent),
                     onPressed: () async {
+                      log(widget.email);
+                      log(orderNotifier.order
+                          .where((order) => order.storeEmail == widget.email)
+                          .toString());
                       setState(() {});
                     },
                     child: Column(
@@ -68,11 +156,12 @@ class _OrdersListViewState extends State<OrdersListView> {
                       final String email = await getUserData(0);
                       await fetchMenuData();
                       if (context.mounted) {
-                        Navigator.push(
+                        Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
                               builder: (context) => MenusListView(email: email),
-                            ));
+                            ),
+                            (route) => false);
                         setState(() {});
                       }
                     },
@@ -97,11 +186,12 @@ class _OrdersListViewState extends State<OrdersListView> {
                       final String email = await getUserData(0);
                       await fetchStoreData();
                       if (context.mounted) {
-                        Navigator.push(
+                        Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
                               builder: (context) => StoreInfoPage(email: email),
-                            ));
+                            ),
+                            (route) => false);
                         setState(() {});
                       }
                     },

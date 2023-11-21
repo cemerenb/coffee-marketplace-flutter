@@ -118,7 +118,8 @@ class _CartPageState extends State<CartPage> {
                 itemCount: cartNotifier.cart.length,
                 itemBuilder: (context, index) {
                   var item = menuNotifier.menu.where((menu) =>
-                      menu.menuItemId == cartNotifier.cart[index].menuItemId);
+                      menu.menuItemId == cartNotifier.cart[index].menuItemId &&
+                      menu.storeEmail == cartNotifier.cart[index].storeEmail);
 
                   return Card(
                     child: ListTile(
@@ -150,7 +151,8 @@ class _CartPageState extends State<CartPage> {
                                 .where((cart) =>
                                     cart.menuItemId == item.first.menuItemId &&
                                     cart.storeEmail == item.first.storeEmail)
-                                .toList()[0]
+                                .toList()
+                                .first
                                 .itemCount
                             : 0,
                         isInCart: cartNotifier.cart

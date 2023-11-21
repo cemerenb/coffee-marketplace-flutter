@@ -157,19 +157,21 @@ class _PersonLoginPageState extends State<PersonLoginPage> {
                       'Login',
                       style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
-                    onPressed: () {
+                    onPressed: () async {
+                      bool isCompleted = false;
+
                       setState(() {
                         isLoggingIn = true;
                       });
 
-                      LoginApi()
-                          .loginUser(context, emailController.text,
-                              passwordController.text)
-                          .then((success) async {
+                      isCompleted = await LoginApi().loginUser(context,
+                          emailController.text, passwordController.text);
+                      if (isCompleted) {
                         await fetchStoreData();
-
+                      } else {
                         isLoggingIn = false;
-                      });
+                        setState(() {});
+                      }
                     },
                   ),
           ),
@@ -259,7 +261,10 @@ class _CompanyLoginPageState extends State<CompanyLoginPage> {
     if (context.mounted) {
       Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => const OrdersListView()),
+          MaterialPageRoute(
+              builder: (context) => OrdersListView(
+                    email: companyEmailController.text,
+                  )),
           (route) => false);
     }
 

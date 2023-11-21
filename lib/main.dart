@@ -139,7 +139,9 @@ class _PageNavigatorState extends State<PageNavigator> {
         return const StoresListView();
 
       case PageEnum.companyHomePage:
-        return const OrdersListView();
+        return OrdersListView(
+          email: email,
+        );
     }
   }
 }

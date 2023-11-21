@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:coffee/pages/company_pages/company_orders_page.dart';
+import 'package:coffee/utils/get_user/get_user_data.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -89,12 +90,17 @@ Future<void> _showCompletedDialog(BuildContext context, String response) async {
           actions: <Widget>[
             TextButton(
               child: const Text('Okay'),
-              onPressed: () {
-                Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const OrdersListView()),
-                    (route) => false);
+              onPressed: () async {
+                final String email = await getUserData(0);
+                if (context.mounted) {
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => OrdersListView(
+                                email: email,
+                              )),
+                      (route) => false);
+                }
               },
             ),
           ],

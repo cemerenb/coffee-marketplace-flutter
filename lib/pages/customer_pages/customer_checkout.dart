@@ -230,7 +230,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
                   children: [
                     Text(
                       store.first.storeName,
-                      style: const TextStyle(fontSize: 20),
+                      style: const TextStyle(fontSize: 16),
                     ),
                     Text(
                       "${store.first.openingTime.replaceAll(" ", "")}-${store.first.closingTime.replaceAll(" ", "")}",

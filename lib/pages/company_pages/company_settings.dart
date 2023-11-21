@@ -175,7 +175,9 @@ class _StoreInfoPageState extends State<StoreInfoPage> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const OrdersListView(),
+                            builder: (context) => OrdersListView(
+                              email: widget.email,
+                            ),
                           ));
                       setState(() {});
                     },
@@ -282,18 +284,21 @@ class LogoArea extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Welcome back!',
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.w300)),
-                    Text(
-                      store[0].storeName,
-                      style: const TextStyle(
-                          fontSize: 25, fontWeight: FontWeight.w600),
-                    ),
-                  ],
+                SizedBox(
+                  width: MediaQuery.of(context).size.width / 2.2,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Welcome back!',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.w300)),
+                      Text(
+                        store[0].storeName,
+                        style: const TextStyle(
+                            fontSize: 25, fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(
                   height: 30,

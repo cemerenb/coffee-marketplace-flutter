@@ -152,76 +152,89 @@ class _StoreDetailsState extends State<StoreDetails> {
                   Positioned(
                     right: 10,
                     top: 10,
-                    child: AnimatedQuantitySelector(
-                      itemCount: cartNotifier.cart
-                              .where((cart) =>
-                                  cart.menuItemId == menuItem.menuItemId)
-                              .toList()
-                              .isNotEmpty
-                          ? cartNotifier.cart
-                              .where((cart) =>
-                                  cart.menuItemId == menuItem.menuItemId &&
-                                  cart.storeEmail == menuItem.storeEmail)
-                              .toList()[0]
-                              .itemCount
-                          : 0,
-                      isInCart: cartNotifier.cart
-                          .where(
-                              (cart) => cart.menuItemId == menuItem.menuItemId)
-                          .toList()
-                          .isNotEmpty,
-                      onRemoveFromCartPressed: () async {
-                        await removeFromCart(menuItem.storeEmail, widget.email,
-                            menuItem.menuItemId);
-                        if (context.mounted) {
-                          await context.read<CartNotifier>().getCart();
-                        }
-
-                        setState(() {});
-                      },
-                      onDecrementPressed: () async {
-                        decrementItemCount(
-                            menuItem.menuItemId,
-                            cartNotifier.cart
+                    child: cartNotifier.cart.isEmpty ||
+                            cartNotifier.cart.first.storeEmail ==
+                                menuItem.storeEmail
+                        ? AnimatedQuantitySelector(
+                            itemCount: cartNotifier.cart
+                                    .where((cart) =>
+                                        cart.menuItemId == menuItem.menuItemId)
+                                    .toList()
+                                    .isNotEmpty
+                                ? cartNotifier.cart
                                     .where((cart) =>
                                         cart.menuItemId ==
                                             menuItem.menuItemId &&
                                         cart.storeEmail == menuItem.storeEmail)
                                     .toList()[0]
-                                    .itemCount -
-                                1);
-                        await context.read<CartNotifier>().getCart();
-                        setState(() {});
-                      },
-                      onIncrementPressed: () async {
-                        await incrementItemCount(
-                            menuItem.menuItemId,
-                            cartNotifier.cart
-                                    .where((cart) =>
-                                        cart.menuItemId ==
-                                            menuItem.menuItemId &&
-                                        cart.storeEmail == menuItem.storeEmail)
-                                    .toList()[0]
-                                    .itemCount +
-                                1);
-                        if (context.mounted) {
-                          await context.read<CartNotifier>().getCart();
-                        }
-                        setState(() {});
-                      },
-                      onAddNewPressed: () async {
-                        await addToCart(menuItem.storeEmail, widget.email,
-                            menuItem.menuItemId);
-                        if (context.mounted) {
-                          await context.read<CartNotifier>().getCart();
-                        }
+                                    .itemCount
+                                : 0,
+                            isInCart: cartNotifier.cart
+                                .where((cart) =>
+                                    cart.menuItemId == menuItem.menuItemId)
+                                .toList()
+                                .isNotEmpty,
+                            onRemoveFromCartPressed: () async {
+                              await removeFromCart(menuItem.storeEmail,
+                                  widget.email, menuItem.menuItemId);
+                              if (context.mounted) {
+                                await context.read<CartNotifier>().getCart();
+                              }
 
-                        if (context.mounted) {
-                          showSnackbar(context, 'Item added to cart');
-                        }
-                        setState(() {});
-                      },
-                    ),
+                              setState(() {});
+                            },
+                            onDecrementPressed: () async {
+                              decrementItemCount(
+                                  menuItem.menuItemId,
+                                  cartNotifier.cart
+                                          .where((cart) =>
+                                              cart.menuItemId ==
+                                                  menuItem.menuItemId &&
+                                              cart.storeEmail ==
+                                                  menuItem.storeEmail)
+                                          .toList()[0]
+                                          .itemCount -
+                                      1);
+                              await context.read<CartNotifier>().getCart();
+                              setState(() {});
+                            },
+                            onIncrementPressed: () async {
+                              await incrementItemCount(
+                                  menuItem.menuItemId,
+                                  cartNotifier.cart
+                                          .where((cart) =>
+                                              cart.menuItemId ==
+                                                  menuItem.menuItemId &&
+                                              cart.storeEmail ==
+                                                  menuItem.storeEmail)
+                                          .toList()[0]
+                                          .itemCount +
+                                      1);
+                              if (context.mounted) {
+                                await context.read<CartNotifier>().getCart();
+                              }
+                              setState(() {});
+                            },
+                            onAddNewPressed: () async {
+                              if (cartNotifier.cart.isNotEmpty &&
+                                  cartNotifier.cart.first.storeEmail !=
+                                      menuItem.storeEmail) {
+                                log("Item store not match with cart items");
+                              } else {
+                                await addToCart(menuItem.storeEmail,
+                                    widget.email, menuItem.menuItemId);
+                                if (mounted) {
+                                  await context.read<CartNotifier>().getCart();
+                                }
+
+                                if (context.mounted) {
+                                  showSnackbar(context, 'Item added to cart');
+                                }
+                                setState(() {});
+                              }
+                            },
+                          )
+                        : const SizedBox(),
                   )
                 ],
               ),

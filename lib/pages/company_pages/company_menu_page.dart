@@ -157,7 +157,9 @@ class _MenusListViewState extends State<MenusListView> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const OrdersListView(),
+                            builder: (context) => OrdersListView(
+                              email: widget.email,
+                            ),
                           ));
                       setState(() {});
                     },
