@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:coffee/pages/company_pages/company_menu_page.dart';
 import 'package:coffee/pages/company_pages/company_settings.dart';
+import 'package:coffee/utils/database_operations/user/get_user.dart';
 import 'package:coffee/utils/get_user/get_user_data.dart';
 import 'package:coffee/utils/notifiers/menu_notifier.dart';
 import 'package:coffee/utils/notifiers/order_details_notifier.dart';
@@ -29,8 +30,9 @@ bool c2 = false;
 bool c3 = false;
 bool c4 = false;
 bool check = true;
+bool isNameLoading = true;
 int orderStatus = 1;
-
+String? _user;
 late Timer timer;
 
 class _OrdersListViewState extends State<OrdersListView> {
@@ -71,7 +73,6 @@ class _OrdersListViewState extends State<OrdersListView> {
         child: Column(
           children: [
             ListView.builder(
-                reverse: true,
                 physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: orderNotifier.order
@@ -129,9 +130,23 @@ class _OrdersListViewState extends State<OrdersListView> {
                           ],
                         ),
                       ),
-                      title: Text(orderNotifier.order[index].orderId),
-                      subtitle:
-                          Text(orderNotifier.order[index].itemCount.toString()),
+                      title: FutureBuilder<String>(
+                        future: getUser(orderNotifier.order[index].userEmail),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                                  ConnectionState.waiting &&
+                              isNameLoading == true) {
+                            return const CircularProgressIndicator();
+                          } else if (snapshot.hasError) {
+                            return Text(snapshot.error.toString());
+                          } else {
+                            isNameLoading = false;
+                            _user = snapshot.data;
+                            return Text(_user ?? '');
+                          }
+                        },
+                      ),
+                      subtitle: Text(orderNotifier.order[index].orderId),
                     ),
                   );
                 })
