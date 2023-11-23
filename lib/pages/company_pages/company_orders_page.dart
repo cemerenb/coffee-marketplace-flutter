@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:coffee/pages/company_pages/company_menu_page.dart';
+import 'package:coffee/pages/company_pages/company_order_details.dart';
 import 'package:coffee/pages/company_pages/company_settings.dart';
 import 'package:coffee/utils/database_operations/user/get_user.dart';
 import 'package:coffee/utils/get_user/get_user_data.dart';
@@ -81,6 +82,16 @@ class _OrdersListViewState extends State<OrdersListView> {
                 itemBuilder: (context, index) {
                   return Card(
                     child: ListTile(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CompanyOrderDetails(
+                                email: widget.email,
+                                orderId: orderNotifier.order[index].orderId,
+                              ),
+                            ));
+                      },
                       leading: SizedBox(
                         width: 70,
                         height: 70,
