@@ -24,6 +24,8 @@ class OrderDetailsNotifier extends ChangeNotifier {
             userEmail: orderData['userEmail'],
             menuItemId: orderData['menuItemId'],
             itemCount: orderData['itemCount'],
+            itemCanceled: orderData['itemCanceled'],
+            cancelNote: orderData['cancelNote'],
           );
         }).toList();
 

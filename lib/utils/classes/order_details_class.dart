@@ -4,6 +4,8 @@ class OrderDetails {
   final String userEmail;
   final String menuItemId;
   final int itemCount;
+  final int itemCanceled;
+  final String cancelNote;
 
   OrderDetails({
     required this.storeEmail,
@@ -11,5 +13,7 @@ class OrderDetails {
     required this.userEmail,
     required this.menuItemId,
     required this.itemCount,
+    required this.itemCanceled,
+    required this.cancelNote,
   });
 }

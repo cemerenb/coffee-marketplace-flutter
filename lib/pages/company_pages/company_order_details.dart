@@ -1,3 +1,4 @@
+import 'package:coffee/utils/database_operations/order/cancel_order_item.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -56,29 +57,86 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
                   .where((o) => o.orderId == widget.orderId)
                   .length,
               itemBuilder: (context, index) {
-                return Card(
-                  child: ListTile(
-                    leading: SizedBox(
+                return Stack(
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width,
                       height: 80,
-                      width: 80,
-                      child: Image.network(
-                        menuNotifier.menu
-                            .where((m) =>
-                                m.menuItemId ==
-                                orderDetailsNotifier.orderDetails
-                                    .where((o) => o.orderId == widget.orderId)
-                                    .toList()[index]
-                                    .menuItemId)
-                            .first
-                            .menuItemImageLink,
-                        fit: BoxFit.fitHeight,
+                      child: Card(
+                        child: ListTile(
+                          leading: SizedBox(
+                            height: 80,
+                            width: 80,
+                            child: Image.network(
+                              menuNotifier.menu
+                                  .where((m) =>
+                                      m.menuItemId ==
+                                      orderDetailsNotifier.orderDetails
+                                          .where((o) =>
+                                              o.orderId == widget.orderId)
+                                          .toList()[index]
+                                          .menuItemId)
+                                  .first
+                                  .menuItemImageLink,
+                              fit: BoxFit.fitHeight,
+                            ),
+                          ),
+                          title: Text(menuNotifier.menu
+                              .where((m) =>
+                                  m.menuItemId ==
+                                  orderDetailsNotifier.orderDetails
+                                      .where((o) => o.orderId == widget.orderId)
+                                      .toList()[index]
+                                      .menuItemId)
+                              .first
+                              .menuItemName),
+                          subtitle: Text(
+                              "${orderDetailsNotifier.orderDetails.where((o) => o.orderId == widget.orderId).toList()[index].itemCount} piece"),
+                        ),
                       ),
                     ),
-                    subtitle: Text(orderDetailsNotifier.orderDetails
-                        .where((o) => o.orderId == widget.orderId)
-                        .toList()[index]
-                        .menuItemId),
-                  ),
+                    Visibility(
+                      visible: orderDetailsNotifier
+                              .orderDetails[index].itemCanceled ==
+                          1,
+                      child: Container(
+                        width: MediaQuery.of(context).size.width - 10,
+                        decoration: BoxDecoration(
+                            color: const Color.fromARGB(136, 77, 77, 77),
+                            borderRadius: BorderRadius.circular(15)),
+                        height: 78,
+                        child: const Center(
+                          child: Text(
+                            'Canceled',
+                            style: TextStyle(color: Colors.white, fontSize: 25),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Visibility(
+                      visible: orderDetailsNotifier
+                              .orderDetails[index].itemCanceled !=
+                          1,
+                      child: Positioned(
+                        top: 0,
+                        right: 0,
+                        child: SizedBox(
+                          height: 35,
+                          width: 35,
+                          child: IconButton(
+                            style: IconButton.styleFrom(
+                                backgroundColor:
+                                    const Color.fromARGB(255, 255, 161, 155)),
+                            onPressed: () {},
+                            icon: const Icon(
+                              Icons.delete,
+                              size: 17,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
                 );
               })
         ],
