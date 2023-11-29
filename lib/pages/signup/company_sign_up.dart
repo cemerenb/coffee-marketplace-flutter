@@ -6,6 +6,8 @@ import 'package:coffee/pages/signup/widgets/company/company_password_field.dart'
 import 'package:coffee/pages/signup/widgets/company/store_name_field.dart';
 import 'package:coffee/pages/signup/widgets/company/tax_id_field.dart';
 import 'package:coffee/pages/signup/widgets/customer/email_field.dart';
+import 'package:coffee/utils/validators.dart';
+import 'package:coffee/widgets/dialogs.dart';
 import 'package:flutter/material.dart';
 
 import '../../utils/database_operations/register/register_store.dart';
@@ -70,28 +72,71 @@ class _CompanySignUpState extends State<CompanySignUp> {
                                     color: Colors.white, fontSize: 18),
                               ),
                               onPressed: () {
-                                setState(() {
-                                  isLoggingIn = true;
-                                });
-                                isLoggingIn = true;
-                                StoreRegistrationApi()
-                                    .registerStore(
-                                        context,
-                                        storeNameController.text,
-                                        taxIdController.text,
-                                        emailController.text,
-                                        passwordController.text,
-                                        confirmPasswordController.text)
-                                    .then((success) {
-                                  setState(() {
-                                    storeNameController.text = "";
-                                    taxIdController.text = "";
-                                    emailController.text = "";
-                                    passwordController.text = "";
-                                    confirmPasswordController.text = "";
-                                    isLoggingIn = false;
-                                  });
-                                });
+                                if (storeNameController.text.isEmpty) {
+                                  Dialogs.showErrorDialog(
+                                      context, "Store name can't be empty");
+                                  isLoggingIn = false;
+                                } else if (Validators.emailValidator(
+                                        emailController.text) !=
+                                    null) {
+                                  Dialogs.showErrorDialog(
+                                      context,
+                                      Validators.emailValidator(
+                                              emailController.text) ??
+                                          "");
+                                  isLoggingIn = false;
+                                } else if (Validators.taxIdValidator(
+                                        taxIdController.text) !=
+                                    null) {
+                                  Dialogs.showErrorDialog(
+                                      context,
+                                      Validators.taxIdValidator(
+                                              taxIdController.text) ??
+                                          "");
+                                } else if (!Validators.minLengthCorrect(
+                                    passwordController.text, 8)) {
+                                  Dialogs.showErrorDialog(context,
+                                      "Password must be at least 8 characters");
+                                  isLoggingIn = false;
+                                } else if (!Validators.uppercasePresent(
+                                        passwordController.text) ||
+                                    !Validators.numericsPresent(
+                                        passwordController.text) ||
+                                    !Validators.specialCharactersPresent(
+                                        passwordController.text)) {
+                                  Dialogs.showErrorDialog(context,
+                                      "Password must contain at least one uppercase character, one special character and one number");
+                                  isLoggingIn = false;
+                                } else {
+                                  if (passwordController.text ==
+                                      confirmPasswordController.text) {
+                                    setState(() {
+                                      isLoggingIn = true;
+                                    });
+                                    isLoggingIn = true;
+                                    StoreRegistrationApi()
+                                        .registerStore(
+                                            context,
+                                            storeNameController.text,
+                                            taxIdController.text,
+                                            emailController.text,
+                                            passwordController.text,
+                                            confirmPasswordController.text)
+                                        .then((success) {
+                                      setState(() {
+                                        storeNameController.text = "";
+                                        taxIdController.text = "";
+                                        emailController.text = "";
+                                        passwordController.text = "";
+                                        confirmPasswordController.text = "";
+                                        isLoggingIn = false;
+                                      });
+                                    });
+                                  } else {
+                                    Dialogs.showErrorDialog(
+                                        context, "Password are not matching");
+                                  }
+                                }
                               },
                             ),
                     ),

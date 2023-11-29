@@ -180,10 +180,10 @@ class _OrdersListViewState extends State<OrdersListView> {
 
       if (orderNotifier.order.isNotEmpty) {
         isLoading = false;
-        setState(() {});
+
         if (orderNotifier.order.isNotEmpty) {
           orderStatus = orderNotifier.order.last.orderStatus;
-          if (context.mounted) {
+          if (mounted) {
             context.read<OrderNotifier>().fetchCompanyOrderData();
           }
 

@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:coffee/utils/database_operations/order/cancel_order_item.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -152,7 +150,6 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
 
   Future<void> showDataAlert(int index) async {
     var orderDetailsNotifier = context.read<OrderDetailsNotifier>();
-    var menuNotifier = context.read<MenuNotifier>();
     return showDialog(
         context: context,
         builder: (context) {
@@ -220,6 +217,7 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
                           ElevatedButton(
                               onPressed: () async {
                                 bool isCompleted = false;
+                                // ignore: unused_local_variable
                                 String response = "";
                                 if (cancelNote.text.length < 15) {
                                   Dialogs.showErrorDialog(context,

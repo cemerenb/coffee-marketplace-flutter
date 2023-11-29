@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 import '../../../utils/classes/stores.dart';
@@ -24,6 +26,15 @@ bool isReSubmitCoverEnabled = false;
 
 class _CompleteAccountState extends State<CompleteAccount> {
   @override
+  void dispose() {
+    imageUrl = "";
+    coverImageUrl = "";
+    isImageValid = false;
+    isReSubmitEnabled = false;
+    isReSubmitCoverEnabled = false;
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,31 +57,48 @@ class _CompleteAccountState extends State<CompleteAccount> {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Column(
-            children: [
-              coverImageArea(context),
-              imageArea(context),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                coverImageArea(context),
+                Visibility(
+                  visible: isReSubmitCoverEnabled,
+                  child: ElevatedButton(
+                      onPressed: () {
+                        _showCoverImageInputSheet(context);
+                      },
+                      child: const Text('Resubmit')),
+                ),
+                imageArea(context),
+                Visibility(
+                  visible: isReSubmitEnabled,
+                  child: ElevatedButton(
+                      onPressed: () {
+                        _showCoverImageInputSheet(context);
+                      },
+                      child: const Text('Resubmit')),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      openingTimePicker(context),
+                      closingTimePicker(context),
+                    ],
+                  ),
+                ),
+                Row(
                   children: [
-                    openingTimePicker(context),
-                    closingTimePicker(context),
+                    const Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: completeStoreButton(context),
+                    ),
                   ],
                 ),
-              ),
-              const Spacer(),
-              Row(
-                children: [
-                  const Spacer(),
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: completeStoreButton(context),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -86,11 +114,19 @@ class _CompleteAccountState extends State<CompleteAccount> {
             selectedOpeningTime.hour.toString().isNotEmpty &&
             selectedOpeningTime.minute.toString().isNotEmpty &&
             imageUrl.isNotEmpty) {
+          log(imageUrl);
+          log(
+            "${selectedOpeningTime.hour > 9 ? selectedOpeningTime.hour : "0${selectedOpeningTime.hour}"}:${selectedOpeningTime.minute > 9 ? selectedOpeningTime.minute : "0${selectedOpeningTime.minute}"}",
+          );
+          log(
+            "${selectedClosingTime.hour > 9 ? selectedClosingTime.hour : "0${selectedClosingTime.hour}"}:${selectedClosingTime.minute > 9 ? selectedClosingTime.minute : "0${selectedClosingTime.minute}"}",
+          );
+          log(coverImageUrl);
           await UpdateStoreApi().updateStore(
               context,
               widget.email,
-              "${selectedOpeningTime.hour}:${selectedOpeningTime.minute > 9 ? selectedOpeningTime.minute : "0${selectedOpeningTime.minute}"}",
-              "${selectedClosingTime.hour}:${selectedClosingTime.minute > 9 ? selectedClosingTime.minute : "0${selectedClosingTime.minute}"}",
+              "${selectedOpeningTime.hour > 9 ? selectedOpeningTime.hour : "0${selectedOpeningTime.hour}"}:${selectedOpeningTime.minute > 9 ? selectedOpeningTime.minute : "0${selectedOpeningTime.minute}"}",
+              "${selectedClosingTime.hour > 9 ? selectedClosingTime.hour : "0${selectedClosingTime.hour}"}:${selectedClosingTime.minute > 9 ? selectedClosingTime.minute : "0${selectedClosingTime.minute}"}",
               imageUrl,
               coverImageUrl);
         } else {
@@ -439,6 +475,7 @@ class _CompleteAccountState extends State<CompleteAccount> {
                     // Optionally, you can update the image in the parent widget
                     setState(() {
                       coverImageUrl = coverImageUrl;
+                      isReSubmitCoverEnabled = true;
                     });
                   },
                   child: const Text('Submit'),
