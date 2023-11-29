@@ -26,6 +26,7 @@ class CompanyLoginApi {
       }),
     );
     log(response.statusCode.toString());
+    log(response.body);
     if (response.statusCode == 200 && context.mounted) {
       log('Successfully login');
 
@@ -52,7 +53,7 @@ class CompanyLoginApi {
       }
       return true;
     } else if (response.statusCode != 200 && context.mounted) {
-      _showErrorDialog(context, response.statusCode.toString());
+      _showErrorDialog(context, response.body);
     }
 
     return false;
@@ -60,9 +61,6 @@ class CompanyLoginApi {
 }
 
 Future<void> _showErrorDialog(context, String response) async {
-  if (response == "400") {
-    response = "Email or password wrong";
-  }
   return showDialog<void>(
       context: context,
       barrierDismissible: false,

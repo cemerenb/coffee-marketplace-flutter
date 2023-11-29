@@ -74,7 +74,7 @@ class _CompleteAccountState extends State<CompleteAccount> {
                   visible: isReSubmitEnabled,
                   child: ElevatedButton(
                       onPressed: () {
-                        _showCoverImageInputSheet(context);
+                        _showImageInputSheet(context);
                       },
                       child: const Text('Resubmit')),
                 ),
