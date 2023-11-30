@@ -4,16 +4,17 @@ import 'dart:developer';
 import 'package:coffee/pages/company_pages/company_menu_page.dart';
 import 'package:coffee/pages/company_pages/company_order_details.dart';
 import 'package:coffee/pages/company_pages/company_settings.dart';
+import 'package:coffee/utils/database_operations/store/get_store_data.dart';
 import 'package:coffee/utils/database_operations/user/get_user.dart';
 import 'package:coffee/utils/get_user/get_user_data.dart';
 import 'package:coffee/utils/notifiers/menu_notifier.dart';
 import 'package:coffee/utils/notifiers/order_details_notifier.dart';
 import 'package:coffee/utils/notifiers/order_notifier.dart';
+import 'package:coffee/utils/notifiers/store_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../utils/database_operations/store/get_menu.dart';
-import '../../utils/database_operations/store/get_store_data.dart';
 
 class OrdersListView extends StatefulWidget {
   // ignore: prefer_const_constructors_in_immutables
@@ -40,6 +41,7 @@ class _OrdersListViewState extends State<OrdersListView> {
   @override
   void initState() {
     super.initState();
+    fetchStoreData();
     context.read<OrderDetailsNotifier>().fetchOrderDetailsData();
     context.read<MenuNotifier>().fetchMenuUserData();
     log("init");
@@ -82,15 +84,20 @@ class _OrdersListViewState extends State<OrdersListView> {
                 itemBuilder: (context, index) {
                   return Card(
                     child: ListTile(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => CompanyOrderDetails(
-                                email: widget.email,
-                                orderId: orderNotifier.order[index].orderId,
-                              ),
-                            ));
+                      onTap: () async {
+                        final userName =
+                            await getUser(orderNotifier.order[index].userEmail);
+                        if (mounted) {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CompanyOrderDetails(
+                                  email: widget.email,
+                                  orderId: orderNotifier.order[index].orderId,
+                                  userName: userName,
+                                ),
+                              ));
+                        }
                       },
                       leading: SizedBox(
                         width: 70,
@@ -281,7 +288,7 @@ class _OrdersListViewState extends State<OrdersListView> {
                         shadowColor: Colors.transparent),
                     onPressed: () async {
                       final String email = await getUserData(0);
-                      await fetchStoreData();
+                      await StoreNotifier().fetchStoreUserData();
                       if (context.mounted) {
                         Navigator.pushAndRemoveUntil(
                             context,

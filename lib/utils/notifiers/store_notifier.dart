@@ -15,7 +15,8 @@ class StoreNotifier extends ChangeNotifier {
     try {
       final response = await http
           .get(Uri.parse('http://192.168.0.28:7094/api/Store/get-all'));
-
+      log(response.body);
+      log(response.statusCode.toString());
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
 
@@ -30,6 +31,8 @@ class StoreNotifier extends ChangeNotifier {
             openingTime: storeData['storeOpeningTime'],
             closingTime: storeData['storeClosingTime'],
             storeCoverImageLink: storeData['storeCoverImageLink'],
+            storeLatitude: storeData['latitude'],
+            storeLongitude: storeData['longitude'],
           );
         }).toList();
         notifyListeners();

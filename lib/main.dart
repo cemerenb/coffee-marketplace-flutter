@@ -16,7 +16,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'utils/database_operations/login/login_company.dart';
 import 'utils/database_operations/login/login_user.dart';
-import 'utils/database_operations/store/get_store_data.dart';
 
 enum PageEnum { loginPage, companyHomePage, customerHomePage }
 
@@ -107,7 +106,7 @@ class _PageNavigatorState extends State<PageNavigator> {
     final userEmail = prefs.getString('email');
     final userPassword = prefs.getString('password');
     final accountType = prefs.getString('accountType');
-    fetchStoreData();
+    StoreNotifier().fetchStoreUserData();
     log(userEmail.toString());
     log(userPassword.toString());
     log(accountType.toString());

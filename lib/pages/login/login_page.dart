@@ -7,13 +7,13 @@ import 'package:coffee/pages/login/widgets/company/login_page_area.dart';
 import 'package:coffee/pages/login/widgets/company/login_welcome_text.dart';
 import 'package:coffee/pages/login/widgets/customer/login_user_email_field.dart';
 import 'package:coffee/pages/login/widgets/customer/login_welcome_text.dart';
+import 'package:coffee/utils/notifiers/store_notifier.dart';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../utils/database_operations/login/login_company.dart';
 import '../../utils/database_operations/login/login_user.dart';
-import '../../utils/database_operations/store/get_store_data.dart';
 
 // ignore: must_be_immutable
 class LoginPage extends StatefulWidget {
@@ -167,7 +167,7 @@ class _PersonLoginPageState extends State<PersonLoginPage> {
                       isCompleted = await LoginApi().loginUser(context,
                           emailController.text, passwordController.text);
                       if (isCompleted) {
-                        await fetchStoreData();
+                        await StoreNotifier().fetchStoreUserData();
                       } else {
                         isLoggingIn = false;
                         setState(() {});

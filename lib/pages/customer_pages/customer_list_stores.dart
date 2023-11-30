@@ -165,9 +165,26 @@ class _StoresListViewState extends State<StoresListView> {
                                       "Order Id : ${orderNotifier.order.last.orderId}",
                                       style: const TextStyle(fontSize: 12),
                                     ),
-                                    Text(
-                                      "${orderNotifier.order.last.orderCreatingTime.split(":").first}:${orderNotifier.order.last.orderCreatingTime.split(":")[1]}",
-                                      style: const TextStyle(fontSize: 12),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          orderNotifier
+                                              .order.last.orderCreatingTime
+                                              .split("t")
+                                              .first,
+                                          style: const TextStyle(fontSize: 12),
+                                        ),
+                                        const SizedBox(
+                                          width: 4,
+                                        ),
+                                        Text(
+                                          orderNotifier
+                                              .order.last.orderCreatingTime
+                                              .split("t")
+                                              .last,
+                                          style: const TextStyle(fontSize: 12),
+                                        )
+                                      ],
                                     ),
                                   ],
                                 ),

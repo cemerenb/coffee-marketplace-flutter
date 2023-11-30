@@ -7,6 +7,8 @@ class Store {
   final String openingTime;
   final String closingTime;
   final String storeCoverImageLink;
+  final double storeLatitude;
+  final double storeLongitude;
 
   Store({
     required this.storeEmail,
@@ -17,5 +19,7 @@ class Store {
     required this.openingTime,
     required this.closingTime,
     required this.storeCoverImageLink,
+    required this.storeLatitude,
+    required this.storeLongitude,
   });
 }

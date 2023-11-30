@@ -10,6 +10,7 @@ import 'package:coffee/utils/database_operations/store/get_menu.dart';
 import 'package:coffee/utils/get_user/get_user_data.dart';
 import 'package:coffee/utils/log_out/log_out.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../utils/classes/stores.dart';
 import '../../utils/database_operations/store/get_store_data.dart';
 import '../../utils/database_operations/store/toggle_store.dart';
@@ -30,6 +31,7 @@ List<Store> store = [];
 class _StoreInfoPageState extends State<StoreInfoPage> {
   @override
   void initState() {
+    fetchStoreData();
     super.initState();
     setState(() {});
   }
@@ -53,6 +55,39 @@ class _StoreInfoPageState extends State<StoreInfoPage> {
                   ),
                   LogoArea(
                     widget: widget,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20.0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Stack(
+                        children: [
+                          SizedBox(
+                            height: 200,
+                            width: MediaQuery.of(context).size.width,
+                            child: GoogleMap(
+                                zoomControlsEnabled: false,
+                                markers: <Marker>{
+                                  Marker(
+                                    markerId: const MarkerId("1"),
+                                    icon: BitmapDescriptor.defaultMarker,
+                                    position: LatLng(store[0].storeLatitude,
+                                        store[0].storeLongitude),
+                                  )
+                                },
+                                initialCameraPosition: CameraPosition(
+                                    target: LatLng(store[0].storeLatitude,
+                                        store[0].storeLongitude),
+                                    zoom: 16)),
+                          ),
+                          Container(
+                            height: 200,
+                            width: MediaQuery.of(context).size.width,
+                            color: Colors.transparent,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 20.0),

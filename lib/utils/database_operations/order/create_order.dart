@@ -29,7 +29,8 @@ class CreateOrder {
         'userEmail': userEmail,
         'orderStatus': 1,
         'orderNote': orderNote,
-        'orderCreatingTime': DateTime.now().toString(),
+        'orderCreatingTime':
+            "${DateTime.now().day} ${DateTime.now().month} ${DateTime.now().year}t${DateTime.now().hour + 3 < 9 ? " ${DateTime.now().hour + 3}" : "${DateTime.now().hour + 3}"}:${DateTime.now().minute < 9 ? " ${DateTime.now().minute}" : "${DateTime.now().minute}"}",
         'itemCount': itemCount,
         'orderTotalPrice': orderTotalPrice,
       }),

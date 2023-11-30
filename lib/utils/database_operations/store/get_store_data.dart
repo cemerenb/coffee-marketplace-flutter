@@ -9,7 +9,7 @@ import '../../get_user/get_user_data.dart';
 
 Future<bool> fetchStoreData() async {
   final String email = await getUserData(0);
-  log('Fetch Store $email');
+  log('Fetch Store 1 $email');
   try {
     final response =
         await http.get(Uri.parse('http://192.168.0.28:7094/api/Store/get-all'));
@@ -22,15 +22,16 @@ Future<bool> fetchStoreData() async {
       store = (data as List)
           .map((storeData) {
             return Store(
-              storeEmail: storeData['storeEmail'],
-              storeLogoLink: storeData['storeLogoLink'],
-              storeIsOn: storeData['storeIsOn'],
-              storeName: storeData['storeName'],
-              storeTaxId: storeData['storeTaxId'],
-              openingTime: storeData['storeOpeningTime'],
-              closingTime: storeData['storeClosingTime'],
-              storeCoverImageLink: storeData['storeCoverImageLink'],
-            );
+                storeEmail: storeData['storeEmail'],
+                storeLogoLink: storeData['storeLogoLink'],
+                storeIsOn: storeData['storeIsOn'],
+                storeName: storeData['storeName'],
+                storeTaxId: storeData['storeTaxId'],
+                openingTime: storeData['storeOpeningTime'],
+                closingTime: storeData['storeClosingTime'],
+                storeCoverImageLink: storeData['storeCoverImageLink'],
+                storeLatitude: storeData['latitude'],
+                storeLongitude: storeData['longitude']);
           })
           .where((store) => store.storeEmail == email)
           .toList();
