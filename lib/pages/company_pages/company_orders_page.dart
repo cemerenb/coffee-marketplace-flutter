@@ -194,7 +194,10 @@ class _OrdersListViewState extends State<OrdersListView> {
         return true;
       } else {
         isLoading = false;
-        setState(() {});
+        if (mounted) {
+          setState(() {});
+        }
+
         log("No order found");
         return false;
       }

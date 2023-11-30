@@ -1,148 +1,79 @@
-import 'dart:developer';
-
+import 'package:coffee/pages/company_pages/widgets/add_cover_image.dart';
+import 'package:coffee/widgets/dialogs.dart';
 import 'package:flutter/material.dart';
 
-import '../../../utils/classes/stores.dart';
-import '../../../utils/database_operations/store/update_store.dart';
-import '../../../widgets/dialogs.dart';
-
-class CompleteAccount extends StatefulWidget {
-  final List<Store> store;
+class AddLogo extends StatefulWidget {
   final String email;
-  const CompleteAccount({super.key, required this.store, required this.email});
+  const AddLogo({super.key, required this.email});
 
   @override
-  State<CompleteAccount> createState() => _CompleteAccountState();
+  State<AddLogo> createState() => _AddLogoState();
 }
 
 TimeOfDay selectedOpeningTime = TimeOfDay.now();
 TimeOfDay selectedClosingTime = TimeOfDay.now();
 String imageUrl = '';
-String coverImageUrl = "";
-bool isImageValid = false;
-bool isCoverImageValid = false;
 bool isReSubmitEnabled = false;
-bool isReSubmitCoverEnabled = false;
+bool isImageValid = false;
 
-class _CompleteAccountState extends State<CompleteAccount> {
-  @override
-  void dispose() {
-    imageUrl = "";
-    coverImageUrl = "";
-    isImageValid = false;
-    isReSubmitEnabled = false;
-    isReSubmitCoverEnabled = false;
-    super.dispose();
-  }
-
+class _AddLogoState extends State<AddLogo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      appBar: AppBar(),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Text(
-              widget.store[0].storeName,
-              textAlign: TextAlign.start,
+            imageArea(context),
+            Visibility(
+              visible: isReSubmitEnabled,
+              child: ElevatedButton(
+                  onPressed: () {
+                    _showImageInputSheet(context);
+                  },
+                  child: const Text('Resubmit')),
             ),
-            Text(
-              widget.store[0].storeTaxId,
-              textAlign: TextAlign.left,
-              style: const TextStyle(fontSize: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  openingTimePicker(context),
+                  closingTimePicker(context),
+                ],
+              ),
             ),
-          ],
-        ),
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: SingleChildScrollView(
-            child: Column(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                coverImageArea(context),
-                Visibility(
-                  visible: isReSubmitCoverEnabled,
-                  child: ElevatedButton(
-                      onPressed: () {
-                        _showCoverImageInputSheet(context);
-                      },
-                      child: const Text('Resubmit')),
-                ),
-                imageArea(context),
-                Visibility(
-                  visible: isReSubmitEnabled,
-                  child: ElevatedButton(
-                      onPressed: () {
-                        _showImageInputSheet(context);
-                      },
-                      child: const Text('Resubmit')),
-                ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      openingTimePicker(context),
-                      closingTimePicker(context),
-                    ],
-                  ),
-                ),
-                Row(
-                  children: [
-                    const Spacer(),
-                    Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: completeStoreButton(context),
-                    ),
-                  ],
+                  padding: const EdgeInsets.all(20.0),
+                  child: ElevatedButton(
+                      onPressed: () {
+                        if (imageUrl.isNotEmpty) {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AddCoverImage(
+                                    openingTime:
+                                        "${selectedOpeningTime.hour > 9 ? selectedOpeningTime.hour : "0${selectedOpeningTime.hour}"}:${selectedOpeningTime.minute > 9 ? selectedOpeningTime.minute : "0${selectedOpeningTime.minute}"}",
+                                    closingTime:
+                                        "${selectedClosingTime.hour > 9 ? selectedClosingTime.hour : "0${selectedClosingTime.hour}"}:${selectedClosingTime.minute > 9 ? selectedClosingTime.minute : "0${selectedClosingTime.minute}"}",
+                                    logoImage: imageUrl),
+                              ));
+                        } else {
+                          Dialogs.showErrorDialog(
+                              context, "Image can not be empty");
+                        }
+
+                        setState(() {});
+                      },
+                      child: const Text('Next')),
                 ),
               ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  ElevatedButton completeStoreButton(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () async {
-        if (widget.email.isNotEmpty &&
-            selectedClosingTime.hour.toString().isNotEmpty &&
-            selectedClosingTime.minute.toString().isNotEmpty &&
-            selectedOpeningTime.hour.toString().isNotEmpty &&
-            selectedOpeningTime.minute.toString().isNotEmpty &&
-            imageUrl.isNotEmpty) {
-          log(imageUrl);
-          log(
-            "${selectedOpeningTime.hour > 9 ? selectedOpeningTime.hour : "0${selectedOpeningTime.hour}"}:${selectedOpeningTime.minute > 9 ? selectedOpeningTime.minute : "0${selectedOpeningTime.minute}"}",
-          );
-          log(
-            "${selectedClosingTime.hour > 9 ? selectedClosingTime.hour : "0${selectedClosingTime.hour}"}:${selectedClosingTime.minute > 9 ? selectedClosingTime.minute : "0${selectedClosingTime.minute}"}",
-          );
-          log(coverImageUrl);
-          await UpdateStoreApi().updateStore(
-              context,
-              widget.email,
-              "${selectedOpeningTime.hour > 9 ? selectedOpeningTime.hour : "0${selectedOpeningTime.hour}"}:${selectedOpeningTime.minute > 9 ? selectedOpeningTime.minute : "0${selectedOpeningTime.minute}"}",
-              "${selectedClosingTime.hour > 9 ? selectedClosingTime.hour : "0${selectedClosingTime.hour}"}:${selectedClosingTime.minute > 9 ? selectedClosingTime.minute : "0${selectedClosingTime.minute}"}",
-              imageUrl,
-              coverImageUrl);
-        } else {
-          Dialogs.showErrorDialog(
-              context, 'One or mor field empty. Please try again');
-        }
-      },
-      child: const Padding(
-        padding: EdgeInsets.all(8.0),
-        child: Row(
-          children: [
-            Text(
-              'Update store',
-              style: TextStyle(fontSize: 16),
-            ),
-            Icon(Icons.add)
+            )
           ],
         ),
       ),
@@ -333,64 +264,6 @@ class _CompleteAccountState extends State<CompleteAccount> {
     );
   }
 
-  Padding coverImageArea(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20.0),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              spreadRadius: 0,
-              blurRadius: 20,
-              color: Colors.grey.withOpacity(0.4),
-              blurStyle: BlurStyle.outer,
-              offset: const Offset(2, 2),
-            ),
-          ],
-        ),
-        width: MediaQuery.of(context).size.width,
-        height: 200,
-        child: coverImageUrl == ''
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          _showCoverImageInputSheet(context);
-                        },
-                        child: const Text('Add Cover Image'),
-                      ),
-                    ],
-                  ),
-                ],
-              )
-            : ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Image.network(
-                  coverImageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (BuildContext context, Object error,
-                      StackTrace? stackTrace) {
-                    isCoverImageValid = false;
-
-                    return const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(15.0),
-                        child: Text('Error loading image. Please try again.'),
-                      ),
-                    );
-                  },
-                ),
-              ),
-      ),
-    );
-  }
-
   void _showImageInputSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -427,55 +300,6 @@ class _CompleteAccountState extends State<CompleteAccount> {
                     // Optionally, you can update the image in the parent widget
                     setState(() {
                       imageUrl = imageUrl;
-                    });
-                  },
-                  child: const Text('Submit'),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  void _showCoverImageInputSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        isReSubmitCoverEnabled = true;
-        return SingleChildScrollView(
-          child: Container(
-            height: 600,
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'Enter Cover Image URL',
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 16.0),
-                TextField(
-                  onChanged: (value) {
-                    coverImageUrl = value;
-                  },
-                  decoration: const InputDecoration(
-                    labelText: 'Image URL',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 16.0),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    // Optionally, you can update the image in the parent widget
-                    setState(() {
-                      coverImageUrl = coverImageUrl;
-                      isReSubmitCoverEnabled = true;
                     });
                   },
                   child: const Text('Submit'),

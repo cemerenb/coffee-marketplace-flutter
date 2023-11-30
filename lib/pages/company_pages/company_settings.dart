@@ -5,7 +5,7 @@ import 'dart:developer';
 import 'package:coffee/main.dart';
 import 'package:coffee/pages/company_pages/company_menu_page.dart';
 import 'package:coffee/pages/company_pages/company_orders_page.dart';
-import 'package:coffee/pages/company_pages/widgets/complete_store_account.dart';
+import 'package:coffee/pages/company_pages/widgets/add_logo.dart';
 import 'package:coffee/utils/database_operations/store/get_menu.dart';
 import 'package:coffee/utils/get_user/get_user_data.dart';
 import 'package:coffee/utils/log_out/log_out.dart';
@@ -387,9 +387,8 @@ class AccountNotCompleted extends StatelessWidget {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => CompleteAccount(
-                                      store: store, email: email),
-                                ));
+                                    builder: (context) =>
+                                        AddLogo(email: email)));
                           },
                           icon: const Icon(
                             Icons.arrow_right_alt,

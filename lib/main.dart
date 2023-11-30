@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:developer';
 
 import 'package:coffee/pages/company_pages/company_orders_page.dart';
+import 'package:coffee/pages/company_pages/widgets/add_map_info.dart';
 import 'package:coffee/pages/customer_pages/customer_list_stores.dart';
 import 'package:coffee/pages/login/login_page.dart';
 import 'package:coffee/utils/notifiers/cart_notifier.dart';
@@ -68,7 +69,7 @@ class _MyAppState extends State<MyApp> {
             ),
             useMaterial3: true,
           ),
-          home: const PageNavigator()),
+          home: const AddMapInfo()),
     );
   }
 }
