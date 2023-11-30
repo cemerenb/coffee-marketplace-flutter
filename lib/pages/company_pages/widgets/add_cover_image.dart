@@ -50,7 +50,11 @@ class _AddCoverImageState extends State<AddCoverImage> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const AddMapInfo()));
+                                  builder: (context) => AddMapInfo(
+                                      openingTime: widget.openingTime,
+                                      closingTime: widget.closingTime,
+                                      logoImage: widget.logoImage,
+                                      coverImage: coverImageUrl)));
                         }
                         setState(() {});
                       },

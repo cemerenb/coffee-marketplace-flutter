@@ -10,13 +10,14 @@ class UpdateStoreApi {
   UpdateStoreApi();
 
   Future<(bool success, String message)> updateStore(
-    BuildContext context,
-    String storeEmail,
-    String storeOpeningTime,
-    String storeClosingTime,
-    String storeLogoLink,
-    String storeCoverImageLink,
-  ) async {
+      BuildContext context,
+      String storeEmail,
+      String storeOpeningTime,
+      String storeClosingTime,
+      String storeLogoLink,
+      String storeCoverImageLink,
+      String latitude,
+      String longitude) async {
     final response = await http.put(
       Uri.parse('http://192.168.0.28:7094/api/Store/update'),
       headers: <String, String>{
@@ -28,6 +29,8 @@ class UpdateStoreApi {
         'storeOpeningTime': storeOpeningTime,
         'storeClosingTime': storeClosingTime,
         'storeCoverImageLink': storeCoverImageLink,
+        'latitude': latitude,
+        'longitude': longitude
       }),
     );
 
