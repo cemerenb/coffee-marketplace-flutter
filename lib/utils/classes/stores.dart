@@ -7,8 +7,8 @@ class Store {
   final String openingTime;
   final String closingTime;
   final String storeCoverImageLink;
-  final double storeLatitude;
-  final double storeLongitude;
+  final num storeLatitude;
+  final num storeLongitude;
 
   Store({
     required this.storeEmail,

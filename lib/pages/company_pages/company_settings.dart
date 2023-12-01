@@ -9,10 +9,11 @@ import 'package:coffee/pages/company_pages/widgets/add_logo.dart';
 import 'package:coffee/utils/database_operations/store/get_menu.dart';
 import 'package:coffee/utils/get_user/get_user_data.dart';
 import 'package:coffee/utils/log_out/log_out.dart';
+import 'package:coffee/utils/notifiers/store_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
 import '../../utils/classes/stores.dart';
-import '../../utils/database_operations/store/get_store_data.dart';
 import '../../utils/database_operations/store/toggle_store.dart';
 
 class StoreInfoPage extends StatefulWidget {
@@ -26,12 +27,13 @@ class StoreInfoPage extends StatefulWidget {
 }
 
 int currentIndex = 3;
-List<Store> store = [];
 
 class _StoreInfoPageState extends State<StoreInfoPage> {
   @override
   void initState() {
-    fetchStoreData();
+    var storeNotifier = context.read<StoreNotifier>();
+    storeNotifier.fetchStoreUserData();
+    storeNotifier.fetchStoreUserData();
     super.initState();
     setState(() {});
   }
@@ -41,86 +43,119 @@ class _StoreInfoPageState extends State<StoreInfoPage> {
     bool isCompleted = false;
     String responseMessage = "";
     return Scaffold(
-      body: store[0].storeLogoLink.isEmpty
-          ? AccountNotCompleted(
-              widget: widget,
-              email: email,
-            )
-          : Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15.0),
-              child: Column(
-                children: [
-                  const SizedBox(
-                    height: 50,
-                  ),
-                  LogoArea(
-                    widget: widget,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20.0),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: Stack(
-                        children: [
-                          SizedBox(
-                            height: 200,
-                            width: MediaQuery.of(context).size.width,
-                            child: GoogleMap(
-                                zoomControlsEnabled: false,
-                                markers: <Marker>{
-                                  Marker(
-                                    markerId: const MarkerId("1"),
-                                    icon: BitmapDescriptor.defaultMarker,
-                                    position: LatLng(store[0].storeLatitude,
-                                        store[0].storeLongitude),
-                                  )
-                                },
-                                initialCameraPosition: CameraPosition(
-                                    target: LatLng(store[0].storeLatitude,
-                                        store[0].storeLongitude),
-                                    zoom: 16)),
-                          ),
-                          Container(
-                            height: 200,
-                            width: MediaQuery.of(context).size.width,
-                            color: Colors.transparent,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        toggleStoreIsOnArea(
-                            context, isCompleted, responseMessage),
-                        Container(
-                          width: MediaQuery.of(context).size.width / 2.3,
-                          height: 170,
-                          decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.3),
-                              borderRadius: BorderRadius.circular(15)),
-                          child: IconButton(
-                              onPressed: () {
-                                logOut(context);
-                                setState(() {});
-                              },
-                              icon: const Icon(Icons.logout_outlined)),
-                        ),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ),
+      body: settingsPage(context, isCompleted, responseMessage),
       bottomNavigationBar: bottomNavigationBar(),
     );
   }
 
+  Widget settingsPage(
+      BuildContext context, bool isCompleted, String responseMessage) {
+    var storeNotifier = context.watch<StoreNotifier>();
+    return storeNotifier.stores
+            .where((s) => s.storeEmail == widget.email)
+            .first
+            .storeLogoLink
+            .isEmpty
+        ? AccountNotCompleted(
+            widget: widget,
+            email: email,
+          )
+        : Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            child: Column(
+              children: [
+                const SizedBox(
+                  height: 50,
+                ),
+                LogoArea(
+                  widget: widget,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Stack(
+                      children: [
+                        SizedBox(
+                          height: 200,
+                          width: MediaQuery.of(context).size.width,
+                          child: GoogleMap(
+                              zoomControlsEnabled: false,
+                              markers: <Marker>{
+                                Marker(
+                                  markerId: const MarkerId("1"),
+                                  icon: BitmapDescriptor.defaultMarker,
+                                  position: LatLng(
+                                      storeNotifier.stores
+                                          .where((s) =>
+                                              s.storeEmail == widget.email)
+                                          .first
+                                          .storeLatitude
+                                          .toDouble(),
+                                      storeNotifier.stores
+                                          .where((s) =>
+                                              s.storeEmail == widget.email)
+                                          .first
+                                          .storeLongitude
+                                          .toDouble()),
+                                )
+                              },
+                              initialCameraPosition: CameraPosition(
+                                  target: LatLng(
+                                      storeNotifier.stores
+                                          .where((s) =>
+                                              s.storeEmail == widget.email)
+                                          .first
+                                          .storeLatitude
+                                          .toDouble(),
+                                      storeNotifier.stores
+                                          .where((s) =>
+                                              s.storeEmail == widget.email)
+                                          .first
+                                          .storeLongitude
+                                          .toDouble()),
+                                  zoom: 16)),
+                        ),
+                        Container(
+                          height: 200,
+                          width: MediaQuery.of(context).size.width,
+                          color: Colors.transparent,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      toggleStoreIsOnArea(
+                          context, isCompleted, responseMessage),
+                      Container(
+                        width: MediaQuery.of(context).size.width / 2.3,
+                        height: 170,
+                        decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(15)),
+                        child: IconButton(
+                            onPressed: () {
+                              logOut(context);
+                              setState(() {});
+                            },
+                            icon: const Icon(Icons.logout_outlined)),
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          );
+  }
+
   Container toggleStoreIsOnArea(
       BuildContext context, bool isCompleted, String responseMessage) {
+    var storeNotifier = context.watch<StoreNotifier>();
     return Container(
       width: MediaQuery.of(context).size.width / 2.3,
       height: 170,
@@ -143,9 +178,20 @@ class _StoreInfoPageState extends State<StoreInfoPage> {
                       style: TextStyle(fontSize: 25),
                     ),
                     Text(
-                      store[0].storeIsOn == 1 ? 'On' : 'Off',
+                      storeNotifier.stores
+                                  .where((s) => s.storeEmail == widget.email)
+                                  .first
+                                  .storeIsOn ==
+                              1
+                          ? 'On'
+                          : 'Off',
                       style: TextStyle(
-                          color: store[0].storeIsOn == 1
+                          color: storeNotifier.stores
+                                      .where(
+                                          (s) => s.storeEmail == widget.email)
+                                      .first
+                                      .storeIsOn ==
+                                  1
                               ? Colors.green
                               : Colors.red,
                           fontSize: 50),
@@ -161,19 +207,39 @@ class _StoreInfoPageState extends State<StoreInfoPage> {
                   inactiveTrackColor: Colors.grey,
                   inactiveThumbColor: Colors.white,
                   activeColor: const Color.fromARGB(255, 13, 104, 16),
-                  value: store[0].storeIsOn == 1,
+                  value: storeNotifier.stores
+                          .where((s) => s.storeEmail == widget.email)
+                          .first
+                          .storeIsOn ==
+                      1,
                   onChanged: (value) async {
-                    if (store[0].storeIsOn == 1) {
+                    if (storeNotifier.stores
+                            .where((s) => s.storeEmail == widget.email)
+                            .first
+                            .storeIsOn ==
+                        1) {
                       (isCompleted, responseMessage) = await ToggleStoreStatus()
-                          .toggleStoreStatus(context, store[0].storeEmail, 0);
+                          .toggleStoreStatus(
+                              context,
+                              storeNotifier.stores
+                                  .where((s) => s.storeEmail == widget.email)
+                                  .first
+                                  .storeEmail,
+                              0);
                       log(isCompleted.toString());
                       log(responseMessage);
-                      await fetchStoreData();
+                      await storeNotifier.fetchStoreUserData();
                       setState(() {});
                     } else {
                       (isCompleted, responseMessage) = await ToggleStoreStatus()
-                          .toggleStoreStatus(context, store[0].storeEmail, 1);
-                      await fetchStoreData();
+                          .toggleStoreStatus(
+                              context,
+                              storeNotifier.stores
+                                  .where((s) => s.storeEmail == widget.email)
+                                  .first
+                                  .storeEmail,
+                              1);
+                      await storeNotifier.fetchStoreUserData();
                       log(isCompleted.toString());
                       log(responseMessage);
                       setState(() {});
@@ -264,7 +330,7 @@ class _StoreInfoPageState extends State<StoreInfoPage> {
                         backgroundColor: Colors.white.withOpacity(0.2),
                         shadowColor: Colors.transparent),
                     onPressed: () async {
-                      await fetchStoreData();
+                      context.read<StoreNotifier>();
                       setState(() {});
                     },
                     child: Column(
@@ -298,6 +364,7 @@ class LogoArea extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var storeNotifier = context.watch<StoreNotifier>();
     return Container(
       decoration: BoxDecoration(
         color: Colors.black.withOpacity(0.3),
@@ -309,7 +376,10 @@ class LogoArea extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: Image.network(
-              store[0].storeLogoLink,
+              storeNotifier.stores
+                  .where((s) => s.storeEmail == widget.email)
+                  .first
+                  .storeLogoLink,
               height: 130,
             ),
           ),
@@ -328,7 +398,10 @@ class LogoArea extends StatelessWidget {
                           style: TextStyle(
                               fontSize: 20, fontWeight: FontWeight.w300)),
                       Text(
-                        store[0].storeName,
+                        storeNotifier.stores
+                            .where((s) => s.storeEmail == widget.email)
+                            .first
+                            .storeName,
                         style: const TextStyle(
                             fontSize: 25, fontWeight: FontWeight.w600),
                       ),
@@ -366,6 +439,7 @@ class AccountNotCompleted extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var storeNotifier = context.watch<StoreNotifier>();
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -402,7 +476,10 @@ class AccountNotCompleted extends StatelessWidget {
                       SizedBox(
                         width: MediaQuery.of(context).size.width / 2,
                         child: Text(
-                          store[0].storeName,
+                          storeNotifier.stores
+                              .where((s) => s.storeEmail == widget.email)
+                              .first
+                              .storeName,
                           overflow: TextOverflow.clip,
                           style: const TextStyle(fontSize: 25),
                         ),

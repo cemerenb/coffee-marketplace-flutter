@@ -206,12 +206,16 @@ class _StoresListViewState extends State<StoresListView> {
                                     orderStatus == 1
                                         ? "Order Placed"
                                         : orderStatus == 2
-                                            ? "Order Confirmed"
+                                            ? "Preparing Order "
                                             : orderStatus == 3
-                                                ? "Order Preparing"
+                                                ? "Order Ready"
                                                 : orderStatus == 4
-                                                    ? "Order Ready"
-                                                    : "",
+                                                    ? "Order Picked Up"
+                                                    : orderStatus == 5
+                                                        ? "Order Canceled"
+                                                        : orderStatus == 6
+                                                            ? "Order Declined"
+                                                            : "",
                                     style: const TextStyle(fontSize: 17),
                                   ),
                                 ),

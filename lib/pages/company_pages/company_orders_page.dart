@@ -4,7 +4,6 @@ import 'dart:developer';
 import 'package:coffee/pages/company_pages/company_menu_page.dart';
 import 'package:coffee/pages/company_pages/company_order_details.dart';
 import 'package:coffee/pages/company_pages/company_settings.dart';
-import 'package:coffee/utils/database_operations/store/get_store_data.dart';
 import 'package:coffee/utils/database_operations/user/get_user.dart';
 import 'package:coffee/utils/get_user/get_user_data.dart';
 import 'package:coffee/utils/notifiers/menu_notifier.dart';
@@ -33,15 +32,15 @@ bool c3 = false;
 bool c4 = false;
 bool check = true;
 bool isNameLoading = true;
-int orderStatus = 1;
+
 String? _user;
 late Timer timer;
 
 class _OrdersListViewState extends State<OrdersListView> {
   @override
   void initState() {
+    checkOrder();
     super.initState();
-    fetchStoreData();
     context.read<OrderDetailsNotifier>().fetchOrderDetailsData();
     context.read<MenuNotifier>().fetchMenuUserData();
     log("init");
@@ -154,7 +153,8 @@ class _OrdersListViewState extends State<OrdersListView> {
                           if (snapshot.connectionState ==
                                   ConnectionState.waiting &&
                               isNameLoading == true) {
-                            return const CircularProgressIndicator();
+                            return const Center(
+                                child: CircularProgressIndicator());
                           } else if (snapshot.hasError) {
                             return Text(snapshot.error.toString());
                           } else {
@@ -189,15 +189,19 @@ class _OrdersListViewState extends State<OrdersListView> {
         isLoading = false;
 
         if (orderNotifier.order.isNotEmpty) {
-          orderStatus = orderNotifier.order.last.orderStatus;
           if (mounted) {
             context.read<OrderNotifier>().fetchCompanyOrderData();
           }
+          if (mounted) {
+            setState(() {});
+          }
 
-          setState(() {});
           log("order data fetched");
         }
-        setState(() {});
+        if (mounted) {
+          setState(() {});
+        }
+
         return true;
       } else {
         isLoading = false;
@@ -287,6 +291,8 @@ class _OrdersListViewState extends State<OrdersListView> {
                         backgroundColor: Colors.white.withOpacity(0.2),
                         shadowColor: Colors.transparent),
                     onPressed: () async {
+                      var storeNotifier = context.read<StoreNotifier>();
+                      await storeNotifier.fetchStoreUserData();
                       final String email = await getUserData(0);
                       await StoreNotifier().fetchStoreUserData();
                       if (context.mounted) {
