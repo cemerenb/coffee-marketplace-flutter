@@ -1,3 +1,4 @@
+// Importing necessary packages and files
 import 'package:coffee/pages/company_pages/company_orders_page.dart';
 import 'package:coffee/pages/company_pages/company_settings.dart';
 import 'package:coffee/utils/get_user/get_user_data.dart';
@@ -5,31 +6,37 @@ import 'package:coffee/utils/get_user/get_user_data.dart';
 import 'package:coffee/pages/company_pages/add_product.dart';
 import 'package:coffee/pages/company_pages/widgets/product_details.dart';
 import 'package:coffee/utils/classes/menu_class.dart';
+import 'package:coffee/utils/notifiers/order_notifier.dart';
 import 'package:coffee/utils/notifiers/store_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../utils/database_operations/store/get_menu.dart';
 
+// Defining a StatefulWidget for displaying the list of menus
 class MenusListView extends StatefulWidget {
   final String email;
 
-  // ignore: prefer_const_constructors_in_immutables
-  MenusListView({Key? key, required this.email}) : super(key: key);
+  const MenusListView({Key? key, required this.email}) : super(key: key);
 
   @override
   State<MenusListView> createState() => _MenusListViewState();
 }
 
+// Initializing an empty list of Menu objects
 List<Menu> menus = [];
 
+// State class for the MenusListView
 class _MenusListViewState extends State<MenusListView> {
   @override
   void initState() {
     super.initState();
+    // Fetching menu data when the state is initialized
     fetchMenuData().then((success) async {});
     setState(() {});
   }
 
+  // State variables
   bool isFound = false;
   int category = 1;
   int currentIndex = 2;
@@ -38,6 +45,7 @@ class _MenusListViewState extends State<MenusListView> {
   bool visibility3 = false;
   bool visibility4 = false;
   int count = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,6 +57,7 @@ class _MenusListViewState extends State<MenusListView> {
               const SizedBox(
                 height: 50,
               ),
+              // Displaying category items and add button
               Padding(
                 padding: const EdgeInsets.only(bottom: 20.0),
                 child: Row(
@@ -75,21 +84,25 @@ class _MenusListViewState extends State<MenusListView> {
                   ],
                 ),
               ),
+              // Displaying list of menu items based on selected category
               listMenuItems(context)
             ],
           ),
         ),
       ),
+      // Adding bottom navigation bar
       bottomNavigationBar: bottomNavigationBar(),
     );
   }
 
+  // Method to build the list of menu items
   Padding listMenuItems(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: Column(
         children: menus.indexed.map((item) {
           var (index, menusItem) = item;
+          // Displaying menu items only for the selected category and store
           if (menusItem.storeEmail == widget.email &&
               menusItem.menuItemCategory == category) {
             return Padding(
@@ -135,12 +148,13 @@ class _MenusListViewState extends State<MenusListView> {
     );
   }
 
+  // Method to build the bottom navigation bar
   Padding bottomNavigationBar() {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10.0, left: 10, right: 10),
+      padding: const EdgeInsets.all(10.0),
       child: Container(
         decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 88, 88, 88).withOpacity(0.3),
+            color: const Color.fromARGB(255, 88, 88, 88).withOpacity(0.2),
             borderRadius: BorderRadius.circular(20)),
         height: 60,
         child: Padding(
@@ -149,6 +163,7 @@ class _MenusListViewState extends State<MenusListView> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
+                // Button for navigating to orders
                 ElevatedButton(
                     style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white.withOpacity(0.2),
@@ -176,6 +191,7 @@ class _MenusListViewState extends State<MenusListView> {
                         )
                       ],
                     )),
+                // Button for refreshing
                 ElevatedButton(
                     style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white.withOpacity(0.2),
@@ -197,22 +213,25 @@ class _MenusListViewState extends State<MenusListView> {
                         )
                       ],
                     )),
+                // Button for navigating to store settings
                 ElevatedButton(
                     style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white.withOpacity(0.2),
                         shadowColor: Colors.transparent),
                     onPressed: () async {
+                      var storeNotifier = context.read<StoreNotifier>();
+                      await storeNotifier.fetchStoreUserData();
                       final String email = await getUserData(0);
                       await StoreNotifier().fetchStoreUserData();
                       if (context.mounted) {
-                        Navigator.push(
+                        Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
                               builder: (context) => StoreInfoPage(email: email),
-                            ));
+                            ),
+                            (route) => false);
+                        setState(() {});
                       }
-
-                      setState(() {});
                     },
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -234,6 +253,7 @@ class _MenusListViewState extends State<MenusListView> {
     );
   }
 
+  // Method to build category item widget
   Padding categoryItem(int selectedCategory) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 5.0),
@@ -272,6 +292,7 @@ class _MenusListViewState extends State<MenusListView> {
     );
   }
 
+  // Method to get category icon based on selected category
   Widget getCategoryIcon(int selectedCategory) {
     switch (selectedCategory) {
       case 1:
@@ -296,6 +317,7 @@ class _MenusListViewState extends State<MenusListView> {
     }
   }
 
+  // Method to get category name based on selected category
   String getCategoryName(int selectedCategory) {
     switch (selectedCategory) {
       case 1:
@@ -311,6 +333,7 @@ class _MenusListViewState extends State<MenusListView> {
     }
   }
 
+  // Method to get category visibility based on selected category
   bool getCategoryVisibility(int selectedCategory) {
     switch (selectedCategory) {
       case 1:
@@ -326,6 +349,7 @@ class _MenusListViewState extends State<MenusListView> {
     }
   }
 
+  // Method to set category visibility based on selected category
   void setVisibility(int selected) {
     visibility1 = selected == 1;
     visibility2 = selected == 2;

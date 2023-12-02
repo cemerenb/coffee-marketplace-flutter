@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../utils/database_operations/user/create_product.dart';
 
+// StatefulWidget for adding a new product
 class AddNewProduct extends StatefulWidget {
   const AddNewProduct({Key? key, required this.email}) : super(key: key);
 
@@ -13,15 +14,18 @@ class AddNewProduct extends StatefulWidget {
   final String email;
 }
 
+// State class for AddNewProduct
 class _AddNewProductState extends State<AddNewProduct> {
   String imageUrl = '';
   bool isImageValid = false;
   bool isReSubmitEnabled = false;
 
+  // Controllers for text fields
   final TextEditingController productNameController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
 
+  // List of product categories
   final List<String> categories = [
     'Hot Drinks',
     'Cold Drinks',
@@ -52,7 +56,9 @@ class _AddNewProductState extends State<AddNewProduct> {
             child: Column(
               children: [
                 const SizedBox(height: 10),
+                // Area for displaying the product image
                 imageArea(context),
+                // Display 'Resubmit Image' button if image is selected
                 if (isReSubmitEnabled)
                   ElevatedButton(
                     onPressed: () {
@@ -60,12 +66,16 @@ class _AddNewProductState extends State<AddNewProduct> {
                     },
                     child: const Text('Resubmit Image'),
                   ),
+                // Text field for entering the product name
                 addProductTextField(productNameController),
+                // Text field for entering the product description
                 addProductDescriptionTextField(descriptionController),
+                // Row containing category dropdown and price text field
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [categoryDropdown(), priceTextField(context)],
                 ),
+                // Button for submitting the new product
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 30.0),
                   child: Row(
@@ -73,6 +83,7 @@ class _AddNewProductState extends State<AddNewProduct> {
                       const Spacer(),
                       ElevatedButton(
                         onPressed: () async {
+                          // Validate and submit the new product
                           if (widget.email.isNotEmpty &&
                               productNameController.text.isNotEmpty &&
                               descriptionController.text.isNotEmpty &&
@@ -96,7 +107,7 @@ class _AddNewProductState extends State<AddNewProduct> {
                             }
                           } else {
                             Dialogs.showErrorDialog(context,
-                                'One or mor field empty. Please try again');
+                                'One or more fields are empty. Please try again');
                           }
                         },
                         child: const Padding(
@@ -118,6 +129,7 @@ class _AddNewProductState extends State<AddNewProduct> {
     );
   }
 
+  // Text field for entering the product price
   SizedBox priceTextField(BuildContext context) {
     return SizedBox(
       width: MediaQuery.of(context).size.width / 2.2,
@@ -139,6 +151,7 @@ class _AddNewProductState extends State<AddNewProduct> {
     );
   }
 
+  // Text field for entering the product name
   Padding addProductTextField(TextEditingController controller) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 20.0),
@@ -159,6 +172,7 @@ class _AddNewProductState extends State<AddNewProduct> {
     );
   }
 
+  // Text field for entering the product description
   Padding addProductDescriptionTextField(TextEditingController controller) {
     return Padding(
       padding: const EdgeInsets.only(
@@ -184,6 +198,7 @@ class _AddNewProductState extends State<AddNewProduct> {
     );
   }
 
+  // Dropdown for selecting the product category
   Padding categoryDropdown() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 18.0),
@@ -219,6 +234,7 @@ class _AddNewProductState extends State<AddNewProduct> {
     );
   }
 
+  // Area for displaying the product image
   Padding imageArea(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 20.0),
@@ -273,6 +289,7 @@ class _AddNewProductState extends State<AddNewProduct> {
     );
   }
 
+  // Modal bottom sheet for entering the image URL
   void _showImageInputSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -306,7 +323,6 @@ class _AddNewProductState extends State<AddNewProduct> {
                 ElevatedButton(
                   onPressed: () {
                     Navigator.pop(context);
-                    // Optionally, you can update the image in the parent widget
                     setState(() {
                       imageUrl = imageUrl;
                     });

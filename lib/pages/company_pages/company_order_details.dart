@@ -81,70 +81,108 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
         bottomNavigationBar: bottomBar(context));
   }
 
+  //Bottom for change order status
   ClipRRect bottomBar(BuildContext context) {
     var orderNotifier = context.watch<OrderNotifier>();
+    String orderStatusNote = "";
+    int orderStatus = orderNotifier.order
+        .where((o) => o.orderId == widget.orderId)
+        .first
+        .orderStatus;
+    switch (orderStatus) {
+      case 1:
+        orderStatusNote = "Accept";
+        break;
+      case 2:
+        orderStatusNote = "Make Ready";
+        break;
+      case 3:
+        orderStatusNote = "Make picked up";
+        break;
 
-    return ClipRRect(
-      borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(30), topRight: Radius.circular(20)),
-      child: BottomAppBar(
-        color: Colors.brown.shade400,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-              height: 60,
-              width: MediaQuery.of(context).size.width / 2.3,
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 75, 75, 75),
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: MaterialButton(
-                  onPressed: () async {
-                    await UpdateOrderStatusApi()
-                        .updateOrderStatusStore(context, widget.orderId, 6);
-                    await orderNotifier.fetchCompanyOrderData();
-                    setState(() {});
-                  },
-                  child: const Center(
-                      child: Text(
-                    "Decline",
-                    style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w300,
-                        color: Colors.white),
-                  )),
-                ),
-              ),
-            ),
-            Container(
-              height: 60,
-              width: MediaQuery.of(context).size.width / 2.3,
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 249, 241, 246),
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: MaterialButton(
-                  onPressed: () async {
-                    await UpdateOrderStatusApi()
-                        .updateOrderStatusStore(context, widget.orderId, 2);
-                  },
-                  child: const Center(
-                    child: Text("Accept",
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.w300)),
+      default:
+    }
+    return orderStatus == 1 || orderStatus == 2 || orderStatus == 3
+        ? ClipRRect(
+            borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(30), topRight: Radius.circular(20)),
+            child: BottomAppBar(
+              color: Colors.brown.shade400,
+              child: Row(
+                mainAxisAlignment: orderStatus == 1
+                    ? MainAxisAlignment.spaceBetween
+                    : MainAxisAlignment.center,
+                children: [
+                  orderStatus == 1
+                      ? Container(
+                          height: 60,
+                          width: MediaQuery.of(context).size.width / 2.3,
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(255, 75, 75, 75),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child: MaterialButton(
+                              onPressed: () async {
+                                await UpdateOrderStatusApi()
+                                    .updateOrderStatusStore(
+                                        context, widget.orderId, 6);
+                                await orderNotifier.fetchCompanyOrderData();
+                                setState(() {});
+                              },
+                              child: const Center(
+                                  child: Text(
+                                "Decline",
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w300,
+                                    color: Colors.white),
+                              )),
+                            ),
+                          ))
+                      : const SizedBox(),
+                  Container(
+                    height: 60,
+                    width: orderStatus == 1
+                        ? MediaQuery.of(context).size.width / 2.3
+                        : MediaQuery.of(context).size.width / 1.15,
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 249, 241, 246),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: MaterialButton(
+                        onPressed: () async {
+                          if (orderStatus == 1) {
+                            await UpdateOrderStatusApi().updateOrderStatusStore(
+                                context, widget.orderId, 2);
+                          }
+                          if (orderStatus == 2 && mounted) {
+                            await UpdateOrderStatusApi().updateOrderStatusStore(
+                                context, widget.orderId, 3);
+                          }
+                          if (orderStatus == 3 && mounted) {
+                            await UpdateOrderStatusApi().updateOrderStatusStore(
+                                context, widget.orderId, 4);
+                          }
+                        },
+                        child: Center(
+                          child: Text(orderStatusNote,
+                              style: const TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.w300)),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
-    );
+          )
+        : const ClipRRect(
+            child: SizedBox(),
+          );
   }
 
   Column orderStatus() {
@@ -165,7 +203,7 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
         orderStatusNote = "Order ready";
         break;
       case 4:
-        orderStatusNote = "Order picked up";
+        orderStatusNote = "Order completed";
         break;
       case 5:
         orderStatusNote = "Order canceled";
@@ -254,6 +292,8 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
         .orderStatus;
     var order =
         orderNotifier.order.where((o) => o.orderId == widget.orderId).first;
+    canceledItemCount = 0;
+    countEnabled = true;
     if (countEnabled) {
       for (var i = 0;
           i <
@@ -267,8 +307,19 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
                 .toList()[i]
                 .itemCanceled ==
             1) {
-          canceledItemCount++;
+          canceledItemCount += orderDetailsNotifier.orderDetails
+              .where((o) => o.orderId == widget.orderId)
+              .toList()[i]
+              .itemCount;
         }
+      }
+      if (canceledItemCount ==
+          orderNotifier.order
+              .where((o) => o.orderId == widget.orderId)
+              .first
+              .itemCount) {
+        UpdateOrderStatusApi()
+            .updateOrderStatusStore(context, widget.orderId, 5);
       }
 
       countEnabled = false;
@@ -389,7 +440,19 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
                                       .first
                                       .itemCount !=
                                   canceledItemCount
-                              ? "${orderNotifier.order.where((o) => o.orderId == widget.orderId).first.itemCount - canceledItemCount} $orderStatusNote, "
+                              ? "${orderNotifier.order.where((o) => o.orderId == widget.orderId).first.itemCount - canceledItemCount} $orderStatusNote"
+                              : "",
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                        Text(
+                          canceledItemCount != 0 &&
+                                  orderNotifier.order
+                                          .where((o) =>
+                                              o.orderId == widget.orderId)
+                                          .first
+                                          .itemCount !=
+                                      canceledItemCount
+                              ? ", "
                               : "",
                           style: const TextStyle(fontSize: 18),
                         ),

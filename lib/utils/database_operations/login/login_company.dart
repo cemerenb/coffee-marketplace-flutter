@@ -3,6 +3,8 @@ import 'dart:developer';
 
 import 'package:coffee/pages/company_pages/company_orders_page.dart';
 import 'package:coffee/pages/login/login_page.dart';
+import 'package:coffee/utils/notifiers/store_notifier.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -15,6 +17,7 @@ class CompanyLoginApi {
     String email,
     String password,
   ) async {
+    context.read<StoreNotifier>();
     final response = await http.post(
       Uri.parse('http://192.168.0.28:7094/api/Store/login'),
       headers: <String, String>{
