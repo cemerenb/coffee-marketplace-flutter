@@ -1,13 +1,15 @@
 import 'dart:async';
-import 'dart:developer';
+import 'dart:math';
 
 import 'package:coffee/pages/customer_pages/customer_cart.dart';
+import 'package:coffee/pages/customer_pages/customer_orders.dart';
 import 'package:coffee/pages/customer_pages/customer_store_details.dart';
 import 'package:coffee/pages/customer_pages/settings_page.dart';
 import 'package:coffee/utils/get_user/get_user_data.dart';
 import 'package:coffee/utils/notifiers/order_notifier.dart';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 
 import '../../utils/notifiers/cart_notifier.dart';
@@ -15,9 +17,8 @@ import '../../utils/notifiers/menu_notifier.dart';
 import '../../utils/notifiers/store_notifier.dart';
 
 class StoresListView extends StatefulWidget {
-  const StoresListView({
-    super.key,
-  });
+  final Position? position;
+  const StoresListView({super.key, required this.position});
 
   @override
   State<StoresListView> createState() => _StoresListViewState();
@@ -30,7 +31,7 @@ int index = 0;
 bool c1 = false;
 bool c2 = false;
 bool c3 = false;
-bool c4 = false;
+
 bool check = true;
 late Timer timer;
 final TextEditingController search = TextEditingController();
@@ -39,7 +40,6 @@ class _StoresListViewState extends State<StoresListView> {
   @override
   void initState() {
     super.initState();
-    log("init");
     timer = Timer.periodic(
       const Duration(seconds: 1),
       (Timer t) => checkOrder(),
@@ -105,7 +105,7 @@ class _StoresListViewState extends State<StoresListView> {
 
     return orderNotifier.order.isNotEmpty &&
             search.text.isEmpty &&
-            orderNotifier.order.last.orderStatus < 5 &&
+            orderNotifier.order.last.orderStatus < 4 &&
             storeNotifier.stores
                 .any((s) => s.storeEmail == orderNotifier.order.last.storeEmail)
         ? Container(
@@ -191,7 +191,29 @@ class _StoresListViewState extends State<StoresListView> {
                                 Column(
                                   children: [
                                     ElevatedButton(
-                                        onPressed: () {},
+                                        onPressed: () async {
+                                          context.read<OrderNotifier>();
+                                          await context
+                                              .read<OrderNotifier>()
+                                              .fetchOrderData();
+                                          if (mounted) {
+                                            context.read<StoreNotifier>();
+                                            await context
+                                                .read<StoreNotifier>()
+                                                .fetchStoreUserData();
+                                          }
+                                          final String email =
+                                              await getUserData(0);
+                                          if (mounted) {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      CustomerOrdersPage(
+                                                          email: email),
+                                                ));
+                                          }
+                                        },
                                         child: const Text("All Orders")),
                                   ],
                                 ),
@@ -209,13 +231,7 @@ class _StoresListViewState extends State<StoresListView> {
                                             ? "Preparing Order "
                                             : orderStatus == 3
                                                 ? "Order Ready"
-                                                : orderStatus == 4
-                                                    ? "Order Picked Up"
-                                                    : orderStatus == 5
-                                                        ? "Order Canceled"
-                                                        : orderStatus == 6
-                                                            ? "Order Declined"
-                                                            : "",
+                                                : "",
                                     style: const TextStyle(fontSize: 17),
                                   ),
                                 ),
@@ -224,11 +240,12 @@ class _StoresListViewState extends State<StoresListView> {
                                       MainAxisAlignment.spaceEvenly,
                                   children: [
                                     Container(
-                                      width:
-                                          MediaQuery.of(context).size.width / 6,
+                                      width: MediaQuery.of(context).size.width /
+                                          4.5,
                                       height: 7,
                                       decoration: BoxDecoration(
-                                          color: orderStatus > 0
+                                          color: orderStatus < 4 &&
+                                                  orderStatus > 0
                                               ? Colors.brown.shade400
                                               : Colors.black.withOpacity(0.3),
                                           borderRadius:
@@ -236,32 +253,23 @@ class _StoresListViewState extends State<StoresListView> {
                                     ),
                                     Container(
                                       decoration: BoxDecoration(
-                                          color: orderStatus > 1
+                                          color: orderStatus < 4 &&
+                                                  orderStatus > 1
                                               ? Colors.brown.shade400
                                               : Colors.black.withOpacity(0.3),
                                           borderRadius:
                                               BorderRadius.circular(10)),
-                                      width:
-                                          MediaQuery.of(context).size.width / 6,
+                                      width: MediaQuery.of(context).size.width /
+                                          4.5,
                                       height: 7,
                                     ),
                                     Container(
-                                      width:
-                                          MediaQuery.of(context).size.width / 6,
+                                      width: MediaQuery.of(context).size.width /
+                                          4.5,
                                       height: 7,
                                       decoration: BoxDecoration(
-                                          color: orderStatus > 2
-                                              ? Colors.brown.shade400
-                                              : Colors.black.withOpacity(0.3),
-                                          borderRadius:
-                                              BorderRadius.circular(10)),
-                                    ),
-                                    Container(
-                                      width:
-                                          MediaQuery.of(context).size.width / 6,
-                                      height: 7,
-                                      decoration: BoxDecoration(
-                                          color: orderStatus > 3
+                                          color: orderStatus < 4 &&
+                                                  orderStatus > 2
                                               ? Colors.brown.shade400
                                               : Colors.black.withOpacity(0.3),
                                           borderRadius:
@@ -287,7 +295,10 @@ class _StoresListViewState extends State<StoresListView> {
       await context.read<OrderNotifier>().fetchOrderData();
       if (orderNotifier.order.isNotEmpty) {
         isLoading = false;
-        setState(() {});
+        if (mounted) {
+          setState(() {});
+        }
+
         if (orderNotifier.order.isNotEmpty) {
           orderStatus = orderNotifier.order.last.orderStatus;
           if (context.mounted) {
@@ -295,14 +306,12 @@ class _StoresListViewState extends State<StoresListView> {
           }
 
           setState(() {});
-          log("c1: $c1, c2: $c2, c3: $c3, c4: $c4");
         }
         setState(() {});
         return true;
       } else {
         isLoading = false;
         setState(() {});
-        log("No order found");
         return false;
       }
     }
@@ -328,7 +337,6 @@ class _StoresListViewState extends State<StoresListView> {
                     GestureDetector(
                       onTap: () async {
                         if (storeNotifier.stores[index].storeIsOn == 1) {
-                          log(index.toString());
                           if (context.mounted) {
                             await context
                                 .read<StoreNotifier>()
@@ -397,7 +405,6 @@ class _StoresListViewState extends State<StoresListView> {
                     ListTile(
                       enabled: storeNotifier.stores[index].storeIsOn == 1,
                       onTap: () async {
-                        log(index.toString());
                         if (context.mounted) {
                           await context
                               .read<StoreNotifier>()
@@ -438,14 +445,23 @@ class _StoresListViewState extends State<StoresListView> {
                         children: [
                           Text(
                               '${storeNotifier.stores[index].openingTime.replaceAll(" ", "")} - ${storeNotifier.stores[index].closingTime.replaceAll(" ", "")}'),
-                          const Row(
+                          Row(
                             children: [
-                              Text('-'),
-                              Icon(
+                              const Icon(
                                 Icons.star,
                                 color: Color.fromARGB(255, 216, 196, 19),
                                 size: 20,
                               ),
+                              const Text('-'),
+                              const SizedBox(
+                                width: 15,
+                              ),
+                              const Icon(
+                                Icons.location_pin,
+                                size: 18,
+                              ),
+                              Text(
+                                  "${calculateDistance(storeNotifier.stores.toList()[index].storeLatitude.toDouble(), storeNotifier.stores.toList()[index].storeLongitude.toDouble(), widget.position!.latitude, widget.position!.longitude).toStringAsFixed(1)} km")
                             ],
                           )
                         ],
@@ -553,7 +569,23 @@ class _StoresListViewState extends State<StoresListView> {
                 style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white.withOpacity(0.2),
                     shadowColor: Colors.transparent),
-                onPressed: () {},
+                onPressed: () async {
+                  context.read<OrderNotifier>();
+                  await context.read<OrderNotifier>().fetchOrderData();
+                  if (mounted) {
+                    context.read<StoreNotifier>();
+                    await context.read<StoreNotifier>().fetchStoreUserData();
+                  }
+                  final String email = await getUserData(0);
+                  if (mounted) {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              CustomerOrdersPage(email: email),
+                        ));
+                  }
+                },
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -602,5 +634,35 @@ class _StoresListViewState extends State<StoresListView> {
         ),
       ),
     );
+  }
+
+// Function to calculate distance between two coordinates using Haversine formula
+  double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    const double earthRadius = 6371.0; // Earth's radius in kilometers
+
+    // Convert latitude and longitude from degrees to radians
+    final double lat1Rad = _degreesToRadians(lat1);
+    final double lon1Rad = _degreesToRadians(lon1);
+    final double lat2Rad = _degreesToRadians(lat2);
+    final double lon2Rad = _degreesToRadians(lon2);
+
+    // Calculate the differences between coordinates
+    final double dLat = lat2Rad - lat1Rad;
+    final double dLon = lon2Rad - lon1Rad;
+
+    // Haversine formula
+    final double a = sin(dLat / 2) * sin(dLat / 2) +
+        cos(lat1Rad) * cos(lat2Rad) * sin(dLon / 2) * sin(dLon / 2);
+    final double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+
+    // Calculate the distance
+    final double distance = earthRadius * c;
+    print(distance);
+    return distance;
+  }
+
+// Helper function to convert degrees to radians
+  double _degreesToRadians(double degrees) {
+    return degrees * (pi / 180.0);
   }
 }

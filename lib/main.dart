@@ -11,6 +11,7 @@ import 'package:coffee/utils/notifiers/order_notifier.dart';
 import 'package:coffee/utils/notifiers/store_notifier.dart';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -90,7 +91,7 @@ class PageNavigator extends StatefulWidget {
 
 class _PageNavigatorState extends State<PageNavigator> {
   PageEnum page = PageEnum.loginPage;
-
+  Position? currentPosition;
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -102,6 +103,14 @@ class _PageNavigatorState extends State<PageNavigator> {
   }
 
   Future<void> checkUser(context) async {
+    await _handleLocationPermission();
+    await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    ).then((Position position) {
+      currentPosition = position;
+    }).catchError((e) {
+      log(e.toString());
+    });
     final prefs = await SharedPreferences.getInstance();
     final userEmail = prefs.getString('email');
     final userPassword = prefs.getString('password');
@@ -139,12 +148,43 @@ class _PageNavigatorState extends State<PageNavigator> {
         return LoginPage(isSwitched: false);
 
       case PageEnum.customerHomePage:
-        return const StoresListView();
+        return StoresListView(
+          position: currentPosition,
+        );
 
       case PageEnum.companyHomePage:
         return OrdersListView(
           email: email,
         );
     }
+  }
+
+  Future<bool> _handleLocationPermission() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'Location services are disabled. Please enable the services')));
+      return false;
+    }
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Location permissions are denied')));
+        return false;
+      }
+    }
+    if (permission == LocationPermission.deniedForever && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'Location permissions are permanently denied, we cannot request permissions.')));
+      return false;
+    }
+    return true;
   }
 }

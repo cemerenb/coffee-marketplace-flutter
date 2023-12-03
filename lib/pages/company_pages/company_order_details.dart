@@ -24,6 +24,8 @@ class CompanyOrderDetails extends StatefulWidget {
   final String userName;
 }
 
+bool isLoading = false;
+bool isLoading2 = false;
 int canceledItemCount = 0;
 bool countEnabled = true;
 String result = "";
@@ -125,20 +127,27 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
                             borderRadius: BorderRadius.circular(15),
                             child: MaterialButton(
                               onPressed: () async {
+                                isLoading2 = true;
+                                setState(() {});
                                 await UpdateOrderStatusApi()
                                     .updateOrderStatusStore(
                                         context, widget.orderId, 6);
                                 await orderNotifier.fetchCompanyOrderData();
+                                isLoading2 = false;
                                 setState(() {});
                               },
-                              child: const Center(
-                                  child: Text(
-                                "Decline",
-                                style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w300,
-                                    color: Colors.white),
-                              )),
+                              child: isLoading2
+                                  ? const Center(
+                                      child: CircularProgressIndicator(),
+                                    )
+                                  : const Center(
+                                      child: Text(
+                                      "Decline",
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w300,
+                                          color: Colors.white),
+                                    )),
                             ),
                           ))
                       : const SizedBox(),
@@ -155,24 +164,37 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
                       borderRadius: BorderRadius.circular(15),
                       child: MaterialButton(
                         onPressed: () async {
+                          isLoading = true;
+                          setState(() {});
                           if (orderStatus == 1) {
                             await UpdateOrderStatusApi().updateOrderStatusStore(
                                 context, widget.orderId, 2);
+                            isLoading = false;
+                            setState(() {});
                           }
                           if (orderStatus == 2 && mounted) {
                             await UpdateOrderStatusApi().updateOrderStatusStore(
                                 context, widget.orderId, 3);
+                            isLoading = false;
+                            setState(() {});
                           }
                           if (orderStatus == 3 && mounted) {
                             await UpdateOrderStatusApi().updateOrderStatusStore(
                                 context, widget.orderId, 4);
+                            isLoading = false;
+                            setState(() {});
                           }
                         },
-                        child: Center(
-                          child: Text(orderStatusNote,
-                              style: const TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.w300)),
-                        ),
+                        child: isLoading
+                            ? const Center(
+                                child: CircularProgressIndicator(),
+                              )
+                            : Center(
+                                child: Text(orderStatusNote,
+                                    style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w300)),
+                              ),
                       ),
                     ),
                   ),

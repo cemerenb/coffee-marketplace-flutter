@@ -1,9 +1,14 @@
+import 'dart:developer';
+
 import 'package:coffee/pages/company_pages/company_menu_page.dart';
 import 'package:coffee/pages/customer_pages/customer_list_stores.dart';
 import 'package:coffee/pages/login/login_page.dart';
 import 'package:coffee/utils/database_operations/store/get_menu.dart';
 import 'package:coffee/utils/get_user/get_user_data.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+
+Position? currentPosition;
 
 class Dialogs {
   static Future<void> showErrorDialog(
@@ -103,6 +108,13 @@ class Dialogs {
 
   static Future<void> showCartPlacedDialog(
       BuildContext context, String response) async {
+    await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    ).then((Position position) {
+      currentPosition = position;
+    }).catchError((e) {
+      log(e.toString());
+    });
     if (context.mounted) {
       return showDialog<void>(
           context: context,
@@ -125,7 +137,9 @@ class Dialogs {
                       Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const StoresListView()),
+                              builder: (context) => StoresListView(
+                                    position: currentPosition,
+                                  )),
                           (route) => false);
                     }
                   },

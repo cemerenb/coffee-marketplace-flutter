@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:coffee/pages/customer_pages/customer_list_stores.dart';
 import 'package:coffee/pages/login/login_page.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
@@ -15,12 +16,20 @@ import '../../notifiers/store_notifier.dart';
 class LoginApi {
   LoginApi();
   List<Store> stores = [];
+  Position? currentPosition;
   bool isCompleted = false;
   Future<bool> loginUser(
     BuildContext context,
     String email,
     String password,
   ) async {
+    await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    ).then((Position position) {
+      currentPosition = position;
+    }).catchError((e) {
+      log(e.toString());
+    });
     if (context.mounted) {
       await context.read<StoreNotifier>().fetchStoreUserData();
     }
@@ -48,7 +57,9 @@ class LoginApi {
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-              builder: (context) => const StoresListView(),
+              builder: (context) => StoresListView(
+                position: currentPosition,
+              ),
             ),
             (route) => false);
       }

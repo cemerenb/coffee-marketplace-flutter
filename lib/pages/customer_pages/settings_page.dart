@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:coffee/pages/customer_pages/customer_list_stores.dart';
 import 'package:coffee/utils/log_out/log_out.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 
 import '../../utils/notifiers/store_notifier.dart';
@@ -28,6 +31,7 @@ class _SettingsState extends State<Settings> {
   }
 
   Padding bottomNavigationBar() {
+    Position? currentPosition;
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
@@ -46,6 +50,13 @@ class _SettingsState extends State<Settings> {
                     backgroundColor: Colors.white.withOpacity(0.2),
                     shadowColor: Colors.transparent),
                 onPressed: () async {
+                  await Geolocator.getCurrentPosition(
+                    desiredAccuracy: LocationAccuracy.high,
+                  ).then((Position position) {
+                    currentPosition = position;
+                  }).catchError((e) {
+                    log(e.toString());
+                  });
                   if (context.mounted) {
                     await context.read<StoreNotifier>().fetchStoreUserData();
                   }
@@ -53,7 +64,9 @@ class _SettingsState extends State<Settings> {
                     Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const StoresListView(),
+                          builder: (context) => StoresListView(
+                            position: currentPosition,
+                          ),
                         ),
                         (route) => false);
                     setState(() {});
