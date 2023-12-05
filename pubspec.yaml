@@ -45,6 +45,9 @@ dependencies:
   geocoding: ^2.1.1
   slidable_button: ^3.0.0+1
   slide_to_act: ^2.0.2
+  url_launcher: ^6.0.10
+  qr_flutter: ^4.1.0
+  qr_code_scanner: ^1.0.1
 
 dev_dependencies:
   flutter_test:
@@ -107,3 +110,4 @@ flutter:
     - assets/img/cold-coffee.png
     - assets/img/cake.png
     - assets/img/sandwich.png
+    - assets/img/whatsapp.png

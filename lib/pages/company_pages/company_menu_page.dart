@@ -6,7 +6,6 @@ import 'package:coffee/utils/get_user/get_user_data.dart';
 import 'package:coffee/pages/company_pages/add_product.dart';
 import 'package:coffee/pages/company_pages/widgets/product_details.dart';
 import 'package:coffee/utils/classes/menu_class.dart';
-import 'package:coffee/utils/notifiers/order_notifier.dart';
 import 'package:coffee/utils/notifiers/store_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -202,14 +201,15 @@ class _MenusListViewState extends State<MenusListView> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Icon(Icons.coffee,
-                            size: 30, color: Colors.brown.shade600),
+                        const Icon(Icons.coffee,
+                            size: 30,
+                            color: Color.fromARGB(255, 198, 169, 146)),
                         Container(
                           height: 4,
                           width: 30,
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
-                              color: Colors.brown.shade600),
+                              color: const Color.fromARGB(255, 198, 169, 146)),
                         )
                       ],
                     )),
@@ -267,7 +267,7 @@ class _MenusListViewState extends State<MenusListView> {
           height: 40,
           decoration: BoxDecoration(
             color: category == selectedCategory
-                ? Colors.brown.shade600
+                ? const Color.fromARGB(255, 198, 169, 146)
                 : Colors.grey.withOpacity(0.5),
             borderRadius: BorderRadius.circular(30),
           ),

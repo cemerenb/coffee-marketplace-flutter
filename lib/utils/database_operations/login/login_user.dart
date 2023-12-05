@@ -57,9 +57,7 @@ class LoginApi {
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-              builder: (context) => StoresListView(
-                position: currentPosition,
-              ),
+              builder: (context) => const StoresListView(),
             ),
             (route) => false);
       }

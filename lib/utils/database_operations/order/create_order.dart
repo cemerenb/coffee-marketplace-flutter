@@ -3,7 +3,6 @@ import 'dart:developer';
 
 import 'package:coffee/pages/customer_pages/customer_list_stores.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 
 class CreateOrder {
@@ -31,7 +30,7 @@ class CreateOrder {
         'orderStatus': 1,
         'orderNote': orderNote,
         'orderCreatingTime':
-            "${DateTime.now().day < 10 ? "0${DateTime.now().day}" : "${DateTime.now().day}"} ${DateTime.now().month < 10 ? "0${DateTime.now().month}" : "${DateTime.now().month}"} ${DateTime.now().year}t${DateTime.now().hour + 3 < 9 ? "0${(DateTime.now().hour + 3) % 24}" : "${(DateTime.now().hour + 3) % 24}"}:${DateTime.now().minute < 9 ? "0${DateTime.now().minute}" : "${DateTime.now().minute}"}",
+            "${DateTime.now().day < 10 ? "0${DateTime.now().day}" : "${DateTime.now().day}"} ${DateTime.now().month < 10 ? "0${DateTime.now().month}" : "${DateTime.now().month}"} ${DateTime.now().year}t${(DateTime.now().hour + 3) % 24 < 9 ? "0${(DateTime.now().hour + 3) % 24}" : "${(DateTime.now().hour + 3) % 24}"}:${DateTime.now().minute < 9 ? "0${DateTime.now().minute}" : "${DateTime.now().minute}"}",
         'itemCount': itemCount,
         'orderTotalPrice': orderTotalPrice,
       }),
@@ -80,7 +79,6 @@ Future<void> _showErrorDialog(context, String response) async {
 }
 
 Future<void> _showCompletedDialog(BuildContext context, String response) async {
-  Position? currentPosition;
   return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -97,20 +95,11 @@ Future<void> _showCompletedDialog(BuildContext context, String response) async {
             TextButton(
               child: const Text('Okay'),
               onPressed: () async {
-                await Geolocator.getCurrentPosition(
-                  desiredAccuracy: LocationAccuracy.high,
-                ).then((Position position) {
-                  currentPosition = position;
-                }).catchError((e) {
-                  log(e.toString());
-                });
                 if (context.mounted) {
                   Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => StoresListView(
-                          position: currentPosition,
-                        ),
+                        builder: (context) => const StoresListView(),
                       ),
                       (route) => false);
                 }

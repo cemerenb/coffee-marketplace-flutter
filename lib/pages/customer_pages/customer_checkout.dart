@@ -87,7 +87,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
             ),
             ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.brown.shade400),
+                    backgroundColor: const Color.fromARGB(255, 198, 169, 146)),
                 onPressed: () async {
                   String orderId = generateRandomHex();
                   int itemCount = 0;

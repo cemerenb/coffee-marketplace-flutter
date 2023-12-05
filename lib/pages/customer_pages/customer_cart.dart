@@ -76,7 +76,7 @@ class _CartPageState extends State<CartPage> {
             ),
             ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.brown.shade400),
+                    backgroundColor: const Color.fromARGB(255, 198, 169, 146)),
                 onPressed: () async {
                   String email = await getUserData(0);
                   if (context.mounted && cartNotifier.cart.isNotEmpty) {
@@ -294,7 +294,7 @@ class _QuantitySelectorState extends State<QuantitySelector> {
         width: 90.0,
         height: 30.0,
         decoration: BoxDecoration(
-            color: Colors.brown.shade400,
+            color: const Color.fromARGB(255, 198, 169, 146),
             borderRadius: BorderRadius.circular(28)),
         child: Row(
           children: [

@@ -14,12 +14,17 @@ import '../../utils/notifiers/cart_notifier.dart';
 import '../../utils/notifiers/store_notifier.dart';
 
 class StoreDetails extends StatefulWidget {
-  const StoreDetails({super.key, required this.index, required this.email});
+  const StoreDetails(
+      {super.key,
+      required this.index,
+      required this.email,
+      required this.rating});
 
   @override
   State<StoreDetails> createState() => _StoreDetailsState();
   final int index;
   final String email;
+  final double rating;
 }
 
 bool isFound = false;
@@ -287,7 +292,7 @@ class _StoreDetailsState extends State<StoreDetails> {
       padding: const EdgeInsets.symmetric(horizontal: 15.0),
       child: Container(
           decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.3),
+              color: const Color.fromARGB(255, 249, 241, 246),
               borderRadius: BorderRadius.circular(10)),
           height: 200,
           width: MediaQuery.of(context).size.width,
@@ -331,13 +336,19 @@ class _StoreDetailsState extends State<StoreDetails> {
                             const SizedBox(
                               height: 10,
                             ),
-                            const Row(
+                            Row(
                               children: [
-                                Text("-"),
-                                Icon(
+                                const Icon(
                                   Icons.star,
                                   color: Color.fromARGB(255, 216, 196, 19),
-                                )
+                                  size: 20,
+                                ),
+                                Text(
+                                  widget.rating == 0
+                                      ? "-"
+                                      : widget.rating.toStringAsFixed(1),
+                                  style: const TextStyle(fontSize: 20),
+                                ),
                               ],
                             )
                           ],
@@ -346,12 +357,12 @@ class _StoreDetailsState extends State<StoreDetails> {
                     ),
                   ],
                 ),
-                Container(
-                  height: 1,
-                  width: MediaQuery.of(context).size.width - 100,
-                  decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.4),
-                      borderRadius: BorderRadius.circular(20)),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 0),
+                  child: Divider(
+                    height: 1,
+                    color: Color.fromARGB(255, 229, 229, 236),
+                  ),
                 ),
                 const Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -367,14 +378,16 @@ class _StoreDetailsState extends State<StoreDetails> {
                     )
                   ],
                 ),
-                Container(
-                  height: 1,
-                  width: MediaQuery.of(context).size.width - 100,
-                  decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.4),
-                      borderRadius: BorderRadius.circular(20)),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 0),
+                  child: Divider(
+                    height: 1,
+                    color: Color.fromARGB(255, 229, 229, 236),
+                  ),
                 ),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -388,6 +401,20 @@ class _StoreDetailsState extends State<StoreDetails> {
                         Text(
                             '${storeNotifier.stores[widget.index].openingTime.replaceAll(" ", "")} - ${storeNotifier.stores[widget.index].closingTime.replaceAll(" ", "")}'),
                       ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2.0),
+                      child: SizedBox(
+                        height: 30,
+                        child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    const Color.fromARGB(255, 198, 169, 146)),
+                            onPressed: () {},
+                            child: const Center(
+                              child: Text('Reviews'),
+                            )),
+                      ),
                     )
                   ],
                 )
@@ -413,7 +440,7 @@ class _StoreDetailsState extends State<StoreDetails> {
           height: 40,
           decoration: BoxDecoration(
             color: category == selectedCategory
-                ? Colors.brown.shade400
+                ? const Color.fromARGB(255, 198, 169, 146)
                 : Colors.grey.withOpacity(0.5),
             borderRadius: BorderRadius.circular(30),
           ),
@@ -531,7 +558,7 @@ class _AnimatedQuantitySelectorState extends State<AnimatedQuantitySelector> {
       width: widget.isInCart ? 90 : 30,
       height: 30.0,
       decoration: BoxDecoration(
-          color: Colors.brown.shade400,
+          color: const Color.fromARGB(255, 198, 169, 146),
           borderRadius: BorderRadius.circular(30)),
       child: widget.isInCart
           ? Visibility(

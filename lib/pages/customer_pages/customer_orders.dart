@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:coffee/pages/customer_pages/customer_order_details.dart';
+import 'package:coffee/utils/database_operations/user/get_user.dart';
+import 'package:coffee/utils/notifiers/menu_notifier.dart';
 import 'package:coffee/utils/notifiers/order_details_notifier.dart';
 import 'package:coffee/utils/notifiers/order_notifier.dart';
 import 'package:coffee/utils/notifiers/store_notifier.dart';
@@ -19,6 +22,10 @@ late Timer timer;
 class _CustomerOrdersPageState extends State<CustomerOrdersPage> {
   @override
   void initState() {
+    var orderDetailsNotifier = context.read<OrderDetailsNotifier>();
+    orderDetailsNotifier.fetchOrderDetailsData();
+    var menuNotifier = context.read<MenuNotifier>();
+    menuNotifier.fetchMenuUserData();
     timer = Timer.periodic(
       const Duration(seconds: 1),
       (Timer t) => checkOrder(),
@@ -45,17 +52,19 @@ class _CustomerOrdersPageState extends State<CustomerOrdersPage> {
   Padding listOrders() {
     var orderNotifier = context.watch<OrderNotifier>();
     var storeNotifier = context.watch<StoreNotifier>();
+    var menuNotifier = context.watch<MenuNotifier>();
     var orderDetailsNotifier = context.watch<OrderDetailsNotifier>();
     var order = orderNotifier.order.where((o) => o.userEmail == widget.email);
     String orderStatusNote = "";
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 15),
+      padding: const EdgeInsets.symmetric(horizontal: 15.0),
       child: SingleChildScrollView(
         child: Column(
           children: [
             ListView.builder(
               physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
+              reverse: true,
               itemCount: order.length,
               itemBuilder: (context, index) {
                 int orderStatus = order.toList()[index].orderStatus;
@@ -81,9 +90,9 @@ class _CustomerOrdersPageState extends State<CustomerOrdersPage> {
                   default:
                 }
                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6.0),
-                  child: Card(
-                    child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6.0),
+                    child: Card(
+                        child: Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: SingleChildScrollView(
                         physics: const NeverScrollableScrollPhysics(),
@@ -119,7 +128,32 @@ class _CustomerOrdersPageState extends State<CustomerOrdersPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     ElevatedButton(
-                                        onPressed: () {},
+                                        onPressed: () async {
+                                          final userName =
+                                              await getUser(widget.email);
+                                          await menuNotifier
+                                              .fetchMenuUserData();
+                                          await storeNotifier
+                                              .fetchStoreUserData();
+                                          await orderNotifier.fetchOrderData();
+                                          await orderDetailsNotifier
+                                              .fetchOrderDetailsData();
+                                          if (mounted) {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      CustomerOrderDetails(
+                                                          email: orderNotifier
+                                                              .order[index]
+                                                              .storeEmail,
+                                                          orderId: orderNotifier
+                                                              .order[index]
+                                                              .orderId,
+                                                          userName: userName),
+                                                ));
+                                          }
+                                        },
                                         child: const Text("Details")),
                                   ],
                                 )
@@ -144,7 +178,8 @@ class _CustomerOrdersPageState extends State<CustomerOrdersPage> {
                                       ? const Color.fromARGB(255, 223, 96, 87)
                                       : orderStatus == 4
                                           ? Colors.green
-                                          : Colors.brown.shade400,
+                                          : const Color.fromARGB(
+                                              255, 198, 169, 146),
                                   size: 18,
                                 ),
                                 Padding(
@@ -152,26 +187,33 @@ class _CustomerOrdersPageState extends State<CustomerOrdersPage> {
                                       horizontal: 5.0),
                                   child: Text(orderStatusNote),
                                 ),
-                                Text(
-                                  orderDetailsNotifier.orderDetails
-                                      .where((od) =>
-                                          od.orderId ==
-                                          orderNotifier.order
-                                              .toList()[index]
-                                              .orderId)
-                                      .map((od) => od.itemCount.toString())
-                                      .join(
-                                          ', '), // Concatenate item counts with a separator
-                                  style: const TextStyle(fontSize: 18),
-                                ),
                               ],
-                            )
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 10.0, vertical: 10),
+                              child: Divider(
+                                height: 1,
+                              ),
+                            ),
+                            Wrap(
+                              children: List.generate(
+                                orderDetailsNotifier.orderDetails
+                                    .where((o) =>
+                                        o.orderId ==
+                                        orderNotifier.order[index].orderId)
+                                    .length,
+                                (innerIndex) => Padding(
+                                  padding: const EdgeInsets.all(1.0),
+                                  child: Text(
+                                      "${orderDetailsNotifier.orderDetails.where((o) => o.orderId == orderNotifier.order[index].orderId).toList()[innerIndex].itemCount} x ${menuNotifier.menu.where((m) => m.menuItemId == orderDetailsNotifier.orderDetails.where((o) => o.orderId == orderNotifier.order[index].orderId).toList()[innerIndex].menuItemId).first.menuItemName},"),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),
-                    ),
-                  ),
-                );
+                    )));
               },
             )
           ],

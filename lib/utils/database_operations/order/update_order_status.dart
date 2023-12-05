@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:coffee/pages/company_pages/company_orders_page.dart';
-import 'package:coffee/utils/get_user/get_user_data.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 

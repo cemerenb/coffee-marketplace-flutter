@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:coffee/pages/company_pages/company_menu_page.dart';
 import 'package:coffee/pages/company_pages/company_order_details.dart';
+import 'package:coffee/pages/company_pages/company_scan_qr_code.dart';
 import 'package:coffee/pages/company_pages/company_settings.dart';
 import 'package:coffee/utils/database_operations/user/get_user.dart';
 import 'package:coffee/utils/get_user/get_user_data.dart';
@@ -60,6 +61,20 @@ class _OrdersListViewState extends State<OrdersListView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CompanyScanQrCode(),
+                  ));
+            },
+            icon: const Icon(Icons.qr_code_outlined)),
+        actions: [
+          IconButton(onPressed: () {}, icon: const Icon(Icons.filter_list))
+        ],
+      ),
       body: listCompanyOrders(),
       bottomNavigationBar: bottomNavigationBar(),
     );
@@ -135,9 +150,10 @@ class _OrdersListViewState extends State<OrdersListView> {
                                   child: Container(
                                     height: 23,
                                     width: 23,
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                         shape: BoxShape.circle,
-                                        color: Colors.brown.shade400),
+                                        color:
+                                            Color.fromARGB(255, 198, 169, 146)),
                                     child: Center(
                                       child: Text(
                                           "+${orderNotifier.order[index].itemCount - 1}"),
@@ -245,14 +261,15 @@ class _OrdersListViewState extends State<OrdersListView> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Icon(Icons.list,
-                            size: 30, color: Colors.brown.shade600),
+                        const Icon(Icons.list,
+                            size: 30,
+                            color: Color.fromARGB(255, 198, 169, 146)),
                         Container(
                           height: 4,
                           width: 30,
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
-                              color: Colors.brown.shade600),
+                              color: const Color.fromARGB(255, 198, 169, 146)),
                         )
                       ],
                     )),

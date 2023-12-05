@@ -7,6 +7,7 @@ import 'package:coffee/utils/database_operations/store/get_menu.dart';
 import 'package:coffee/utils/get_user/get_user_data.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 Position? currentPosition;
 
@@ -137,9 +138,7 @@ class Dialogs {
                       Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => StoresListView(
-                                    position: currentPosition,
-                                  )),
+                              builder: (context) => const StoresListView()),
                           (route) => false);
                     }
                   },
@@ -148,5 +147,65 @@ class Dialogs {
             );
           });
     }
+  }
+
+  void showSheet(context) {
+    final Uri launchUri = Uri(
+      scheme: 'tel',
+      path: "+905469394850",
+    );
+    var whatsappUrl =
+        "whatsapp://send?phone=+905469394850&text=Hi can you help me?";
+
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext bc) {
+          return Container(
+            decoration: const BoxDecoration(
+              color: Color.fromARGB(255, 249, 241, 246),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            // Define padding for the container.
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+            // Create a Wrap widget to display the sheet contents.
+            child: Wrap(
+              children: <Widget>[
+                ListTile(
+                  leading: const Icon(Icons.phone),
+                  title: const Text('Phone Call'),
+                  onTap: () {
+                    launchUrl(launchUri);
+                    Navigator.pop(context);
+                  },
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 15.0),
+                  child: Divider(
+                    height: 1,
+                    color: Colors.black,
+                  ),
+                ),
+                ListTile(
+                  leading: Image.asset('assets/img/whatsapp.png',
+                      width: 24, height: 24), // Replace with your WhatsApp icon
+                  title: const Text('WhatsApp'),
+                  onTap: () {
+                    try {
+                      launchUrl(Uri.parse(whatsappUrl));
+                    } catch (e) {
+                      //To handle error and display an error message
+                      Dialogs.showErrorDialog(context,
+                          "An error occurred while launching WhatsApp");
+                    }
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
+          );
+        });
   }
 }

@@ -3,22 +3,23 @@ import 'dart:math';
 
 import 'package:coffee/pages/customer_pages/customer_cart.dart';
 import 'package:coffee/pages/customer_pages/customer_orders.dart';
+import 'package:coffee/pages/customer_pages/customer_show_qr_code.dart';
 import 'package:coffee/pages/customer_pages/customer_store_details.dart';
 import 'package:coffee/pages/customer_pages/settings_page.dart';
 import 'package:coffee/utils/get_user/get_user_data.dart';
 import 'package:coffee/utils/notifiers/order_notifier.dart';
+import 'package:coffee/utils/notifiers/rating_notifier.dart';
 
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../utils/notifiers/cart_notifier.dart';
 import '../../utils/notifiers/menu_notifier.dart';
 import '../../utils/notifiers/store_notifier.dart';
 
 class StoresListView extends StatefulWidget {
-  final Position? position;
-  const StoresListView({super.key, required this.position});
+  const StoresListView({super.key});
 
   @override
   State<StoresListView> createState() => _StoresListViewState();
@@ -31,7 +32,7 @@ int index = 0;
 bool c1 = false;
 bool c2 = false;
 bool c3 = false;
-
+double distance = 0;
 bool check = true;
 late Timer timer;
 final TextEditingController search = TextEditingController();
@@ -39,6 +40,10 @@ final TextEditingController search = TextEditingController();
 class _StoresListViewState extends State<StoresListView> {
   @override
   void initState() {
+    var storeNotifier = context.read<StoreNotifier>();
+    calculateDistance(
+        storeNotifier.stores.toList()[index].storeLatitude.toDouble(),
+        storeNotifier.stores.toList()[index].storeLongitude.toDouble());
     super.initState();
     timer = Timer.periodic(
       const Duration(seconds: 1),
@@ -49,11 +54,24 @@ class _StoresListViewState extends State<StoresListView> {
   int count = 0;
   int orderStatus = 1;
   late String email;
+  double rate = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+            onPressed: () async {
+              final email = await getUserData(0);
+              if (mounted) {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CustomerQrCode(data: email),
+                    ));
+              }
+            },
+            icon: const Icon(Icons.qr_code_outlined)),
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 5.0),
@@ -246,7 +264,8 @@ class _StoresListViewState extends State<StoresListView> {
                                       decoration: BoxDecoration(
                                           color: orderStatus < 4 &&
                                                   orderStatus > 0
-                                              ? Colors.brown.shade400
+                                              ? const Color.fromARGB(
+                                                  255, 198, 169, 146)
                                               : Colors.black.withOpacity(0.3),
                                           borderRadius:
                                               BorderRadius.circular(10)),
@@ -255,7 +274,8 @@ class _StoresListViewState extends State<StoresListView> {
                                       decoration: BoxDecoration(
                                           color: orderStatus < 4 &&
                                                   orderStatus > 1
-                                              ? Colors.brown.shade400
+                                              ? const Color.fromARGB(
+                                                  255, 198, 169, 146)
                                               : Colors.black.withOpacity(0.3),
                                           borderRadius:
                                               BorderRadius.circular(10)),
@@ -270,7 +290,8 @@ class _StoresListViewState extends State<StoresListView> {
                                       decoration: BoxDecoration(
                                           color: orderStatus < 4 &&
                                                   orderStatus > 2
-                                              ? Colors.brown.shade400
+                                              ? const Color.fromARGB(
+                                                  255, 198, 169, 146)
                                               : Colors.black.withOpacity(0.3),
                                           borderRadius:
                                               BorderRadius.circular(10)),
@@ -356,6 +377,8 @@ class _StoresListViewState extends State<StoresListView> {
                                   builder: (context) => StoreDetails(
                                     index: index,
                                     email: email,
+                                    rating: calculateStoreRating(
+                                        storeNotifier.stores[index].storeEmail),
                                   ),
                                 ));
                           }
@@ -427,6 +450,8 @@ class _StoresListViewState extends State<StoresListView> {
                                 builder: (context) => StoreDetails(
                                   index: index,
                                   email: email,
+                                  rating: calculateStoreRating(
+                                      storeNotifier.stores[index].storeEmail),
                                 ),
                               ));
                         }
@@ -452,7 +477,13 @@ class _StoresListViewState extends State<StoresListView> {
                                 color: Color.fromARGB(255, 216, 196, 19),
                                 size: 20,
                               ),
-                              const Text('-'),
+                              Text(calculateStoreRating(storeNotifier
+                                          .stores[index].storeEmail) ==
+                                      0
+                                  ? "-"
+                                  : calculateStoreRating(storeNotifier
+                                          .stores[index].storeEmail)
+                                      .toStringAsFixed(1)),
                               const SizedBox(
                                 width: 15,
                               ),
@@ -460,8 +491,7 @@ class _StoresListViewState extends State<StoresListView> {
                                 Icons.location_pin,
                                 size: 18,
                               ),
-                              Text(
-                                  "${calculateDistance(storeNotifier.stores.toList()[index].storeLatitude.toDouble(), storeNotifier.stores.toList()[index].storeLongitude.toDouble(), widget.position!.latitude, widget.position!.longitude).toStringAsFixed(1)} km")
+                              Text("${distance.toStringAsFixed(1)} km")
                             ],
                           )
                         ],
@@ -553,14 +583,14 @@ class _StoresListViewState extends State<StoresListView> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Icon(Icons.home_outlined,
-                        size: 30, color: Colors.brown.shade600),
+                    const Icon(Icons.home_outlined,
+                        size: 30, color: Color.fromARGB(255, 198, 169, 146)),
                     Container(
                       height: 4,
                       width: 30,
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
-                          color: Colors.brown.shade600),
+                          color: const Color.fromARGB(255, 198, 169, 146)),
                     )
                   ],
                 ),
@@ -575,6 +605,10 @@ class _StoresListViewState extends State<StoresListView> {
                   if (mounted) {
                     context.read<StoreNotifier>();
                     await context.read<StoreNotifier>().fetchStoreUserData();
+                  }
+                  if (mounted) {
+                    context.read<MenuNotifier>();
+                    await context.read<MenuNotifier>().fetchMenuUserData();
                   }
                   final String email = await getUserData(0);
                   if (mounted) {
@@ -636,15 +670,34 @@ class _StoresListViewState extends State<StoresListView> {
     );
   }
 
+  double calculateStoreRating(String storeEmail) {
+    rate = 0;
+    var ratingNotifier = context.read<RatingNotifier>();
+    ratingNotifier.fetchRatingsData();
+    int lenght =
+        ratingNotifier.ratings.where((r) => r.storeEmail == storeEmail).length;
+
+    for (var i = 0; i < lenght; i++) {
+      rate += ratingNotifier.ratings
+          .where((r) => r.storeEmail == storeEmail)
+          .toList()[i]
+          .ratingPoint;
+    }
+    return rate / lenght;
+  }
+
 // Function to calculate distance between two coordinates using Haversine formula
-  double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+  Future<void> calculateDistance(double lat1, double lon1) async {
+    final prefs = await SharedPreferences.getInstance();
+    double? lat2 = prefs.getDouble("latitude");
+    double? lon2 = prefs.getDouble("longitude");
     const double earthRadius = 6371.0; // Earth's radius in kilometers
 
     // Convert latitude and longitude from degrees to radians
     final double lat1Rad = _degreesToRadians(lat1);
     final double lon1Rad = _degreesToRadians(lon1);
-    final double lat2Rad = _degreesToRadians(lat2);
-    final double lon2Rad = _degreesToRadians(lon2);
+    final double lat2Rad = _degreesToRadians(lat2!);
+    final double lon2Rad = _degreesToRadians(lon2!);
 
     // Calculate the differences between coordinates
     final double dLat = lat2Rad - lat1Rad;
@@ -656,9 +709,9 @@ class _StoresListViewState extends State<StoresListView> {
     final double c = 2 * atan2(sqrt(a), sqrt(1 - a));
 
     // Calculate the distance
-    final double distance = earthRadius * c;
+    distance = earthRadius * c;
+    setState(() {});
     print(distance);
-    return distance;
   }
 
 // Helper function to convert degrees to radians

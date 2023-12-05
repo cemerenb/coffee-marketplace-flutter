@@ -8,6 +8,7 @@ import 'package:coffee/utils/notifiers/cart_notifier.dart';
 import 'package:coffee/utils/notifiers/menu_notifier.dart';
 import 'package:coffee/utils/notifiers/order_details_notifier.dart';
 import 'package:coffee/utils/notifiers/order_notifier.dart';
+import 'package:coffee/utils/notifiers/rating_notifier.dart';
 import 'package:coffee/utils/notifiers/store_notifier.dart';
 
 import 'package:flutter/material.dart';
@@ -57,6 +58,9 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider<OrderDetailsNotifier>(
           create: (_) => OrderDetailsNotifier(),
         ),
+        ChangeNotifierProvider<RatingNotifier>(
+          create: (_) => RatingNotifier(),
+        )
       ],
       child: MaterialApp(
           title: 'Flutter Demo',
@@ -111,7 +115,13 @@ class _PageNavigatorState extends State<PageNavigator> {
     }).catchError((e) {
       log(e.toString());
     });
+
     final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setDouble("latitude", currentPosition!.latitude.toDouble());
+    await prefs.setDouble("longitude", currentPosition!.longitude.toDouble());
+    log("latitude : ${prefs.getDouble("latitude")}");
+    log("longitude : ${prefs.getDouble("longitude")}");
     final userEmail = prefs.getString('email');
     final userPassword = prefs.getString('password');
     final accountType = prefs.getString('accountType');
@@ -142,23 +152,6 @@ class _PageNavigatorState extends State<PageNavigator> {
     }
   }
 
-  Widget pageSelector() {
-    switch (page) {
-      case PageEnum.loginPage:
-        return LoginPage(isSwitched: false);
-
-      case PageEnum.customerHomePage:
-        return StoresListView(
-          position: currentPosition,
-        );
-
-      case PageEnum.companyHomePage:
-        return OrdersListView(
-          email: email,
-        );
-    }
-  }
-
   Future<bool> _handleLocationPermission() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -186,5 +179,20 @@ class _PageNavigatorState extends State<PageNavigator> {
       return false;
     }
     return true;
+  }
+
+  Widget pageSelector() {
+    switch (page) {
+      case PageEnum.loginPage:
+        return LoginPage(isSwitched: false);
+
+      case PageEnum.customerHomePage:
+        return const StoresListView();
+
+      case PageEnum.companyHomePage:
+        return OrdersListView(
+          email: email,
+        );
+    }
   }
 }

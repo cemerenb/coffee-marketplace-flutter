@@ -109,7 +109,7 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
             borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(30), topRight: Radius.circular(20)),
             child: BottomAppBar(
-              color: Colors.brown.shade400,
+              color: const Color.fromARGB(255, 198, 169, 146),
               child: Row(
                 mainAxisAlignment: orderStatus == 1
                     ? MainAxisAlignment.spaceBetween
@@ -268,8 +268,11 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
                         height: 30,
                         child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.brown.shade400),
-                            onPressed: () {},
+                                backgroundColor:
+                                    const Color.fromARGB(255, 198, 169, 146)),
+                            onPressed: () async {
+                              Dialogs().showSheet(context);
+                            },
                             child: const Text(
                               "Contact Support",
                               style: TextStyle(

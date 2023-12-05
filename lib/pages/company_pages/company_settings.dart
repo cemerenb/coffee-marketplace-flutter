@@ -13,7 +13,6 @@ import 'package:coffee/utils/notifiers/store_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
-import '../../utils/classes/stores.dart';
 import '../../utils/database_operations/store/toggle_store.dart';
 
 class StoreInfoPage extends StatefulWidget {
@@ -336,14 +335,15 @@ class _StoreInfoPageState extends State<StoreInfoPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Icon(Icons.settings,
-                            size: 30, color: Colors.brown.shade600),
+                        const Icon(Icons.settings,
+                            size: 30,
+                            color: Color.fromARGB(255, 198, 169, 146)),
                         Container(
                           height: 4,
                           width: 30,
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
-                              color: Colors.brown.shade600),
+                              color: const Color.fromARGB(255, 198, 169, 146)),
                         )
                       ],
                     )),
