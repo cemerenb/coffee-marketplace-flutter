@@ -29,7 +29,11 @@ class _SettingsState extends State<Settings> {
 
   Padding bottomNavigationBar() {
     return Padding(
-      padding: const EdgeInsets.all(10.0),
+      padding: const EdgeInsets.only(
+        bottom: 10.0,
+        left: 10,
+        right: 10,
+      ),
       child: Container(
         decoration: BoxDecoration(
             color: const Color.fromARGB(255, 88, 88, 88).withOpacity(0.2),

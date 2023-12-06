@@ -5,6 +5,8 @@ import 'package:coffee/pages/company_pages/company_orders_page.dart';
 import 'package:coffee/pages/customer_pages/customer_list_stores.dart';
 import 'package:coffee/pages/login/login_page.dart';
 import 'package:coffee/utils/notifiers/cart_notifier.dart';
+import 'package:coffee/utils/notifiers/loyalty_program_notifier.dart';
+import 'package:coffee/utils/notifiers/loyalty_user.dart';
 import 'package:coffee/utils/notifiers/menu_notifier.dart';
 import 'package:coffee/utils/notifiers/order_details_notifier.dart';
 import 'package:coffee/utils/notifiers/order_notifier.dart';
@@ -60,7 +62,11 @@ class _MyAppState extends State<MyApp> {
         ),
         ChangeNotifierProvider<RatingNotifier>(
           create: (_) => RatingNotifier(),
-        )
+        ),
+        ChangeNotifierProvider<LoyaltyNotifier>(
+            create: (_) => LoyaltyNotifier()),
+        ChangeNotifierProvider<LoyaltyUserNotifier>(
+            create: (_) => LoyaltyUserNotifier())
       ],
       child: MaterialApp(
           title: 'Flutter Demo',

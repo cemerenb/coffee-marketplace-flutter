@@ -13,7 +13,7 @@ class UpdateCartApi {
     final String userEmail = await getUserData(0);
 
     final response = await http.put(
-      Uri.parse('http://192.168.0.28:7094/api/Cart/update'),
+      Uri.parse('http://10.0.2.2:7094/api/Cart/update'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },

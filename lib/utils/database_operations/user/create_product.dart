@@ -17,7 +17,7 @@ class CreateProductApi {
     int menuItemCategory,
   ) async {
     final response = await http.post(
-      Uri.parse('http://192.168.0.28:7094/api/Menu/create'),
+      Uri.parse('http://10.0.2.2:7094/api/Menu/create'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },

@@ -19,7 +19,7 @@ class UpdateStoreApi {
       String latitude,
       String longitude) async {
     final response = await http.put(
-      Uri.parse('http://192.168.0.28:7094/api/Store/update'),
+      Uri.parse('http://10.0.2.2:7094/api/Store/update'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },

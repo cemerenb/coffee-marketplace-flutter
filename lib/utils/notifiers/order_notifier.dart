@@ -14,7 +14,7 @@ class OrderNotifier extends ChangeNotifier {
     final email = await getUserData(0);
     try {
       final response = await http.get(Uri.parse(
-          'http://192.168.0.28:7094/api/Order/get-user-orders?UserEmail=$email'));
+          'http://10.0.2.2:7094/api/Order/get-user-orders?UserEmail=$email'));
 
       if (response.statusCode == 200) {
         log(response.statusCode.toString());
@@ -47,7 +47,7 @@ class OrderNotifier extends ChangeNotifier {
     final email = await getUserData(0);
     try {
       final response = await http.get(Uri.parse(
-          'http://192.168.0.28:7094/api/Order/get-store-orders?StoreEmail=$email'));
+          'http://10.0.2.2:7094/api/Order/get-store-orders?StoreEmail=$email'));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);

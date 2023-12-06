@@ -19,7 +19,7 @@ class CreateOrder {
       int itemCount,
       double orderTotalPrice) async {
     final response = await http.post(
-      Uri.parse('http://192.168.0.28:7094/api/Order/create-order'),
+      Uri.parse('http://10.0.2.2:7094/api/Order/create-order'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },

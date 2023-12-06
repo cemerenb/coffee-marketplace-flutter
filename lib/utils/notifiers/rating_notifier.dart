@@ -10,8 +10,8 @@ class RatingNotifier extends ChangeNotifier {
 
   Future<void> fetchRatingsData() async {
     try {
-      final response = await http
-          .get(Uri.parse('http://192.168.0.28:7094/api/Rating/get-all'));
+      final response =
+          await http.get(Uri.parse('http://10.0.2.2:7094/api/Rating/get-all'));
 
       if (response.statusCode == 200) {
         log(response.statusCode.toString());

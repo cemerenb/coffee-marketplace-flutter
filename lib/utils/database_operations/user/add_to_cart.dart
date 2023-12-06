@@ -23,7 +23,7 @@ Future<(bool, String)> addToCart(
 
   // Set the URL of your API endpoint
   const String apiUrl =
-      'http://192.168.0.28:7094/api/Cart/add'; // replace with your actual API endpoint
+      'http://10.0.2.2:7094/api/Cart/add'; // replace with your actual API endpoint
 
   try {
     // Make a POST request to the API

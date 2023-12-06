@@ -34,7 +34,7 @@ class LoginApi {
       await context.read<StoreNotifier>().fetchStoreUserData();
     }
     final response = await http.post(
-      Uri.parse('http://192.168.0.28:7094/api/User/login'),
+      Uri.parse('http://10.0.2.2:7094/api/User/login'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },

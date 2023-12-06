@@ -3,22 +3,22 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-class ToggleStoreStatus {
-  ToggleStoreStatus();
+class ToggleLoyaltyStatus {
+  ToggleLoyaltyStatus();
 
-  Future<(bool success, String message)> toggleStoreStatus(
+  Future<(bool success, String message)> toggleLoyaltyStatus(
     BuildContext context,
     String storeEmail,
-    int storeIsOn,
+    int isPointsEnabled,
   ) async {
     final response = await http.put(
-      Uri.parse('http://10.0.2.2:7094/api/Store/toggle-store'),
+      Uri.parse('http://10.0.2.2:7094/api/PointRules/toggle-loyalty-status'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },
       body: jsonEncode(<Object, Object>{
         'storeEmail': storeEmail,
-        'storeIsOn': storeIsOn,
+        'isPointsEnabled': isPointsEnabled,
       }),
     );
     if (response.statusCode == 200) {

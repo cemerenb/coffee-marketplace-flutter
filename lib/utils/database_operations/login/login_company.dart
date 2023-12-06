@@ -19,7 +19,7 @@ class CompanyLoginApi {
   ) async {
     context.read<StoreNotifier>();
     final response = await http.post(
-      Uri.parse('http://192.168.0.28:7094/api/Store/login'),
+      Uri.parse('http://10.0.2.2:7094/api/Store/login'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },

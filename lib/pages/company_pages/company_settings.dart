@@ -3,6 +3,7 @@
 import 'dart:developer';
 
 import 'package:coffee/main.dart';
+import 'package:coffee/pages/company_pages/company_loyalty_settings.dart';
 import 'package:coffee/pages/company_pages/company_menu_page.dart';
 import 'package:coffee/pages/company_pages/company_orders_page.dart';
 import 'package:coffee/pages/company_pages/widgets/add_logo.dart';
@@ -61,93 +62,137 @@ class _StoreInfoPageState extends State<StoreInfoPage> {
           )
         : Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15.0),
-            child: Column(
-              children: [
-                const SizedBox(
-                  height: 50,
-                ),
-                LogoArea(
-                  widget: widget,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 20.0),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Stack(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(
+                    height: 50,
+                  ),
+                  LogoArea(
+                    widget: widget,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20.0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Stack(
+                        children: [
+                          SizedBox(
+                            height: 200,
+                            width: MediaQuery.of(context).size.width,
+                            child: GoogleMap(
+                                zoomControlsEnabled: false,
+                                markers: <Marker>{
+                                  Marker(
+                                    markerId: const MarkerId("1"),
+                                    icon: BitmapDescriptor.defaultMarker,
+                                    position: LatLng(
+                                        storeNotifier.stores
+                                            .where((s) =>
+                                                s.storeEmail == widget.email)
+                                            .first
+                                            .storeLatitude
+                                            .toDouble(),
+                                        storeNotifier.stores
+                                            .where((s) =>
+                                                s.storeEmail == widget.email)
+                                            .first
+                                            .storeLongitude
+                                            .toDouble()),
+                                  )
+                                },
+                                initialCameraPosition: CameraPosition(
+                                    target: LatLng(
+                                        storeNotifier.stores
+                                            .where((s) =>
+                                                s.storeEmail == widget.email)
+                                            .first
+                                            .storeLatitude
+                                            .toDouble(),
+                                        storeNotifier.stores
+                                            .where((s) =>
+                                                s.storeEmail == widget.email)
+                                            .first
+                                            .storeLongitude
+                                            .toDouble()),
+                                    zoom: 16)),
+                          ),
+                          Container(
+                            height: 200,
+                            width: MediaQuery.of(context).size.width,
+                            color: Colors.transparent,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        SizedBox(
-                          height: 200,
-                          width: MediaQuery.of(context).size.width,
-                          child: GoogleMap(
-                              zoomControlsEnabled: false,
-                              markers: <Marker>{
-                                Marker(
-                                  markerId: const MarkerId("1"),
-                                  icon: BitmapDescriptor.defaultMarker,
-                                  position: LatLng(
-                                      storeNotifier.stores
-                                          .where((s) =>
-                                              s.storeEmail == widget.email)
-                                          .first
-                                          .storeLatitude
-                                          .toDouble(),
-                                      storeNotifier.stores
-                                          .where((s) =>
-                                              s.storeEmail == widget.email)
-                                          .first
-                                          .storeLongitude
-                                          .toDouble()),
-                                )
-                              },
-                              initialCameraPosition: CameraPosition(
-                                  target: LatLng(
-                                      storeNotifier.stores
-                                          .where((s) =>
-                                              s.storeEmail == widget.email)
-                                          .first
-                                          .storeLatitude
-                                          .toDouble(),
-                                      storeNotifier.stores
-                                          .where((s) =>
-                                              s.storeEmail == widget.email)
-                                          .first
-                                          .storeLongitude
-                                          .toDouble()),
-                                  zoom: 16)),
-                        ),
+                        toggleStoreIsOnArea(
+                            context, isCompleted, responseMessage),
                         Container(
-                          height: 200,
-                          width: MediaQuery.of(context).size.width,
-                          color: Colors.transparent,
+                          width: MediaQuery.of(context).size.width / 2.3,
+                          height: 170,
+                          decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(15)),
+                          child: IconButton(
+                              onPressed: () {
+                                logOut(context);
+                                setState(() {});
+                              },
+                              icon: const Icon(Icons.logout_outlined)),
                         ),
                       ],
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      toggleStoreIsOnArea(
-                          context, isCompleted, responseMessage),
-                      Container(
-                        width: MediaQuery.of(context).size.width / 2.3,
-                        height: 170,
-                        decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.3),
-                            borderRadius: BorderRadius.circular(15)),
-                        child: IconButton(
-                            onPressed: () {
-                              logOut(context);
-                              setState(() {});
-                            },
-                            icon: const Icon(Icons.logout_outlined)),
-                      ),
-                    ],
-                  ),
-                )
-              ],
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 20.0),
+                    child: Row(
+                      children: [
+                        Container(
+                            width: MediaQuery.of(context).size.width / 2.3,
+                            height: 170,
+                            decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.3),
+                                borderRadius: BorderRadius.circular(15)),
+                            child: MaterialButton(
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          CompanyLoyaltySettings(
+                                              email: widget.email),
+                                    ));
+                              },
+                              child: const Padding(
+                                padding: EdgeInsets.all(10.0),
+                                child: Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Loyalty Program",
+                                      style: TextStyle(fontSize: 25),
+                                    ),
+                                    Text(
+                                      "Settings",
+                                      style: TextStyle(fontSize: 15),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            )),
+                      ],
+                    ),
+                  )
+                ],
+              ),
             ),
           );
   }
@@ -163,45 +208,26 @@ class _StoreInfoPageState extends State<StoreInfoPage> {
           borderRadius: BorderRadius.circular(15)),
       child: Padding(
         padding: const EdgeInsets.all(15.0),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              width: MediaQuery.of(context).size.width / 5,
-              child: Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Store',
-                      style: TextStyle(fontSize: 25),
-                    ),
-                    Text(
-                      storeNotifier.stores
-                                  .where((s) => s.storeEmail == widget.email)
-                                  .first
-                                  .storeIsOn ==
-                              1
-                          ? 'On'
-                          : 'Off',
-                      style: TextStyle(
-                          color: storeNotifier.stores
-                                      .where(
-                                          (s) => s.storeEmail == widget.email)
-                                      .first
-                                      .storeIsOn ==
-                                  1
-                              ? Colors.green
-                              : Colors.red,
-                          fontSize: 50),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Row(
               children: [
+                SizedBox(
+                  width: MediaQuery.of(context).size.width / 5,
+                  child: const Padding(
+                    padding: EdgeInsets.all(5.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Store',
+                          style: TextStyle(fontSize: 25),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
                 Switch(
                   inactiveTrackColor: Colors.grey,
                   inactiveThumbColor: Colors.white,
@@ -244,9 +270,27 @@ class _StoreInfoPageState extends State<StoreInfoPage> {
                       setState(() {});
                     }
                   },
-                ),
+                )
               ],
-            )
+            ),
+            Text(
+              storeNotifier.stores
+                          .where((s) => s.storeEmail == widget.email)
+                          .first
+                          .storeIsOn ==
+                      1
+                  ? 'Open'
+                  : 'Close',
+              style: TextStyle(
+                  color: storeNotifier.stores
+                              .where((s) => s.storeEmail == widget.email)
+                              .first
+                              .storeIsOn ==
+                          1
+                      ? Colors.green
+                      : Colors.red,
+                  fontSize: 40),
+            ),
           ],
         ),
       ),
@@ -255,7 +299,7 @@ class _StoreInfoPageState extends State<StoreInfoPage> {
 
   Padding bottomNavigationBar() {
     return Padding(
-      padding: const EdgeInsets.all(10.0),
+      padding: const EdgeInsets.only(left: 10.0, right: 10, bottom: 10, top: 1),
       child: Container(
         decoration: BoxDecoration(
             color: const Color.fromARGB(255, 88, 88, 88).withOpacity(0.2),

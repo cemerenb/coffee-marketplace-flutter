@@ -10,7 +10,7 @@ class RatingCreationApi {
   Future<bool> createRating(BuildContext context, String storeEmail,
       String userEmail, String orderId, int ratingPoint, String comment) async {
     final response = await http.post(
-      Uri.parse('http://192.168.0.28:7094/api/Rating/add-rating'),
+      Uri.parse('http://10.0.2.2:7094/api/Rating/add-rating'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },

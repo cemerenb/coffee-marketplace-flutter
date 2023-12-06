@@ -13,8 +13,8 @@ class StoreNotifier extends ChangeNotifier {
     final String email = await getUserData(0);
     log('Fetch all store for: $email');
     try {
-      final response = await http
-          .get(Uri.parse('http://192.168.0.28:7094/api/Store/get-all'));
+      final response =
+          await http.get(Uri.parse('http://10.0.2.2:7094/api/Store/get-all'));
       log(response.body);
       log(response.statusCode.toString());
       if (response.statusCode == 200) {

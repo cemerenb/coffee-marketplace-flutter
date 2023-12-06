@@ -10,8 +10,8 @@ class OrderDetailsNotifier extends ChangeNotifier {
 
   Future<void> fetchOrderDetailsData() async {
     try {
-      final response = await http.get(Uri.parse(
-          'http://192.168.0.28:7094/api/OrderDetails/get-order-details'));
+      final response = await http.get(
+          Uri.parse('http://10.0.2.2:7094/api/OrderDetails/get-order-details'));
 
       if (response.statusCode == 200) {
         log(response.statusCode.toString());

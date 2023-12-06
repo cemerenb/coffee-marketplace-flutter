@@ -11,8 +11,8 @@ class MenuNotifier extends ChangeNotifier {
 
   Future<void> fetchMenuUserData() async {
     try {
-      final response = await http
-          .get(Uri.parse('http://192.168.0.28:7094/api/Menu/get-all'));
+      final response =
+          await http.get(Uri.parse('http://10.0.2.2:7094/api/Menu/get-all'));
 
       if (response.statusCode == 200) {
         log(response.statusCode.toString());
