@@ -1,7 +1,11 @@
 import 'dart:developer';
 
+import 'package:coffee/utils/database_operations/loyalty/create_user_loyalty.dart';
+import 'package:coffee/utils/database_operations/loyalty/update_user_loyalty_points.dart';
 import 'package:coffee/utils/database_operations/order/cancel_order_item.dart';
 import 'package:coffee/utils/database_operations/order/update_order_status.dart';
+import 'package:coffee/utils/notifiers/loyalty_program_notifier.dart';
+import 'package:coffee/utils/notifiers/loyalty_user.dart';
 import 'package:coffee/utils/notifiers/order_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -26,9 +30,11 @@ class CompanyOrderDetails extends StatefulWidget {
 
 bool isLoading = false;
 bool isLoading2 = false;
+bool isLoading3 = false;
 int canceledItemCount = 0;
 bool countEnabled = true;
 String result = "";
+int point = 0;
 final TextEditingController cancelNote = TextEditingController();
 
 class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
@@ -37,7 +43,15 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
     super.initState();
     var orderNotifier = context.read<OrderNotifier>();
     var orderDetailsNotifier = context.read<OrderDetailsNotifier>();
+    var menuNotifier = context.read<MenuNotifier>();
+    var rulesNotifier = context.read<LoyaltyNotifier>();
+    var userLoyaltyNotifier = context.read<LoyaltyUserNotifier>();
     orderNotifier.fetchOrderData();
+    orderDetailsNotifier.fetchOrderDetailsData();
+    menuNotifier.fetchMenuUserData();
+    rulesNotifier.getRules();
+    userLoyaltyNotifier.getPoints();
+
     for (var i = 0;
         i <
             orderDetailsNotifier.orderDetails
@@ -85,7 +99,11 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
 
   //Bottom for change order status
   ClipRRect bottomBar(BuildContext context) {
-    var orderNotifier = context.watch<OrderNotifier>();
+    var orderNotifier = context.read<OrderNotifier>();
+    var menuNotifier = context.read<MenuNotifier>();
+    var orderDetailsNotifier = context.read<OrderDetailsNotifier>();
+    var rulesNotifier = context.read<LoyaltyNotifier>();
+    var userLoyaltyNotifier = context.read<LoyaltyUserNotifier>();
     String orderStatusNote = "";
     int orderStatus = orderNotifier.order
         .where((o) => o.orderId == widget.orderId)
@@ -164,26 +182,297 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
                       borderRadius: BorderRadius.circular(15),
                       child: MaterialButton(
                         onPressed: () async {
-                          isLoading = true;
+                          await rulesNotifier.getRules();
+                          await userLoyaltyNotifier.getPoints();
+                          if (userLoyaltyNotifier.userPoints
+                              .where((o) =>
+                                  o.userEmail ==
+                                      orderNotifier.order
+                                          .where((o) =>
+                                              o.orderId == widget.orderId)
+                                          .first
+                                          .userEmail &&
+                                  o.storeEmail ==
+                                      orderNotifier.order
+                                          .where((o) =>
+                                              o.orderId == widget.orderId)
+                                          .first
+                                          .storeEmail)
+                              .isEmpty) {
+                            if (mounted) {
+                              await CreateUserLoyalty().createUserLoyalty(
+                                  context,
+                                  orderNotifier.order
+                                      .where((o) => o.orderId == widget.orderId)
+                                      .first
+                                      .userEmail,
+                                  orderNotifier.order
+                                      .where((o) => o.orderId == widget.orderId)
+                                      .first
+                                      .storeEmail,
+                                  0,
+                                  0);
+                            }
+                          }
+                          bool isCompleted = false, isLoading = true;
+                          bool isUserPointTransfered = false;
+                          String response2 = "";
                           setState(() {});
                           if (orderStatus == 1) {
                             await UpdateOrderStatusApi().updateOrderStatusStore(
                                 context, widget.orderId, 2);
+                            await orderNotifier.fetchCompanyOrderData();
                             isLoading = false;
                             setState(() {});
                           }
                           if (orderStatus == 2 && mounted) {
                             await UpdateOrderStatusApi().updateOrderStatusStore(
                                 context, widget.orderId, 3);
+                            await orderNotifier.fetchCompanyOrderData();
                             isLoading = false;
                             setState(() {});
                           }
                           if (orderStatus == 3 && mounted) {
                             await UpdateOrderStatusApi().updateOrderStatusStore(
                                 context, widget.orderId, 4);
+                            await orderNotifier.fetchCompanyOrderData();
+                            isLoading3 = true;
+                            if (mounted &&
+                                rulesNotifier.rules
+                                    .where((r) =>
+                                        r.storeEmail ==
+                                        orderNotifier.order
+                                            .where((o) =>
+                                                o.orderId == widget.orderId)
+                                            .first
+                                            .storeEmail)
+                                    .isNotEmpty) {
+                              Dialogs.showTransectionPopUp(context);
+                            }
+                            setState(() {});
+                            point = userLoyaltyNotifier.userPoints
+                                    .where((o) =>
+                                        o.userEmail ==
+                                            orderNotifier.order
+                                                .where((o) =>
+                                                    o.orderId == widget.orderId)
+                                                .first
+                                                .userEmail &&
+                                        o.storeEmail ==
+                                            orderNotifier.order
+                                                .where((o) =>
+                                                    o.orderId == widget.orderId)
+                                                .first
+                                                .storeEmail)
+                                    .isNotEmpty
+                                ? userLoyaltyNotifier.userPoints
+                                    .where((o) =>
+                                        o.userEmail ==
+                                            orderNotifier.order
+                                                .where((o) =>
+                                                    o.orderId == widget.orderId)
+                                                .first
+                                                .userEmail &&
+                                        o.storeEmail ==
+                                            orderNotifier.order
+                                                .where((o) =>
+                                                    o.orderId == widget.orderId)
+                                                .first
+                                                .storeEmail)
+                                    .first
+                                    .totalPoint
+                                : 0;
+                            for (var i = 0;
+                                i <
+                                    orderDetailsNotifier.orderDetails
+                                        .where(
+                                            (o) => o.orderId == widget.orderId)
+                                        .toList()
+                                        .length;
+                                i++) {
+                              int category = menuNotifier.menu
+                                  .where((m) =>
+                                      m.menuItemId ==
+                                      orderDetailsNotifier.orderDetails
+                                          .where((o) =>
+                                              o.orderId == widget.orderId)
+                                          .toList()[i]
+                                          .menuItemId)
+                                  .first
+                                  .menuItemCategory;
+                              int canceled = orderDetailsNotifier.orderDetails
+                                  .where((o) => o.orderId == widget.orderId)
+                                  .toList()[i]
+                                  .itemCanceled;
+                              if (category == 1 &&
+                                  canceled != 1 &&
+                                  rulesNotifier.rules
+                                      .where((r) =>
+                                          r.storeEmail ==
+                                          orderNotifier.order
+                                              .where((o) =>
+                                                  o.orderId == widget.orderId)
+                                              .first
+                                              .storeEmail)
+                                      .isNotEmpty) {
+                                int gain = rulesNotifier.rules
+                                    .where((r) =>
+                                        r.storeEmail ==
+                                        orderNotifier.order
+                                            .where((o) =>
+                                                o.orderId == widget.orderId)
+                                            .first
+                                            .storeEmail)
+                                    .first
+                                    .category1Gain;
+                                point += gain;
+                              }
+                              if (category == 2 &&
+                                  canceled != 1 &&
+                                  rulesNotifier.rules
+                                      .where((r) =>
+                                          r.storeEmail ==
+                                          orderNotifier.order
+                                              .where((o) =>
+                                                  o.orderId == widget.orderId)
+                                              .first
+                                              .storeEmail)
+                                      .isNotEmpty) {
+                                int gain = rulesNotifier.rules
+                                    .where((r) =>
+                                        r.storeEmail ==
+                                        orderNotifier.order
+                                            .where((o) =>
+                                                o.orderId == widget.orderId)
+                                            .first
+                                            .storeEmail)
+                                    .first
+                                    .category2Gain;
+                                point += gain;
+                              }
+                              if (category == 3 &&
+                                  canceled != 1 &&
+                                  rulesNotifier.rules
+                                      .where((r) =>
+                                          r.storeEmail ==
+                                          orderNotifier.order
+                                              .where((o) =>
+                                                  o.orderId == widget.orderId)
+                                              .first
+                                              .storeEmail)
+                                      .isNotEmpty) {
+                                int gain = rulesNotifier.rules
+                                    .where((r) =>
+                                        r.storeEmail ==
+                                        orderNotifier.order
+                                            .where((o) =>
+                                                o.orderId == widget.orderId)
+                                            .first
+                                            .storeEmail)
+                                    .first
+                                    .category3Gain;
+                                point += gain;
+                              }
+                              if (category == 4 &&
+                                  canceled != 1 &&
+                                  rulesNotifier.rules
+                                      .where((r) =>
+                                          r.storeEmail ==
+                                          orderNotifier.order
+                                              .where((o) =>
+                                                  o.orderId == widget.orderId)
+                                              .first
+                                              .storeEmail)
+                                      .isNotEmpty) {
+                                int gain = rulesNotifier.rules
+                                    .where((r) =>
+                                        r.storeEmail ==
+                                        orderNotifier.order
+                                            .where((o) =>
+                                                o.orderId == widget.orderId)
+                                            .first
+                                            .storeEmail)
+                                    .first
+                                    .category4Gain;
+                                point += gain;
+                              }
+                            }
+                            if (mounted &&
+                                rulesNotifier.rules
+                                    .where((r) =>
+                                        r.storeEmail ==
+                                        orderNotifier.order
+                                            .where((o) =>
+                                                o.orderId == widget.orderId)
+                                            .first
+                                            .storeEmail)
+                                    .isNotEmpty) {
+                              (
+                                isUserPointTransfered,
+                                response2
+                              ) = await UpdateUserPoint().updateUserPoint(
+                                  context,
+                                  orderNotifier.order
+                                      .where((o) => o.orderId == widget.orderId)
+                                      .first
+                                      .userEmail,
+                                  orderNotifier.order
+                                      .where((o) => o.orderId == widget.orderId)
+                                      .first
+                                      .storeEmail,
+                                  point,
+                                  userLoyaltyNotifier.userPoints
+                                      .where((o) =>
+                                          o.userEmail ==
+                                              orderNotifier.order
+                                                  .where((o) =>
+                                                      o.orderId ==
+                                                      widget.orderId)
+                                                  .first
+                                                  .userEmail &&
+                                          o.storeEmail ==
+                                              orderNotifier.order
+                                                  .where((o) =>
+                                                      o.orderId ==
+                                                      widget.orderId)
+                                                  .first
+                                                  .storeEmail)
+                                      .first
+                                      .totalGained);
+                            }
                             isLoading = false;
+                            if (isUserPointTransfered &&
+                                rulesNotifier.rules
+                                    .where((r) =>
+                                        r.storeEmail ==
+                                        orderNotifier.order
+                                            .where((o) =>
+                                                o.orderId == widget.orderId)
+                                            .first
+                                            .storeEmail)
+                                    .isNotEmpty) {
+                              isLoading3 = false;
+                              Navigator.pop(context);
+                              Dialogs.showErrorDialog(context,
+                                  'Transaction completed successfully');
+                            }
+                            if (!isUserPointTransfered &&
+                                rulesNotifier.rules
+                                    .where((r) =>
+                                        r.storeEmail ==
+                                        orderNotifier.order
+                                            .where((o) =>
+                                                o.orderId == widget.orderId)
+                                            .first
+                                            .storeEmail)
+                                    .isNotEmpty) {
+                              Dialogs.showErrorDialog(
+                                  context, "An erro occured while transaction");
+                            }
+
                             setState(() {});
                           }
+                          setState(() {});
                         },
                         child: isLoading
                             ? const Center(
@@ -208,7 +497,7 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
   }
 
   Column orderStatus() {
-    var orderNotifier = context.watch<OrderNotifier>();
+    var orderNotifier = context.read<OrderNotifier>();
     String orderStatusNote = "";
     int orderStatus = orderNotifier.order
         .where((o) => o.orderId == widget.orderId)
@@ -248,6 +537,14 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
         Container(
           width: MediaQuery.of(context).size.width,
           decoration: BoxDecoration(
+              boxShadow: const [
+                BoxShadow(
+                    blurRadius: 3,
+                    color: Color.fromARGB(108, 0, 0, 0),
+                    blurStyle: BlurStyle.outer,
+                    spreadRadius: 0,
+                    offset: Offset(1, 2))
+              ],
               color: const Color.fromARGB(255, 249, 241, 246),
               borderRadius: BorderRadius.circular(20)),
           child: Padding(
@@ -309,8 +606,8 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
   Column orderDetails(BuildContext context) {
     String orderStatusNote = "";
 
-    var orderNotifier = context.watch<OrderNotifier>();
-    var orderDetailsNotifier = context.watch<OrderDetailsNotifier>();
+    var orderNotifier = context.read<OrderNotifier>();
+    var orderDetailsNotifier = context.read<OrderDetailsNotifier>();
     int orderStatus = orderNotifier.order
         .where((o) => o.orderId == widget.orderId)
         .first
@@ -378,6 +675,14 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
           child: Container(
             width: MediaQuery.of(context).size.width,
             decoration: BoxDecoration(
+                boxShadow: const [
+                  BoxShadow(
+                      blurRadius: 3,
+                      color: Color.fromARGB(108, 0, 0, 0),
+                      blurStyle: BlurStyle.outer,
+                      spreadRadius: 0,
+                      offset: Offset(1, 2))
+                ],
                 color: const Color.fromARGB(255, 249, 241, 246),
                 borderRadius: BorderRadius.circular(20)),
             child: Padding(
@@ -448,7 +753,15 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
             width: MediaQuery.of(context).size.width,
             decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 249, 241, 246),
-                borderRadius: BorderRadius.circular(20)),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: const [
+                  BoxShadow(
+                      blurRadius: 3,
+                      color: Color.fromARGB(108, 0, 0, 0),
+                      blurStyle: BlurStyle.outer,
+                      spreadRadius: 0,
+                      offset: Offset(1, 1))
+                ]),
             child: Padding(
               padding: const EdgeInsets.all(20.0),
               child: SizedBox(
@@ -501,9 +814,9 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
   }
 
   Padding listOrderDetails() {
-    var orderDetailsNotifier = context.watch<OrderDetailsNotifier>();
-    var orderNotifier = context.watch<OrderNotifier>();
-    var menuNotifier = context.watch<MenuNotifier>();
+    var orderDetailsNotifier = context.read<OrderDetailsNotifier>();
+    var orderNotifier = context.read<OrderNotifier>();
+    var menuNotifier = context.read<MenuNotifier>();
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 15.0),
       child: Column(
@@ -520,7 +833,15 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
           Container(
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
-                color: const Color.fromARGB(255, 249, 241, 246)),
+                color: const Color.fromARGB(255, 249, 241, 246),
+                boxShadow: const [
+                  BoxShadow(
+                      blurRadius: 3,
+                      color: Color.fromARGB(108, 0, 0, 0),
+                      blurStyle: BlurStyle.outer,
+                      spreadRadius: 0,
+                      offset: Offset(1, 2))
+                ]),
             child: ListView.builder(
                 padding: const EdgeInsets.all(0),
                 physics: const NeverScrollableScrollPhysics(),
@@ -660,7 +981,7 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
     return showDialog(
         context: context,
         builder: (context) {
-          var orderDetailsNotifier = context.watch<OrderDetailsNotifier>();
+          var orderDetailsNotifier = context.read<OrderDetailsNotifier>();
           return AlertDialog(
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(

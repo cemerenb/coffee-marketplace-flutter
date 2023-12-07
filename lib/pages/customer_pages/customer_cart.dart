@@ -32,8 +32,8 @@ class _CartPageState extends State<CartPage> {
   double tempTotal = 0;
   @override
   Widget build(BuildContext context) {
-    var cartNotifier = context.watch<CartNotifier>();
-    var menuNotifier = context.watch<MenuNotifier>();
+    var cartNotifier = context.read<CartNotifier>();
+    var menuNotifier = context.read<MenuNotifier>();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Cart'),

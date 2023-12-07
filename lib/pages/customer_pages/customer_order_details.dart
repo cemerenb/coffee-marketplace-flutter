@@ -88,7 +88,7 @@ class _CustomerOrderDetailsState extends State<CustomerOrderDetails> {
   //Bottom for change order status
 
   Column orderStatus() {
-    var orderNotifier = context.watch<OrderNotifier>();
+    var orderNotifier = context.read<OrderNotifier>();
     String orderStatusNote = "";
     int orderStatus = orderNotifier.order
         .where((o) => o.orderId == widget.orderId)
@@ -172,8 +172,8 @@ class _CustomerOrderDetailsState extends State<CustomerOrderDetails> {
 
   Widget ratingArea(BuildContext context) {
     int selection = 0;
-    var orderNotifier = context.watch<OrderNotifier>();
-    var ratingNotifier = context.watch<RatingNotifier>();
+    var orderNotifier = context.read<OrderNotifier>();
+    var ratingNotifier = context.read<RatingNotifier>();
     selection = ratingNotifier.ratings
             .where((r) => r.orderId == widget.orderId)
             .isNotEmpty
@@ -352,8 +352,8 @@ class _CustomerOrderDetailsState extends State<CustomerOrderDetails> {
   Column orderDetails(BuildContext context) {
     String orderStatusNote = "";
 
-    var orderNotifier = context.watch<OrderNotifier>();
-    var orderDetailsNotifier = context.watch<OrderDetailsNotifier>();
+    var orderNotifier = context.read<OrderNotifier>();
+    var orderDetailsNotifier = context.read<OrderDetailsNotifier>();
     int orderStatus = orderNotifier.order
         .where((o) => o.orderId == widget.orderId)
         .first
@@ -536,8 +536,8 @@ class _CustomerOrderDetailsState extends State<CustomerOrderDetails> {
   }
 
   Padding listOrderDetails() {
-    var orderDetailsNotifier = context.watch<OrderDetailsNotifier>();
-    var menuNotifier = context.watch<MenuNotifier>();
+    var orderDetailsNotifier = context.read<OrderDetailsNotifier>();
+    var menuNotifier = context.read<MenuNotifier>();
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 15.0),
       child: Column(

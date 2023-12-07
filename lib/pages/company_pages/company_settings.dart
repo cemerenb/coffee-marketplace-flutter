@@ -50,7 +50,7 @@ class _StoreInfoPageState extends State<StoreInfoPage> {
 
   Widget settingsPage(
       BuildContext context, bool isCompleted, String responseMessage) {
-    var storeNotifier = context.watch<StoreNotifier>();
+    var storeNotifier = context.read<StoreNotifier>();
     return storeNotifier.stores
             .where((s) => s.storeEmail == widget.email)
             .first
@@ -199,7 +199,7 @@ class _StoreInfoPageState extends State<StoreInfoPage> {
 
   Container toggleStoreIsOnArea(
       BuildContext context, bool isCompleted, String responseMessage) {
-    var storeNotifier = context.watch<StoreNotifier>();
+    var storeNotifier = context.read<StoreNotifier>();
     return Container(
       width: MediaQuery.of(context).size.width / 2.3,
       height: 170,
@@ -408,7 +408,7 @@ class LogoArea extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var storeNotifier = context.watch<StoreNotifier>();
+    var storeNotifier = context.read<StoreNotifier>();
     return Container(
       decoration: BoxDecoration(
         color: Colors.black.withOpacity(0.3),
@@ -483,7 +483,7 @@ class AccountNotCompleted extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var storeNotifier = context.watch<StoreNotifier>();
+    var storeNotifier = context.read<StoreNotifier>();
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(

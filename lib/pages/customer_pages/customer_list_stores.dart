@@ -6,7 +6,10 @@ import 'package:coffee/pages/customer_pages/customer_orders.dart';
 import 'package:coffee/pages/customer_pages/customer_show_qr_code.dart';
 import 'package:coffee/pages/customer_pages/customer_store_details.dart';
 import 'package:coffee/pages/customer_pages/settings_page.dart';
+import 'package:coffee/utils/classes/loyalty_class.dart';
 import 'package:coffee/utils/get_user/get_user_data.dart';
+import 'package:coffee/utils/notifiers/loyalty_program_notifier.dart';
+import 'package:coffee/utils/notifiers/loyalty_user.dart';
 import 'package:coffee/utils/notifiers/order_notifier.dart';
 import 'package:coffee/utils/notifiers/rating_notifier.dart';
 
@@ -28,12 +31,14 @@ class StoresListView extends StatefulWidget {
 bool isSearchBarOn = false;
 bool isLoading = true;
 bool activeOrderFound = false;
-int index = 0;
 bool c1 = false;
 bool c2 = false;
 bool c3 = false;
 double distance = 0;
 bool check = true;
+bool check2 = true;
+List location = [];
+bool isLocationLoading = true;
 late Timer timer;
 final TextEditingController search = TextEditingController();
 
@@ -41,9 +46,16 @@ class _StoresListViewState extends State<StoresListView> {
   @override
   void initState() {
     var storeNotifier = context.read<StoreNotifier>();
-    calculateDistance(
-        storeNotifier.stores.toList()[index].storeLatitude.toDouble(),
-        storeNotifier.stores.toList()[index].storeLongitude.toDouble());
+    if (check2) {
+      for (var i = 0; i < storeNotifier.stores.length; i++) {
+        calculateDistance(
+            storeNotifier.stores.toList()[i].storeLatitude.toDouble(),
+            storeNotifier.stores.toList()[i].storeLongitude.toDouble(),
+            i);
+      }
+      check2 = false;
+    }
+
     super.initState();
     timer = Timer.periodic(
       const Duration(seconds: 1),
@@ -118,8 +130,8 @@ class _StoresListViewState extends State<StoresListView> {
   }
 
   Widget orderInfoArea(BuildContext context) {
-    var orderNotifier = context.watch<OrderNotifier>();
-    var storeNotifier = context.watch<StoreNotifier>();
+    var orderNotifier = context.read<OrderNotifier>();
+    var storeNotifier = context.read<StoreNotifier>();
 
     return orderNotifier.order.isNotEmpty &&
             search.text.isEmpty &&
@@ -312,6 +324,7 @@ class _StoresListViewState extends State<StoresListView> {
 
   Future<bool> checkOrder() async {
     if (mounted) {
+      isLocationLoading = false;
       var orderNotifier = context.read<OrderNotifier>();
       await context.read<OrderNotifier>().fetchOrderData();
       if (orderNotifier.order.isNotEmpty) {
@@ -340,7 +353,9 @@ class _StoresListViewState extends State<StoresListView> {
   }
 
   Expanded listStores() {
-    var storeNotifier = context.watch<StoreNotifier>();
+    var storeNotifier = context.read<StoreNotifier>();
+    var rulesNotifier = context.read<LoyaltyNotifier>();
+    var pointNotifier = context.read<LoyaltyUserNotifier>();
     return Expanded(
       child: ListView.builder(
         itemCount: storeNotifier.stores.length,
@@ -350,6 +365,7 @@ class _StoresListViewState extends State<StoresListView> {
                   .toLowerCase()
                   .contains(search.text.toLowerCase())) {
             count++;
+
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 5.0),
               child: Card(
@@ -357,6 +373,8 @@ class _StoresListViewState extends State<StoresListView> {
                   children: [
                     GestureDetector(
                       onTap: () async {
+                        await rulesNotifier.getRules();
+                        await pointNotifier.getPoints();
                         if (storeNotifier.stores[index].storeIsOn == 1) {
                           if (context.mounted) {
                             await context
@@ -368,7 +386,13 @@ class _StoresListViewState extends State<StoresListView> {
                                 .read<MenuNotifier>()
                                 .fetchMenuUserData();
                           }
+                          await rulesNotifier.getRules();
+                          if (mounted) {
+                            await pointNotifier.getPoints();
+                          }
                           email = await getUserData(0);
+                          String storeEmail =
+                              storeNotifier.stores[index].storeEmail;
                           if (context.mounted) {
                             timer.cancel();
                             Navigator.push(
@@ -377,6 +401,7 @@ class _StoresListViewState extends State<StoresListView> {
                                   builder: (context) => StoreDetails(
                                     index: index,
                                     email: email,
+                                    storeEmail: storeEmail,
                                     rating: calculateStoreRating(
                                         storeNotifier.stores[index].storeEmail),
                                   ),
@@ -428,6 +453,11 @@ class _StoresListViewState extends State<StoresListView> {
                     ListTile(
                       enabled: storeNotifier.stores[index].storeIsOn == 1,
                       onTap: () async {
+                        await rulesNotifier.getRules();
+                        if (mounted) {
+                          await pointNotifier.getPoints();
+                        }
+
                         if (context.mounted) {
                           await context
                               .read<StoreNotifier>()
@@ -441,6 +471,8 @@ class _StoresListViewState extends State<StoresListView> {
                         if (context.mounted) {
                           await context.read<CartNotifier>().getCart();
                         }
+                        String storeEmail =
+                            storeNotifier.stores[index].storeEmail;
                         email = await getUserData(0);
                         if (context.mounted) {
                           timer.cancel();
@@ -450,6 +482,7 @@ class _StoresListViewState extends State<StoresListView> {
                                 builder: (context) => StoreDetails(
                                   index: index,
                                   email: email,
+                                  storeEmail: storeEmail,
                                   rating: calculateStoreRating(
                                       storeNotifier.stores[index].storeEmail),
                                 ),
@@ -478,8 +511,8 @@ class _StoresListViewState extends State<StoresListView> {
                                 size: 20,
                               ),
                               Text(calculateStoreRating(storeNotifier
-                                          .stores[index].storeEmail) ==
-                                      0
+                                          .stores[index].storeEmail)
+                                      .isNaN
                                   ? "-"
                                   : calculateStoreRating(storeNotifier
                                           .stores[index].storeEmail)
@@ -491,7 +524,18 @@ class _StoresListViewState extends State<StoresListView> {
                                 Icons.location_pin,
                                 size: 18,
                               ),
-                              Text("${distance.toStringAsFixed(1)} km")
+                              isLocationLoading
+                                  ? const SizedBox(
+                                      height: 10,
+                                      width: 10,
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      ),
+                                    )
+                                  : Text(
+                                      "${double.parse(location[index].toString()).toStringAsFixed(1)} km")
                             ],
                           )
                         ],
@@ -687,7 +731,7 @@ class _StoresListViewState extends State<StoresListView> {
   }
 
 // Function to calculate distance between two coordinates using Haversine formula
-  Future<void> calculateDistance(double lat1, double lon1) async {
+  Future<void> calculateDistance(double lat1, double lon1, int i) async {
     final prefs = await SharedPreferences.getInstance();
     double? lat2 = prefs.getDouble("latitude");
     double? lon2 = prefs.getDouble("longitude");
@@ -710,6 +754,7 @@ class _StoresListViewState extends State<StoresListView> {
 
     // Calculate the distance
     distance = earthRadius * c;
+    location.add(distance);
     setState(() {});
     print(distance);
   }

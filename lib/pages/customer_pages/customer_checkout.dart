@@ -62,8 +62,8 @@ class _CheckOutPageState extends State<CheckOutPage> {
   }
 
   ClipRRect bottomAppBar(BuildContext context) {
-    var cartNotifier = context.watch<CartNotifier>();
-    var storeNotifier = context.watch<StoreNotifier>();
+    var cartNotifier = context.read<CartNotifier>();
+    var storeNotifier = context.read<StoreNotifier>();
     return ClipRRect(
       borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(20), topRight: Radius.circular(20)),
@@ -198,7 +198,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
   }
 
   Padding checkoutStoreInfoArea() {
-    var storeNotifier = context.watch<StoreNotifier>();
+    var storeNotifier = context.read<StoreNotifier>();
     Iterable<Store> store = storeNotifier.stores
         .where((store) => store.storeEmail == widget.storeEmail);
     return Padding(

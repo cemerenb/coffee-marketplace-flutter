@@ -233,7 +233,7 @@ class _OrdersListViewState extends State<OrdersListView> {
   }
 
   Padding bottomNavigationBar() {
-    var orderNotifier = context.watch<OrderNotifier>();
+    var orderNotifier = context.read<OrderNotifier>();
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(

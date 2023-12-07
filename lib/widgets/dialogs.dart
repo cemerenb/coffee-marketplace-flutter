@@ -38,6 +38,34 @@ class Dialogs {
         });
   }
 
+  static Future<void> showTransectionPopUp(BuildContext context) async {
+    return showDialog<void>(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return const AlertDialog(
+            content: SingleChildScrollView(
+              child: Center(
+                child: ListBody(
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.all(25.0),
+                      child: Text(
+                        'Transaction in progress',
+                        style: TextStyle(fontSize: 20),
+                      ),
+                    ),
+                    Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
+  }
+
   static Future<void> showCompletedDialog(
       BuildContext context, String response) async {
     return showDialog<void>(

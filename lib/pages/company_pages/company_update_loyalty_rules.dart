@@ -48,7 +48,7 @@ class _UpdateLoyaltyState extends State<UpdateLoyalty> {
   }
 
   Padding update(BuildContext context) {
-    var rulesNotifier = context.watch<LoyaltyNotifier>();
+    var rulesNotifier = context.read<LoyaltyNotifier>();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),

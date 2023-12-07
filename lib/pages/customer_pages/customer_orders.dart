@@ -50,10 +50,10 @@ class _CustomerOrdersPageState extends State<CustomerOrdersPage> {
   }
 
   Padding listOrders() {
-    var orderNotifier = context.watch<OrderNotifier>();
-    var storeNotifier = context.watch<StoreNotifier>();
-    var menuNotifier = context.watch<MenuNotifier>();
-    var orderDetailsNotifier = context.watch<OrderDetailsNotifier>();
+    var orderNotifier = context.read<OrderNotifier>();
+    var storeNotifier = context.read<StoreNotifier>();
+    var menuNotifier = context.read<MenuNotifier>();
+    var orderDetailsNotifier = context.read<OrderDetailsNotifier>();
     var order = orderNotifier.order.where((o) => o.userEmail == widget.email);
     String orderStatusNote = "";
     return Padding(

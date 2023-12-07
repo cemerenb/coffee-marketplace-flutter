@@ -77,7 +77,7 @@ class _CompanyLoyaltySettingsState extends State<CompanyLoyaltySettings> {
   }
 
   Widget settingsArea() {
-    var rulesNotifier = context.watch<LoyaltyNotifier>();
+    var rulesNotifier = context.read<LoyaltyNotifier>();
     return rulesNotifier.rules
                 .where((r) => r.storeEmail == widget.email)
                 .toList()
@@ -106,7 +106,14 @@ class _CompanyLoyaltySettingsState extends State<CompanyLoyaltySettings> {
                     Column(
                       children: [
                         Text(
-                          totalGaineds.toString(),
+                          (totalPoints /
+                                  rulesNotifier.rules
+                                      .where(
+                                          (r) => r.storeEmail == widget.email)
+                                      .first
+                                      .pointsToGain)
+                              .floor()
+                              .toString(),
                           style: const TextStyle(
                               fontSize: 32, fontWeight: FontWeight.bold),
                         ),
@@ -537,20 +544,15 @@ class _CompanyLoyaltySettingsState extends State<CompanyLoyaltySettings> {
                   .toList()
                   .length;
           i++) {
-        tempGained += pointNotifier.userPoints
-            .where((p) => p.storeEmail == widget.email)
-            .toList()[i]
-            .totalGained;
         tempPoint += pointNotifier.userPoints
             .where((p) => p.storeEmail == widget.email)
             .toList()[i]
             .totalPoint;
       }
     } else {
-      tempGained = 0;
       tempPoint = 0;
     }
-    totalGaineds = tempGained;
+
     totalPoints = tempPoint;
     setState(() {});
   }

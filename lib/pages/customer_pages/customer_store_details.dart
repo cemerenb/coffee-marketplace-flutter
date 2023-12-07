@@ -5,8 +5,11 @@ import 'package:coffee/pages/customer_pages/customer_cart.dart';
 import 'package:coffee/utils/database_operations/user/add_to_cart.dart';
 import 'package:coffee/utils/database_operations/user/remove_from_cart.dart';
 import 'package:coffee/utils/database_operations/user/update_cart.dart';
+import 'package:coffee/utils/notifiers/loyalty_program_notifier.dart';
+import 'package:coffee/utils/notifiers/loyalty_user.dart';
 
 import 'package:coffee/utils/notifiers/menu_notifier.dart';
+import 'package:dashed_circular_progress_bar/dashed_circular_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -18,13 +21,15 @@ class StoreDetails extends StatefulWidget {
       {super.key,
       required this.index,
       required this.email,
-      required this.rating});
+      required this.rating,
+      required this.storeEmail});
 
   @override
   State<StoreDetails> createState() => _StoreDetailsState();
   final int index;
   final String email;
   final double rating;
+  final String storeEmail;
 }
 
 bool isFound = false;
@@ -41,7 +46,9 @@ class _StoreDetailsState extends State<StoreDetails> {
   void initState() {
     super.initState();
     context.read<CartNotifier>().getCart();
-
+    context.read<LoyaltyUserNotifier>().getPoints();
+    log(widget.email);
+    log(widget.storeEmail);
     log("item count ${totalItem.toString()}");
   }
 
@@ -80,9 +87,9 @@ class _StoreDetailsState extends State<StoreDetails> {
         child: Column(
           children: [
             storeInfoArea(context),
+            loyaltyInfoArea(context),
             Padding(
-              padding: const EdgeInsets.only(
-                  bottom: 10.0, top: 30, right: 10, left: 10),
+              padding: const EdgeInsets.only(top: 30, right: 10, left: 10),
               child: Row(
                 children: [
                   categoryItem(1),
@@ -100,154 +107,289 @@ class _StoreDetailsState extends State<StoreDetails> {
     );
   }
 
-  Padding listMenuItems() {
-    var cartNotifier = context.watch<CartNotifier>();
-    var menuNotifier = context.watch<MenuNotifier>();
-    var storeNotifier = context.watch<StoreNotifier>();
+  Widget loyaltyInfoArea(BuildContext context) {
+    var rulesNotifier = context.read<LoyaltyNotifier>();
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0),
-      child: Column(
-        children: menuNotifier.menu.indexed.map((item) {
-          var (index, menuItem) = item;
-          if (menuItem.storeEmail ==
-                  storeNotifier.stores[widget.index].storeEmail &&
-              menuItem.menuItemCategory == category) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 5.0),
-              child: Stack(
+    var pointsNotifier = context.read<LoyaltyUserNotifier>();
+
+    return pointsNotifier.userPoints
+            .where((p) =>
+                p.userEmail == widget.email &&
+                p.storeEmail == widget.storeEmail)
+            .isNotEmpty
+        ? Padding(
+            padding: const EdgeInsets.only(left: 15.0, right: 14, top: 30),
+            child: Container(
+              decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 249, 241, 246),
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: const [
+                    BoxShadow(
+                        blurRadius: 5,
+                        color: Color.fromARGB(108, 0, 0, 0),
+                        blurStyle: BlurStyle.outer,
+                        spreadRadius: 0,
+                        offset: Offset(2, 2))
+                  ]),
+              height: 170,
+              width: MediaQuery.of(context).size.width,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Padding(
-                    padding:
-                        const EdgeInsets.only(left: 15.0, right: 15, top: 20),
-                    child: Card(
-                      child: ListTile(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ProductDetails(
-                                  index: index,
-                                  menus: menuNotifier.menu,
-                                ),
-                              ));
-                        },
-                        leading: SizedBox(
-                          height: 80,
-                          width: 80,
-                          child: FadeInImage(
-                            placeholder: const AssetImage(
-                                'assets/img/placeholder_image.png'),
-                            image: NetworkImage(menuItem.menuItemImageLink),
-                            fit: BoxFit.fitHeight,
-                          ),
-                        ),
-                        title: Text(menuItem.menuItemName),
-                        subtitle: Text(
-                          menuItem.menuItemDescription,
-                          style: const TextStyle(fontSize: 10),
-                        ),
-                        trailing: Text(
-                          "${menuItem.menuItemPrice} ₺",
-                          style: const TextStyle(fontSize: 18),
-                        ),
+                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    child: SizedBox(
+                      height: 170,
+                      width: 170,
+                      child: DashedCircularProgressBar.aspectRatio(
+                        aspectRatio: 1, // width ÷ height
+
+                        progress: (pointsNotifier.userPoints
+                                    .where((p) =>
+                                        p.userEmail == widget.email &&
+                                        p.storeEmail == widget.storeEmail)
+                                    .first
+                                    .totalPoint %
+                                rulesNotifier.rules
+                                    .where((r) =>
+                                        r.storeEmail == widget.storeEmail)
+                                    .first
+                                    .pointsToGain)
+                            .toDouble(),
+                        maxProgress: (rulesNotifier.rules
+                                .where((r) => r.storeEmail == widget.storeEmail)
+                                .first
+                                .pointsToGain)
+                            .toDouble(),
+                        startAngle: 225,
+                        sweepAngle: 270,
+                        foregroundColor:
+                            const Color.fromARGB(255, 198, 169, 146),
+                        backgroundColor: const Color(0xffeeeeee),
+                        foregroundStrokeWidth: 15,
+                        backgroundStrokeWidth: 15,
+                        animation: true,
+                        seekSize: 0,
+                        seekColor: const Color(0xffeeeeee),
+                        child: Center(
+                            child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Image.asset(
+                              'assets/img/cup.png',
+                              scale: 1.2,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 20.0),
+                              child: Text(
+                                '${pointsNotifier.userPoints.where((p) => p.userEmail == widget.email && p.storeEmail == widget.storeEmail).first.totalPoint % rulesNotifier.rules.where((r) => r.storeEmail == widget.storeEmail).first.pointsToGain}/${rulesNotifier.rules.where((r) => r.storeEmail == widget.storeEmail).first.pointsToGain}',
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            )
+                          ],
+                        )),
                       ),
                     ),
                   ),
-                  Positioned(
-                    right: 10,
-                    top: 10,
-                    child: cartNotifier.cart.isEmpty ||
-                            cartNotifier.cart.first.storeEmail ==
-                                menuItem.storeEmail
-                        ? AnimatedQuantitySelector(
-                            itemCount: cartNotifier.cart
-                                    .where((cart) =>
-                                        cart.menuItemId == menuItem.menuItemId)
-                                    .toList()
-                                    .isNotEmpty
-                                ? cartNotifier.cart
-                                    .where((cart) =>
-                                        cart.menuItemId ==
-                                            menuItem.menuItemId &&
-                                        cart.storeEmail == menuItem.storeEmail)
-                                    .toList()[0]
-                                    .itemCount
-                                : 0,
-                            isInCart: cartNotifier.cart
-                                .where((cart) =>
-                                    cart.menuItemId == menuItem.menuItemId)
-                                .toList()
-                                .isNotEmpty,
-                            onRemoveFromCartPressed: () async {
-                              await removeFromCart(menuItem.storeEmail,
-                                  widget.email, menuItem.menuItemId);
-                              if (context.mounted) {
-                                await context.read<CartNotifier>().getCart();
-                              }
-
-                              setState(() {});
-                            },
-                            onDecrementPressed: () async {
-                              decrementItemCount(
-                                  menuItem.menuItemId,
-                                  cartNotifier.cart
-                                          .where((cart) =>
-                                              cart.menuItemId ==
-                                                  menuItem.menuItemId &&
-                                              cart.storeEmail ==
-                                                  menuItem.storeEmail)
-                                          .toList()[0]
-                                          .itemCount -
-                                      1);
-                              await context.read<CartNotifier>().getCart();
-                              setState(() {});
-                            },
-                            onIncrementPressed: () async {
-                              await incrementItemCount(
-                                  menuItem.menuItemId,
-                                  cartNotifier.cart
-                                          .where((cart) =>
-                                              cart.menuItemId ==
-                                                  menuItem.menuItemId &&
-                                              cart.storeEmail ==
-                                                  menuItem.storeEmail)
-                                          .toList()[0]
-                                          .itemCount +
-                                      1);
-                              if (context.mounted) {
-                                await context.read<CartNotifier>().getCart();
-                              }
-                              setState(() {});
-                            },
-                            onAddNewPressed: () async {
-                              if (cartNotifier.cart.isNotEmpty &&
-                                  cartNotifier.cart.first.storeEmail !=
-                                      menuItem.storeEmail) {
-                                log("Item store not match with cart items");
-                              } else {
-                                await addToCart(menuItem.storeEmail,
-                                    widget.email, menuItem.menuItemId);
-                                if (mounted) {
-                                  await context.read<CartNotifier>().getCart();
-                                }
-
-                                if (context.mounted) {
-                                  showSnackbar(context, 'Item added to cart');
-                                }
-                                setState(() {});
-                              }
-                            },
-                          )
-                        : const SizedBox(),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Image.asset(
+                            'assets/img/point.png',
+                            scale: 2,
+                          ),
+                          Text(
+                            ' ${pointsNotifier.userPoints.where((p) => p.userEmail == widget.email && p.storeEmail == widget.storeEmail).first.totalPoint % rulesNotifier.rules.where((r) => r.storeEmail == widget.storeEmail).first.pointsToGain}',
+                            style: const TextStyle(
+                                fontSize: 30, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      const Text(
+                        'Points',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w300),
+                      )
+                    ],
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Image.asset(
+                            'assets/img/cup.png',
+                            scale: 2,
+                          ),
+                          Text(
+                            ' ${(pointsNotifier.userPoints.where((p) => p.userEmail == widget.email && p.storeEmail == widget.storeEmail).first.totalPoint / rulesNotifier.rules.where((r) => r.storeEmail == widget.storeEmail).first.pointsToGain).floor()}',
+                            style: const TextStyle(
+                                fontSize: 30, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      const Text(
+                        'Reward',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w300),
+                      )
+                    ],
                   )
                 ],
               ),
-            );
-          }
-          return const SizedBox();
-        }).toList(),
-      ),
+            ),
+          )
+        : const SizedBox();
+  }
+
+  Column listMenuItems() {
+    var cartNotifier = context.read<CartNotifier>();
+    var menuNotifier = context.read<MenuNotifier>();
+    var storeNotifier = context.read<StoreNotifier>();
+
+    return Column(
+      children: menuNotifier.menu.indexed.map((item) {
+        var (index, menuItem) = item;
+        if (menuItem.storeEmail ==
+                storeNotifier.stores[widget.index].storeEmail &&
+            menuItem.menuItemCategory == category) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 5.0),
+            child: Stack(
+              children: [
+                Padding(
+                  padding:
+                      const EdgeInsets.only(left: 15.0, right: 15, top: 20),
+                  child: Card(
+                    child: ListTile(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProductDetails(
+                                index: index,
+                                menus: menuNotifier.menu,
+                              ),
+                            ));
+                      },
+                      leading: SizedBox(
+                        height: 80,
+                        width: 80,
+                        child: FadeInImage(
+                          placeholder: const AssetImage(
+                              'assets/img/placeholder_image.png'),
+                          image: NetworkImage(menuItem.menuItemImageLink),
+                          fit: BoxFit.fitHeight,
+                        ),
+                      ),
+                      title: Text(menuItem.menuItemName),
+                      subtitle: Text(
+                        menuItem.menuItemDescription,
+                        style: const TextStyle(fontSize: 10),
+                      ),
+                      trailing: Text(
+                        "${menuItem.menuItemPrice} ₺",
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  right: 10,
+                  top: 10,
+                  child: cartNotifier.cart.isEmpty ||
+                          cartNotifier.cart.first.storeEmail ==
+                              menuItem.storeEmail
+                      ? AnimatedQuantitySelector(
+                          itemCount: cartNotifier.cart
+                                  .where((cart) =>
+                                      cart.menuItemId == menuItem.menuItemId)
+                                  .toList()
+                                  .isNotEmpty
+                              ? cartNotifier.cart
+                                  .where((cart) =>
+                                      cart.menuItemId == menuItem.menuItemId &&
+                                      cart.storeEmail == menuItem.storeEmail)
+                                  .toList()[0]
+                                  .itemCount
+                              : 0,
+                          isInCart: cartNotifier.cart
+                              .where((cart) =>
+                                  cart.menuItemId == menuItem.menuItemId)
+                              .toList()
+                              .isNotEmpty,
+                          onRemoveFromCartPressed: () async {
+                            await removeFromCart(menuItem.storeEmail,
+                                widget.email, menuItem.menuItemId);
+                            if (context.mounted) {
+                              await context.read<CartNotifier>().getCart();
+                            }
+
+                            setState(() {});
+                          },
+                          onDecrementPressed: () async {
+                            decrementItemCount(
+                                menuItem.menuItemId,
+                                cartNotifier.cart
+                                        .where((cart) =>
+                                            cart.menuItemId ==
+                                                menuItem.menuItemId &&
+                                            cart.storeEmail ==
+                                                menuItem.storeEmail)
+                                        .toList()[0]
+                                        .itemCount -
+                                    1);
+                            await context.read<CartNotifier>().getCart();
+                            setState(() {});
+                          },
+                          onIncrementPressed: () async {
+                            await incrementItemCount(
+                                menuItem.menuItemId,
+                                cartNotifier.cart
+                                        .where((cart) =>
+                                            cart.menuItemId ==
+                                                menuItem.menuItemId &&
+                                            cart.storeEmail ==
+                                                menuItem.storeEmail)
+                                        .toList()[0]
+                                        .itemCount +
+                                    1);
+                            if (context.mounted) {
+                              await context.read<CartNotifier>().getCart();
+                            }
+                            setState(() {});
+                          },
+                          onAddNewPressed: () async {
+                            if (cartNotifier.cart.isNotEmpty &&
+                                cartNotifier.cart.first.storeEmail !=
+                                    menuItem.storeEmail) {
+                              log("Item store not match with cart items");
+                            } else {
+                              await addToCart(menuItem.storeEmail, widget.email,
+                                  menuItem.menuItemId);
+                              if (mounted) {
+                                await context.read<CartNotifier>().getCart();
+                              }
+
+                              if (context.mounted) {
+                                showSnackbar(context, 'Item added to cart');
+                              }
+                              setState(() {});
+                            }
+                          },
+                        )
+                      : const SizedBox(),
+                )
+              ],
+            ),
+          );
+        }
+        return const SizedBox();
+      }).toList(),
     );
   }
 
@@ -287,13 +429,21 @@ class _StoreDetailsState extends State<StoreDetails> {
   }
 
   Padding storeInfoArea(BuildContext context) {
-    var storeNotifier = context.watch<StoreNotifier>();
+    var storeNotifier = context.read<StoreNotifier>();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15.0),
       child: Container(
           decoration: BoxDecoration(
               color: const Color.fromARGB(255, 249, 241, 246),
-              borderRadius: BorderRadius.circular(10)),
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: const [
+                BoxShadow(
+                    blurRadius: 5,
+                    color: Color.fromARGB(108, 0, 0, 0),
+                    blurStyle: BlurStyle.outer,
+                    spreadRadius: 0,
+                    offset: Offset(2, 2))
+              ]),
           height: 200,
           width: MediaQuery.of(context).size.width,
           child: Padding(
@@ -344,7 +494,7 @@ class _StoreDetailsState extends State<StoreDetails> {
                                   size: 20,
                                 ),
                                 Text(
-                                  widget.rating == 0
+                                  widget.rating.isNaN
                                       ? "-"
                                       : widget.rating.toStringAsFixed(1),
                                   style: const TextStyle(fontSize: 20),
