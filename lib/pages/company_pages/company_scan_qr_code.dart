@@ -5,8 +5,6 @@ import 'package:coffee/pages/company_pages/company_give_free_drink.dart';
 import 'package:coffee/pages/company_pages/company_transfer_points.dart';
 import 'package:coffee/utils/notifiers/loyalty_user.dart';
 import 'package:coffee/utils/notifiers/order_notifier.dart';
-import 'package:coffee/widgets/dialogs.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';

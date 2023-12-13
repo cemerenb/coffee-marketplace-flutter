@@ -1,10 +1,5 @@
-import 'dart:math';
-
-import 'package:coffee/pages/company_pages/company_give_free_drink.dart';
-import 'package:coffee/utils/database_operations/user/get_user.dart';
 import 'package:coffee/utils/notifiers/menu_notifier.dart';
 import 'package:coffee/utils/notifiers/order_details_notifier.dart';
-import 'package:coffee/utils/notifiers/order_notifier.dart';
 import 'package:coffee/utils/notifiers/rating_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -46,7 +41,6 @@ class _CustomerReviewsState extends State<CustomerReviews> {
 
   ListView listReviews() {
     var rateNotifier = context.read<RatingNotifier>();
-    var orderNotifier = context.read<OrderNotifier>();
     var orderDetailsNotifier = context.read<OrderDetailsNotifier>();
     var menuNotifier = context.read<MenuNotifier>();
     return ListView.builder(

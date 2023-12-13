@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:coffee/main.dart';
 import 'package:coffee/pages/company_pages/company_loyalty_details.dart';
 import 'package:coffee/pages/company_pages/company_update_loyalty_rules.dart';
@@ -494,6 +492,7 @@ class _CompanyLoyaltySettingsState extends State<CompanyLoyaltySettings> {
               ElevatedButton(
                   onPressed: () async {
                     bool isCompleted = false;
+                    // ignore: unused_local_variable
                     String response = "";
                     if (goal == 0 ||
                         selection1 == 0 ||
@@ -530,7 +529,6 @@ class _CompanyLoyaltySettingsState extends State<CompanyLoyaltySettings> {
   }
 
   void getTotals() async {
-    int tempGained = 0;
     int tempPoint = 0;
     var pointNotifier = context.read<LoyaltyUserNotifier>();
     await pointNotifier.getPoints();

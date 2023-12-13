@@ -6,7 +6,6 @@ import 'package:coffee/pages/customer_pages/customer_orders.dart';
 import 'package:coffee/pages/customer_pages/customer_show_qr_code.dart';
 import 'package:coffee/pages/customer_pages/customer_store_details.dart';
 import 'package:coffee/pages/customer_pages/settings_page.dart';
-import 'package:coffee/utils/classes/loyalty_class.dart';
 import 'package:coffee/utils/get_user/get_user_data.dart';
 import 'package:coffee/utils/notifiers/loyalty_program_notifier.dart';
 import 'package:coffee/utils/notifiers/loyalty_user.dart';
@@ -757,7 +756,6 @@ class _StoresListViewState extends State<StoresListView> {
     distance = earthRadius * c;
     location.add(distance);
     setState(() {});
-    print(distance);
   }
 
 // Helper function to convert degrees to radians

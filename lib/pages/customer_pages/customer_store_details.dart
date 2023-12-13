@@ -1,11 +1,9 @@
 import 'dart:developer';
 
-import 'package:coffee/main.dart';
 import 'package:coffee/pages/company_pages/widgets/product_details.dart';
 import 'package:coffee/pages/customer_pages/customer_cart.dart';
 import 'package:coffee/pages/customer_pages/customer_reviews_page.dart';
 import 'package:coffee/pages/customer_pages/customer_show_qr_code.dart';
-import 'package:coffee/utils/classes/order_details_class.dart';
 import 'package:coffee/utils/database_operations/user/add_to_cart.dart';
 import 'package:coffee/utils/database_operations/user/get_user.dart';
 import 'package:coffee/utils/database_operations/user/remove_from_cart.dart';
@@ -63,6 +61,8 @@ class _StoreDetailsState extends State<StoreDetails> {
 
   @override
   Widget build(BuildContext context) {
+    var pointsNotifier = context.read<LoyaltyUserNotifier>();
+
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -96,7 +96,13 @@ class _StoreDetailsState extends State<StoreDetails> {
         child: Column(
           children: [
             storeInfoArea(context),
-            loyaltyInfoArea(context),
+            pointsNotifier.userPoints
+                    .where((p) =>
+                        p.userEmail == widget.email &&
+                        p.storeEmail == widget.storeEmail)
+                    .isNotEmpty
+                ? loyaltyInfoArea(context)
+                : const SizedBox(),
             Padding(
               padding: const EdgeInsets.only(top: 30, right: 10, left: 10),
               child: Row(
@@ -120,13 +126,21 @@ class _StoreDetailsState extends State<StoreDetails> {
     var rulesNotifier = context.read<LoyaltyNotifier>();
 
     var pointsNotifier = context.read<LoyaltyUserNotifier>();
+    // ignore: prefer_typing_uninitialized_variables
+    var userPoints;
     var storeLoyalty = rulesNotifier.rules
         .where((s) => s.storeEmail == widget.storeEmail)
         .first;
-    var userPoints = pointsNotifier.userPoints
+    if (pointsNotifier.userPoints
         .where((p) =>
             p.userEmail == widget.email && p.storeEmail == widget.storeEmail)
-        .first;
+        .isNotEmpty) {
+      userPoints = pointsNotifier.userPoints
+          .where((p) =>
+              p.userEmail == widget.email && p.storeEmail == widget.storeEmail)
+          .first;
+    }
+
     double points = ((userPoints.totalPoint -
                 (storeLoyalty.pointsToGain * userPoints.totalGained)) %
             storeLoyalty.pointsToGain)

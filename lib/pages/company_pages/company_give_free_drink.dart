@@ -53,7 +53,6 @@ class _GiveFreeDrinkState extends State<GiveFreeDrink> {
   }
 
   Container buttonArea() {
-    var orderNotifier = context.read<OrderNotifier>();
     var pointNotifier = context.read<LoyaltyUserNotifier>();
     return Container(
       height: 150,

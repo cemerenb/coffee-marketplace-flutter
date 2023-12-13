@@ -2,7 +2,6 @@ import 'package:coffee/utils/database_operations/loyalty/update_user_loyalty_poi
 import 'package:coffee/utils/database_operations/user/get_user.dart';
 import 'package:coffee/utils/get_user/get_user_data.dart';
 import 'package:coffee/utils/notifiers/loyalty_user.dart';
-import 'package:coffee/utils/notifiers/order_notifier.dart';
 import 'package:coffee/widgets/dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:numberpicker/numberpicker.dart';

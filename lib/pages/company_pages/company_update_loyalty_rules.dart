@@ -1,10 +1,7 @@
-import 'package:coffee/pages/company_pages/company_loyalty_details.dart';
 import 'package:coffee/utils/database_operations/loyalty/toggle_loyalty_status.dart';
 import 'package:coffee/utils/database_operations/loyalty/update_loyalty_rules.dart';
 import 'package:coffee/utils/notifiers/loyalty_program_notifier.dart';
-import 'package:coffee/utils/notifiers/store_notifier.dart';
 import 'package:coffee/widgets/dialogs.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:provider/provider.dart';
@@ -236,6 +233,7 @@ class _UpdateLoyaltyState extends State<UpdateLoyalty> {
               ElevatedButton(
                   onPressed: () async {
                     bool isCompleted = false;
+                    // ignore: unused_local_variable
                     String response = "";
                     if (goal == 0 ||
                         selection1 == 0 ||

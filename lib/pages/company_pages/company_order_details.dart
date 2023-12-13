@@ -89,12 +89,59 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
                 ),
                 orderStatus(),
                 orderDetails(context),
+                orderNote(),
                 listOrderDetails(),
               ],
             ),
           ),
         ),
         bottomNavigationBar: bottomBar(context));
+  }
+
+  Widget orderNote() {
+    var orderNotifier = context.read<OrderNotifier>();
+    return orderNotifier.order
+            .where((o) => o.orderId == widget.orderId)
+            .first
+            .orderNote
+            .isNotEmpty
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(bottom: 3.0, top: 20),
+                child: Text(
+                  "Note",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                    boxShadow: const [
+                      BoxShadow(
+                          blurRadius: 3,
+                          color: Color.fromARGB(108, 0, 0, 0),
+                          blurStyle: BlurStyle.outer,
+                          spreadRadius: 0,
+                          offset: Offset(1, 2))
+                    ],
+                    color: const Color.fromARGB(255, 249, 241, 246),
+                    borderRadius: BorderRadius.circular(20)),
+                width: MediaQuery.of(context).size.width,
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Text(
+                    orderNotifier.order
+                        .where((o) => o.orderId == widget.orderId)
+                        .first
+                        .orderNote,
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                ),
+              ),
+            ],
+          )
+        : const SizedBox();
   }
 
   //Bottom for change order status
@@ -214,22 +261,20 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
                                   0);
                             }
                           }
-                          bool isCompleted = false, isLoading = true;
                           bool isUserPointTransfered = false;
+                          // ignore: unused_local_variable
                           String response2 = "";
                           setState(() {});
-                          if (orderStatus == 1) {
+                          if (orderStatus == 1 && mounted) {
                             await UpdateOrderStatusApi().updateOrderStatusStore(
                                 context, widget.orderId, 2);
                             await orderNotifier.fetchCompanyOrderData();
-                            isLoading = false;
                             setState(() {});
                           }
                           if (orderStatus == 2 && mounted) {
                             await UpdateOrderStatusApi().updateOrderStatusStore(
                                 context, widget.orderId, 3);
                             await orderNotifier.fetchCompanyOrderData();
-                            isLoading = false;
                             setState(() {});
                           }
                           if (orderStatus == 3 && mounted) {
@@ -440,7 +485,6 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
                                       .first
                                       .totalGained);
                             }
-                            isLoading = false;
                             if (isUserPointTransfered &&
                                 rulesNotifier.rules
                                     .where((r) =>
