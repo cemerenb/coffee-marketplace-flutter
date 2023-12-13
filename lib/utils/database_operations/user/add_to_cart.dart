@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:http/http.dart' as http;
 
 import '../../get_user/get_user_data.dart';
@@ -21,14 +22,15 @@ Future<(bool, String)> addToCart(
   // Convert the data to JSON
   final String jsonData = jsonEncode(data);
 
-  // Set the URL of your API endpoint
-  const String apiUrl =
-      'http://10.0.2.2:7094/api/Cart/add'; // replace with your actual API endpoint
-
   try {
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+    log("Device is physical ${androidInfo.isPhysicalDevice.toString()}");
     // Make a POST request to the API
     final http.Response response = await http.post(
-      Uri.parse(apiUrl),
+      Uri.parse(androidInfo.isPhysicalDevice
+          ? 'http://192.168.1.38:7094/api/Cart/add'
+          : 'http://192.168.1.38:7094/api/Cart/add'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },

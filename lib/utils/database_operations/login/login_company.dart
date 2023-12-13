@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:developer';
 
 import 'package:coffee/pages/company_pages/company_orders_page.dart';
 import 'package:coffee/pages/login/login_page.dart';
 import 'package:coffee/utils/notifiers/store_notifier.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
@@ -18,8 +20,13 @@ class CompanyLoginApi {
     String password,
   ) async {
     context.read<StoreNotifier>();
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+    log("Device is physical ${androidInfo.isPhysicalDevice.toString()}");
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:7094/api/Store/login'),
+      Uri.parse(androidInfo.isPhysicalDevice
+          ? 'http://192.168.1.38:7094/api/Store/login'
+          : 'http://192.168.1.38:7094/api/Store/login'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:coffee/utils/classes/order_details_class.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -10,8 +11,12 @@ class OrderDetailsNotifier extends ChangeNotifier {
 
   Future<void> fetchOrderDetailsData() async {
     try {
-      final response = await http.get(
-          Uri.parse('http://10.0.2.2:7094/api/OrderDetails/get-order-details'));
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      log("Device is physical ${androidInfo.isPhysicalDevice.toString()}");
+      final response = await http.get(Uri.parse(androidInfo.isPhysicalDevice
+          ? 'http://192.168.1.38:7094/api/OrderDetails/get-order-details'
+          : 'http://192.168.1.38:7094/api/OrderDetails/get-order-details'));
 
       if (response.statusCode == 200) {
         log(response.statusCode.toString());

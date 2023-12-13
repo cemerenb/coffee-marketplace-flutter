@@ -50,6 +50,7 @@ dependencies:
   qr_code_scanner: ^1.0.1
   numberpicker: ^2.1.2
   dashed_circular_progress_bar: ^0.0.6
+  device_info_plus: ^9.1.1
 
 dev_dependencies:
   flutter_test:

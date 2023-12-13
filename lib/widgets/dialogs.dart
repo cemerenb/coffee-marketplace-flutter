@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:coffee/pages/company_pages/company_menu_page.dart';
+import 'package:coffee/pages/company_pages/company_orders_page.dart';
 import 'package:coffee/pages/customer_pages/customer_list_stores.dart';
 import 'package:coffee/pages/login/login_page.dart';
 import 'package:coffee/utils/database_operations/store/get_menu.dart';
@@ -88,6 +89,37 @@ class Dialogs {
                       context,
                       MaterialPageRoute(
                         builder: (context) => LoginPage(isSwitched: false),
+                      ),
+                      (route) => false);
+                },
+              ),
+            ],
+          );
+        });
+  }
+
+  static Future<void> showTransectionCompleted(
+      BuildContext context, String response, String email) async {
+    return showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Text(response),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Okay'),
+                onPressed: () {
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => OrdersListView(email: email),
                       ),
                       (route) => false);
                 },

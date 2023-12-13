@@ -1,9 +1,14 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:coffee/pages/company_pages/company_give_free_drink.dart';
+import 'package:coffee/pages/company_pages/company_transfer_points.dart';
+import 'package:coffee/utils/notifiers/loyalty_user.dart';
+import 'package:coffee/utils/notifiers/order_notifier.dart';
 import 'package:coffee/widgets/dialogs.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class CompanyScanQrCode extends StatefulWidget {
@@ -12,8 +17,6 @@ class CompanyScanQrCode extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _CompanyScanQrCodeState();
 }
-
-bool isScaned = true;
 
 class _CompanyScanQrCodeState extends State<CompanyScanQrCode> {
   Barcode? result;
@@ -116,16 +119,38 @@ class _CompanyScanQrCodeState extends State<CompanyScanQrCode> {
   }
 
   void _onQRViewCreated(QRViewController controller) {
+    var orderNotifier = context.read<OrderNotifier>();
+    var pointNotifier = context.read<LoyaltyUserNotifier>();
     setState(() {
       this.controller = controller;
     });
-    controller.scannedDataStream.listen((scanData) {
-      if (scanData.code!.isNotEmpty && isScaned) {
-        setState(() {
-          result = scanData;
-          Dialogs.showErrorDialog(context, result!.code.toString());
-          isScaned = false;
-        });
+    controller.scannedDataStream.listen((scanData) async {
+      if (scanData.code!.isNotEmpty && mounted) {
+        await orderNotifier.fetchCompanyOrderData();
+        await pointNotifier.getPoints();
+        if (mounted) {
+          setState(() {
+            result = scanData;
+            Navigator.pop(context);
+            if (result!.code.toString().isNotEmpty &&
+                result!.code.toString().split(":").first == "givepoint") {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TransferPoints(
+                        email: result!.code.toString().split(":").last),
+                  ));
+            } else if (result!.code.toString().isNotEmpty &&
+                result!.code.toString().split(":").first == "redeempoint") {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => GiveFreeDrink(
+                        email: result!.code.toString().split(":").last),
+                  ));
+            }
+          });
+        }
       }
     });
   }

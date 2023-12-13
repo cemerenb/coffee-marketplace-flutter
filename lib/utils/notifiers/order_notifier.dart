@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:coffee/utils/get_user/get_user_data.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -13,8 +14,12 @@ class OrderNotifier extends ChangeNotifier {
   Future<void> fetchOrderData() async {
     final email = await getUserData(0);
     try {
-      final response = await http.get(Uri.parse(
-          'http://10.0.2.2:7094/api/Order/get-user-orders?UserEmail=$email'));
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      log("Device is physical ${androidInfo.isPhysicalDevice.toString()}");
+      final response = await http.get(Uri.parse(androidInfo.isPhysicalDevice
+          ? 'http://192.168.1.38:7094/api/Order/get-user-orders?UserEmail=$email'
+          : 'http://192.168.1.38:7094/api/Order/get-user-orders?UserEmail=$email'));
 
       if (response.statusCode == 200) {
         log(response.statusCode.toString());
@@ -46,8 +51,12 @@ class OrderNotifier extends ChangeNotifier {
   Future<void> fetchCompanyOrderData() async {
     final email = await getUserData(0);
     try {
-      final response = await http.get(Uri.parse(
-          'http://10.0.2.2:7094/api/Order/get-store-orders?StoreEmail=$email'));
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      log("Device is physical ${androidInfo.isPhysicalDevice.toString()}");
+      final response = await http.get(Uri.parse(androidInfo.isPhysicalDevice
+          ? 'http://192.168.1.38:7094/api/Order/get-store-orders?StoreEmail=$email'
+          : 'http://192.168.1.38:7094/api/Order/get-store-orders?StoreEmail=$email'));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);

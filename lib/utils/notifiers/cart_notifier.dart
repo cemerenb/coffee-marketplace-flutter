@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 
 import '../classes/cart_class.dart';
@@ -13,8 +14,12 @@ class CartNotifier extends ChangeNotifier {
   Future<void> getCart() async {
     String email = await getUserData(0);
     try {
-      final response = await http.get(
-          Uri.parse('http://10.0.2.2:7094/api/Cart/get-all?UserEmail=$email'));
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      log("Device is physical ${androidInfo.isPhysicalDevice.toString()}");
+      final response = await http.get(Uri.parse(androidInfo.isPhysicalDevice
+          ? 'http://192.168.1.38:7094/api/Cart/get-all?UserEmail=$email'
+          : 'http://192.168.1.38:7094/api/Cart/get-all?UserEmail=$email'));
 
       if (response.statusCode == 200) {
         log(response.statusCode.toString());

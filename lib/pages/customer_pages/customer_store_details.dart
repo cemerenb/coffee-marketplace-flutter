@@ -1,7 +1,9 @@
 import 'dart:developer';
 
+import 'package:coffee/main.dart';
 import 'package:coffee/pages/company_pages/widgets/product_details.dart';
 import 'package:coffee/pages/customer_pages/customer_cart.dart';
+import 'package:coffee/pages/customer_pages/customer_show_qr_code.dart';
 import 'package:coffee/utils/database_operations/user/add_to_cart.dart';
 import 'package:coffee/utils/database_operations/user/remove_from_cart.dart';
 import 'package:coffee/utils/database_operations/user/update_cart.dart';
@@ -9,6 +11,7 @@ import 'package:coffee/utils/notifiers/loyalty_program_notifier.dart';
 import 'package:coffee/utils/notifiers/loyalty_user.dart';
 
 import 'package:coffee/utils/notifiers/menu_notifier.dart';
+import 'package:coffee/widgets/dialogs.dart';
 import 'package:dashed_circular_progress_bar/dashed_circular_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -111,138 +114,165 @@ class _StoreDetailsState extends State<StoreDetails> {
     var rulesNotifier = context.read<LoyaltyNotifier>();
 
     var pointsNotifier = context.read<LoyaltyUserNotifier>();
-
+    var storeLoyalty = rulesNotifier.rules
+        .where((s) => s.storeEmail == widget.storeEmail)
+        .first;
+    var userPoints = pointsNotifier.userPoints
+        .where((p) =>
+            p.userEmail == widget.email && p.storeEmail == widget.storeEmail)
+        .first;
+    double points = ((userPoints.totalPoint -
+                (storeLoyalty.pointsToGain * userPoints.totalGained)) %
+            storeLoyalty.pointsToGain)
+        .toDouble();
     return pointsNotifier.userPoints
             .where((p) =>
                 p.userEmail == widget.email &&
                 p.storeEmail == widget.storeEmail)
             .isNotEmpty
-        ? Padding(
-            padding: const EdgeInsets.only(left: 15.0, right: 14, top: 30),
-            child: Container(
-              decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 249, 241, 246),
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: const [
-                    BoxShadow(
-                        blurRadius: 5,
-                        color: Color.fromARGB(108, 0, 0, 0),
-                        blurStyle: BlurStyle.outer,
-                        spreadRadius: 0,
-                        offset: Offset(2, 2))
-                  ]),
-              height: 170,
-              width: MediaQuery.of(context).size.width,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20.0),
-                    child: SizedBox(
-                      height: 170,
-                      width: 170,
-                      child: DashedCircularProgressBar.aspectRatio(
-                        aspectRatio: 1, // width ÷ height
+        ? Stack(children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 15.0, right: 14, top: 30),
+              child: Container(
+                decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 249, 241, 246),
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: const [
+                      BoxShadow(
+                          blurRadius: 5,
+                          color: Color.fromARGB(108, 0, 0, 0),
+                          blurStyle: BlurStyle.outer,
+                          spreadRadius: 0,
+                          offset: Offset(2, 2))
+                    ]),
+                height: 170,
+                width: MediaQuery.of(context).size.width,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20.0),
+                      child: SizedBox(
+                        height: 170,
+                        width: 170,
+                        child: DashedCircularProgressBar.aspectRatio(
+                          aspectRatio: 1, // width ÷ height
 
-                        progress: (pointsNotifier.userPoints
-                                    .where((p) =>
-                                        p.userEmail == widget.email &&
-                                        p.storeEmail == widget.storeEmail)
-                                    .first
-                                    .totalPoint %
-                                rulesNotifier.rules
-                                    .where((r) =>
-                                        r.storeEmail == widget.storeEmail)
-                                    .first
-                                    .pointsToGain)
-                            .toDouble(),
-                        maxProgress: (rulesNotifier.rules
-                                .where((r) => r.storeEmail == widget.storeEmail)
-                                .first
-                                .pointsToGain)
-                            .toDouble(),
-                        startAngle: 225,
-                        sweepAngle: 270,
-                        foregroundColor:
-                            const Color.fromARGB(255, 198, 169, 146),
-                        backgroundColor: const Color(0xffeeeeee),
-                        foregroundStrokeWidth: 15,
-                        backgroundStrokeWidth: 15,
-                        animation: true,
-                        seekSize: 0,
-                        seekColor: const Color(0xffeeeeee),
-                        child: Center(
-                            child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                          progress: points,
+                          maxProgress: (storeLoyalty.pointsToGain).toDouble(),
+                          startAngle: 225,
+                          sweepAngle: 270,
+                          foregroundColor:
+                              const Color.fromARGB(255, 198, 169, 146),
+                          backgroundColor: const Color(0xffeeeeee),
+                          foregroundStrokeWidth: 15,
+                          backgroundStrokeWidth: 15,
+                          animation: true,
+                          seekSize: 0,
+                          seekColor: const Color(0xffeeeeee),
+                          child: Center(
+                              child: Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Image.asset(
+                                'assets/img/cup.png',
+                                scale: 1.2,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 20.0),
+                                child: Text(
+                                  '${points.toInt()}/${storeLoyalty.pointsToGain.toInt()}',
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                              )
+                            ],
+                          )),
+                        ),
+                      ),
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Image.asset(
+                              'assets/img/point.png',
+                              scale: 2,
+                            ),
+                            Text(
+                              ' ${points.toInt()}',
+                              style: const TextStyle(
+                                  fontSize: 30, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                        const Text(
+                          'Points',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w300),
+                        )
+                      ],
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           children: [
                             Image.asset(
                               'assets/img/cup.png',
-                              scale: 1.2,
+                              scale: 2,
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 20.0),
-                              child: Text(
-                                '${pointsNotifier.userPoints.where((p) => p.userEmail == widget.email && p.storeEmail == widget.storeEmail).first.totalPoint % rulesNotifier.rules.where((r) => r.storeEmail == widget.storeEmail).first.pointsToGain}/${rulesNotifier.rules.where((r) => r.storeEmail == widget.storeEmail).first.pointsToGain}',
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            )
+                            Text(
+                              ' ${((userPoints.totalPoint - (userPoints.totalGained * storeLoyalty.pointsToGain)) / storeLoyalty.pointsToGain).floor().toInt()}',
+                              style: const TextStyle(
+                                  fontSize: 30, fontWeight: FontWeight.bold),
+                            ),
                           ],
-                        )),
-                      ),
-                    ),
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Image.asset(
-                            'assets/img/point.png',
-                            scale: 2,
-                          ),
-                          Text(
-                            ' ${pointsNotifier.userPoints.where((p) => p.userEmail == widget.email && p.storeEmail == widget.storeEmail).first.totalPoint % rulesNotifier.rules.where((r) => r.storeEmail == widget.storeEmail).first.pointsToGain}',
-                            style: const TextStyle(
-                                fontSize: 30, fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                      const Text(
-                        'Points',
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w300),
-                      )
-                    ],
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Image.asset(
-                            'assets/img/cup.png',
-                            scale: 2,
-                          ),
-                          Text(
-                            ' ${(pointsNotifier.userPoints.where((p) => p.userEmail == widget.email && p.storeEmail == widget.storeEmail).first.totalPoint / rulesNotifier.rules.where((r) => r.storeEmail == widget.storeEmail).first.pointsToGain).floor()}',
-                            style: const TextStyle(
-                                fontSize: 30, fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                      const Text(
-                        'Reward',
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w300),
-                      )
-                    ],
-                  )
-                ],
+                        ),
+                        const Text(
+                          'Reward',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w300),
+                        )
+                      ],
+                    )
+                  ],
+                ),
               ),
             ),
-          )
+            Positioned(
+                right: 20,
+                top: 38,
+                child: SizedBox(
+                  width: 100,
+                  height: 30,
+                  child: ElevatedButton(
+                      onPressed: () async {
+                        if (((userPoints.totalPoint -
+                                        (userPoints.totalGained *
+                                            storeLoyalty.pointsToGain)) /
+                                    storeLoyalty.pointsToGain)
+                                .floor()
+                                .toInt() ==
+                            0) {
+                          Dialogs.showErrorDialog(
+                              context, "You don't have free drink");
+                        } else {
+                          await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CustomerQrCode(
+                                    data: "redeempoint:${widget.email}"),
+                              ));
+                          await pointsNotifier.getPoints();
+                          setState(() {});
+                        }
+                      },
+                      child: const Center(child: Text('Redeem'))),
+                ))
+          ])
         : const SizedBox();
   }
 

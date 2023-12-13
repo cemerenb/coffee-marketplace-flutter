@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:coffee/pages/customer_pages/customer_list_stores.dart';
 import 'package:coffee/pages/login/login_page.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,11 +31,16 @@ class LoginApi {
     }).catchError((e) {
       log(e.toString());
     });
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+    log("Device is physical ${androidInfo.isPhysicalDevice.toString()}");
     if (context.mounted) {
       await context.read<StoreNotifier>().fetchStoreUserData();
     }
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:7094/api/User/login'),
+      Uri.parse(androidInfo.isPhysicalDevice
+          ? 'http://192.168.1.38:7094/api/User/login'
+          : 'http://192.168.1.38:7094/api/User/login'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },

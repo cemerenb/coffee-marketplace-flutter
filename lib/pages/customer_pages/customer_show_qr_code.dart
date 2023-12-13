@@ -77,7 +77,7 @@ class _CustomerQrCodeState extends State<CustomerQrCode> {
   }
 
   void getName() async {
-    name = await getUser(widget.data);
+    name = await getUser(widget.data.split(":").last);
     isLoading = false;
     setState(() {});
   }

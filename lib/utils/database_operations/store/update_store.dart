@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:coffee/pages/company_pages/company_orders_page.dart';
 import 'package:coffee/utils/get_user/get_user_data.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -18,8 +19,13 @@ class UpdateStoreApi {
       String storeCoverImageLink,
       String latitude,
       String longitude) async {
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+    log("Device is physical ${androidInfo.isPhysicalDevice.toString()}");
     final response = await http.put(
-      Uri.parse('http://10.0.2.2:7094/api/Store/update'),
+      Uri.parse(androidInfo.isPhysicalDevice
+          ? 'http://192.168.1.38:7094/api/Store/update'
+          : 'http://192.168.1.38:7094/api/Store/update'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },

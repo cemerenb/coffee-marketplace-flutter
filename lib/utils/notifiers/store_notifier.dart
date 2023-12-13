@@ -1,3 +1,4 @@
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:developer';
@@ -13,10 +14,13 @@ class StoreNotifier extends ChangeNotifier {
     final String email = await getUserData(0);
     log('Fetch all store for: $email');
     try {
-      final response =
-          await http.get(Uri.parse('http://10.0.2.2:7094/api/Store/get-all'));
-      log(response.body);
-      log(response.statusCode.toString());
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      log("Device is physical ${androidInfo.isPhysicalDevice.toString()}");
+      final response = await http.get(Uri.parse(androidInfo.isPhysicalDevice
+          ? 'http://192.168.1.38:7094/api/Store/get-all'
+          : 'http://192.168.1.38:7094/api/Store/get-all'));
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
 

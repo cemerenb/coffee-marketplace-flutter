@@ -79,7 +79,8 @@ class _StoresListViewState extends State<StoresListView> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => CustomerQrCode(data: email),
+                      builder: (context) =>
+                          CustomerQrCode(data: "givepoint:$email"),
                     ));
               }
             },

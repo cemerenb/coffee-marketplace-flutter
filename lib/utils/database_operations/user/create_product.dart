@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:http/http.dart' as http;
 
 class CreateProductApi {
@@ -16,8 +17,13 @@ class CreateProductApi {
     int menuItemPrice,
     int menuItemCategory,
   ) async {
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+    log("Device is physical ${androidInfo.isPhysicalDevice.toString()}");
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:7094/api/Menu/create'),
+      Uri.parse(androidInfo.isPhysicalDevice
+          ? 'http://192.168.1.38:7094/api/Menu/create'
+          : 'http://192.168.1.38:7094/api/Menu/create'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },
