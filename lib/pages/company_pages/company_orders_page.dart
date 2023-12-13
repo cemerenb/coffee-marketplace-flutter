@@ -33,7 +33,7 @@ bool c3 = false;
 bool c4 = false;
 bool check = true;
 bool isNameLoading = true;
-
+int category = 1;
 String? _user;
 late Timer timer;
 
@@ -72,7 +72,46 @@ class _OrdersListViewState extends State<OrdersListView> {
             },
             icon: const Icon(Icons.qr_code_outlined)),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.filter_list))
+          Padding(
+            padding: const EdgeInsets.only(right: 10.0),
+            child: Row(
+              children: [
+                ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: category != 1
+                            ? const Color.fromARGB(255, 249, 241, 246)
+                            : const Color.fromARGB(255, 206, 206, 206)),
+                    onPressed: () {
+                      category = 1;
+                      setState(() {});
+                    },
+                    child: const Text('All')),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                  child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: category != 2
+                              ? const Color.fromARGB(255, 249, 241, 246)
+                              : const Color.fromARGB(255, 206, 206, 206)),
+                      onPressed: () {
+                        category = 2;
+                        setState(() {});
+                      },
+                      child: const Text('Active')),
+                ),
+                ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: category != 3
+                            ? const Color.fromARGB(255, 249, 241, 246)
+                            : const Color.fromARGB(255, 206, 206, 206)),
+                    onPressed: () {
+                      category = 3;
+                      setState(() {});
+                    },
+                    child: const Text('Completed')),
+              ],
+            ),
+          ),
         ],
       ),
       body: listCompanyOrders(),
@@ -90,102 +129,125 @@ class _OrdersListViewState extends State<OrdersListView> {
         child: Column(
           children: [
             ListView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: orderNotifier.order
-                    .where((order) => order.storeEmail == widget.email)
-                    .length,
-                itemBuilder: (context, index) {
-                  return Card(
-                    child: ListTile(
-                      onTap: () async {
-                        final userName =
-                            await getUser(orderNotifier.order[index].userEmail);
-                        if (mounted) {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => CompanyOrderDetails(
-                                  email: widget.email,
-                                  orderId: orderNotifier.order[index].orderId,
-                                  userName: userName,
-                                ),
-                              ));
-                        }
-                      },
-                      leading: SizedBox(
-                        width: 70,
-                        height: 70,
-                        child: Stack(
-                          children: [
-                            Container(
-                              height: 80,
-                              width: 80,
-                              decoration: const BoxDecoration(
-                                  color: Color.fromARGB(255, 219, 214, 214),
-                                  shape: BoxShape.circle),
-                              child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Image.network(
-                                  menuNotifier.menu
-                                      .where((m) =>
-                                          m.menuItemId ==
-                                          orderDetailsNotifier.orderDetails
-                                              .where((o) =>
-                                                  o.orderId ==
-                                                  orderNotifier
-                                                      .order[index].orderId)
-                                              .first
-                                              .menuItemId)
-                                      .first
-                                      .menuItemImageLink,
-                                  fit: BoxFit.fitHeight,
-                                ),
-                              ),
-                            ),
-                            Visibility(
-                              visible: orderNotifier.order[index].itemCount > 1,
-                              child: Positioned(
-                                  right: 0,
-                                  child: Container(
-                                    height: 23,
-                                    width: 23,
-                                    decoration: const BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color:
-                                            Color.fromARGB(255, 198, 169, 146)),
-                                    child: Center(
-                                      child: Text(
-                                          "+${orderNotifier.order[index].itemCount - 1}"),
-                                    ),
-                                  )),
-                            ),
-                          ],
-                        ),
-                      ),
-                      title: FutureBuilder<String>(
-                        future: getUser(orderNotifier.order[index].userEmail),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                                  ConnectionState.waiting &&
-                              isNameLoading == true) {
-                            return const Center(
-                                child: CircularProgressIndicator());
-                          } else if (snapshot.hasError) {
-                            return Text(snapshot.error.toString());
-                          } else {
-                            isNameLoading = false;
-                            _user = snapshot.data;
-                            return Text(_user ?? '');
-                          }
-                        },
-                      ),
-                      subtitle: Text(orderNotifier.order[index].orderId),
-                    ),
-                  );
-                })
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: orderNotifier.order
+                  .where((order) => order.storeEmail == widget.email)
+                  .length,
+              itemBuilder: (context, index) {
+                if (category == 1) {
+                  return orderCard(orderNotifier, index, context, menuNotifier,
+                      orderDetailsNotifier);
+                } else if (category == 2) {
+                  if (orderNotifier.order[index].orderStatus < 4) {
+                    return orderCard(orderNotifier, index, context,
+                        menuNotifier, orderDetailsNotifier);
+                  } else {
+                    // Return an empty container when the condition is not met
+                    return Container();
+                  }
+                } else if (category == 3) {
+                  if (orderNotifier.order[index].orderStatus == 4) {
+                    return orderCard(orderNotifier, index, context,
+                        menuNotifier, orderDetailsNotifier);
+                  } else {
+                    // Return an empty container when the condition is not met
+                    return Container();
+                  }
+                } else {
+                  // Return an empty container when no condition is met
+                  return Container();
+                }
+              },
+            )
           ],
         ),
+      ),
+    );
+  }
+
+  Card orderCard(OrderNotifier orderNotifier, int index, BuildContext context,
+      MenuNotifier menuNotifier, OrderDetailsNotifier orderDetailsNotifier) {
+    return Card(
+      child: ListTile(
+        onTap: () async {
+          final userName = await getUser(orderNotifier.order[index].userEmail);
+          if (mounted) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CompanyOrderDetails(
+                    email: widget.email,
+                    orderId: orderNotifier.order[index].orderId,
+                    userName: userName,
+                  ),
+                ));
+          }
+        },
+        leading: SizedBox(
+          width: 70,
+          height: 70,
+          child: Stack(
+            children: [
+              Container(
+                height: 80,
+                width: 80,
+                decoration: const BoxDecoration(
+                    color: Color.fromARGB(255, 219, 214, 214),
+                    shape: BoxShape.circle),
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Image.network(
+                    menuNotifier.menu
+                        .where((m) =>
+                            m.menuItemId ==
+                            orderDetailsNotifier.orderDetails
+                                .where((o) =>
+                                    o.orderId ==
+                                    orderNotifier.order[index].orderId)
+                                .first
+                                .menuItemId)
+                        .first
+                        .menuItemImageLink,
+                    fit: BoxFit.fitHeight,
+                  ),
+                ),
+              ),
+              Visibility(
+                visible: orderNotifier.order[index].itemCount > 1,
+                child: Positioned(
+                    right: 0,
+                    child: Container(
+                      height: 23,
+                      width: 23,
+                      decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color.fromARGB(255, 198, 169, 146)),
+                      child: Center(
+                        child: Text(
+                            "+${orderNotifier.order[index].itemCount - 1}"),
+                      ),
+                    )),
+              ),
+            ],
+          ),
+        ),
+        title: FutureBuilder<String>(
+          future: getUser(orderNotifier.order[index].userEmail),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting &&
+                isNameLoading == true) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Text(snapshot.error.toString());
+            } else {
+              isNameLoading = false;
+              _user = snapshot.data;
+              return Text(_user ?? '');
+            }
+          },
+        ),
+        subtitle: Text(orderNotifier.order[index].orderId),
       ),
     );
   }
@@ -235,7 +297,7 @@ class _OrdersListViewState extends State<OrdersListView> {
   Padding bottomNavigationBar() {
     var orderNotifier = context.read<OrderNotifier>();
     return Padding(
-      padding: const EdgeInsets.all(10.0),
+      padding: const EdgeInsets.only(left: 10.0, right: 10, bottom: 10),
       child: Container(
         decoration: BoxDecoration(
             color: const Color.fromARGB(255, 88, 88, 88).withOpacity(0.2),

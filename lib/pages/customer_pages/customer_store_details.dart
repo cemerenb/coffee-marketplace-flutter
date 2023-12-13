@@ -3,14 +3,19 @@ import 'dart:developer';
 import 'package:coffee/main.dart';
 import 'package:coffee/pages/company_pages/widgets/product_details.dart';
 import 'package:coffee/pages/customer_pages/customer_cart.dart';
+import 'package:coffee/pages/customer_pages/customer_reviews_page.dart';
 import 'package:coffee/pages/customer_pages/customer_show_qr_code.dart';
+import 'package:coffee/utils/classes/order_details_class.dart';
 import 'package:coffee/utils/database_operations/user/add_to_cart.dart';
+import 'package:coffee/utils/database_operations/user/get_user.dart';
 import 'package:coffee/utils/database_operations/user/remove_from_cart.dart';
 import 'package:coffee/utils/database_operations/user/update_cart.dart';
 import 'package:coffee/utils/notifiers/loyalty_program_notifier.dart';
 import 'package:coffee/utils/notifiers/loyalty_user.dart';
 
 import 'package:coffee/utils/notifiers/menu_notifier.dart';
+import 'package:coffee/utils/notifiers/order_details_notifier.dart';
+import 'package:coffee/utils/notifiers/rating_notifier.dart';
 import 'package:coffee/widgets/dialogs.dart';
 import 'package:dashed_circular_progress_bar/dashed_circular_progress_bar.dart';
 import 'package:flutter/material.dart';
@@ -43,6 +48,7 @@ bool visibility2 = false;
 bool visibility3 = false;
 bool visibility4 = false;
 int totalItem = 0;
+List<String> names = [];
 
 class _StoreDetailsState extends State<StoreDetails> {
   @override
@@ -460,6 +466,10 @@ class _StoreDetailsState extends State<StoreDetails> {
 
   Padding storeInfoArea(BuildContext context) {
     var storeNotifier = context.read<StoreNotifier>();
+    var ratingNotifier = context.read<RatingNotifier>();
+    var rateNotifier = context.read<RatingNotifier>();
+    var orderDetailsNotifier = context.read<OrderDetailsNotifier>();
+    var menuNotifier = context.read<MenuNotifier>();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15.0),
       child: Container(
@@ -590,7 +600,42 @@ class _StoreDetailsState extends State<StoreDetails> {
                             style: ElevatedButton.styleFrom(
                                 backgroundColor:
                                     const Color.fromARGB(255, 198, 169, 146)),
-                            onPressed: () {},
+                            onPressed: () async {
+                              await storeNotifier.fetchStoreUserData();
+                              await ratingNotifier.fetchRatingsData();
+                              await orderDetailsNotifier
+                                  .fetchOrderDetailsData();
+                              await menuNotifier.fetchMenuUserData();
+                              for (var i = 0;
+                                  i <
+                                      rateNotifier.ratings
+                                          .where((r) =>
+                                              r.storeEmail == widget.storeEmail)
+                                          .length;
+                                  i++) {
+                                String name = await getUser(rateNotifier.ratings
+                                    .where((r) =>
+                                        r.storeEmail == widget.storeEmail)
+                                    .toList()[i]
+                                    .userEmail);
+                                names.add(name);
+                                log(names.length.toString());
+                              }
+
+                              if (mounted) {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => CustomerReviews(
+                                        storeName: storeNotifier
+                                            .stores[widget.index].storeName,
+                                        storeEmail: storeNotifier
+                                            .stores[widget.index].storeEmail,
+                                        nameList: names,
+                                      ),
+                                    ));
+                              }
+                            },
                             child: const Center(
                               child: Text('Reviews'),
                             )),
