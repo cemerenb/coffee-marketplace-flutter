@@ -1,4 +1,5 @@
 import 'package:coffee/pages/login/login_page.dart';
+import 'package:coffee/pages/login/widgets/company/forgot_password_store_get_email.dart';
 import 'package:flutter/material.dart';
 
 class LoginPageAreaCompany extends StatefulWidget {
@@ -67,7 +68,14 @@ class _LoginPageAreaCompanyState extends State<LoginPageAreaCompany> {
                 borderRadius: BorderRadius.circular(30),
               ),
               child: TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const ForgotPasswordStoreGetEmail(),
+                        ));
+                  },
                   child: const Text(
                     "Forgot my password",
                     style: TextStyle(color: Colors.white70, fontSize: 11),

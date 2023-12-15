@@ -1,4 +1,4 @@
-
+import 'package:coffee/pages/login/widgets/company/forgot_password_get_email.dart';
 import 'package:flutter/material.dart';
 
 import '../../login_page.dart';
@@ -40,7 +40,14 @@ class LoginPageArea extends StatelessWidget {
           children: [
             const Spacer(),
             TextButton(
-                onPressed: () {}, child: const Text("Forgot my password"))
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ForgotPasswordGetEmail(),
+                      ));
+                },
+                child: const Text("Forgot my password"))
           ],
         ),
       ],

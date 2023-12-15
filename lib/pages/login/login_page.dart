@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:coffee/pages/Login/widgets/customer/dont_have_account.dart';
 import 'package:coffee/pages/company_pages/company_orders_page.dart';
 import 'package:coffee/pages/login/widgets/company/dont_have_account.dart';
+import 'package:coffee/pages/login/widgets/company/forgot_password_get_email.dart';
 import 'package:coffee/pages/login/widgets/company/login_page_area.dart';
 import 'package:coffee/pages/login/widgets/company/login_welcome_text.dart';
 import 'package:coffee/pages/login/widgets/customer/login_user_email_field.dart';
@@ -131,7 +132,13 @@ class _PersonLoginPageState extends State<PersonLoginPage> {
                 borderRadius: BorderRadius.circular(30),
               ),
               child: TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ForgotPasswordGetEmail(),
+                        ));
+                  },
                   child: const Text(
                     "Forgot my password",
                     style: TextStyle(color: Colors.white70, fontSize: 11),
