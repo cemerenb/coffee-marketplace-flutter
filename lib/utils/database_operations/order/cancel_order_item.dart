@@ -21,8 +21,8 @@ class CancelOrderItem {
     log("Device is physical ${androidInfo.isPhysicalDevice.toString()}");
     final response = await http.put(
       Uri.parse(androidInfo.isPhysicalDevice
-          ? 'http://192.168.1.38:7094/api/OrderDetails/cancel-order-item'
-          : 'http://192.168.1.38:7094/api/OrderDetails/cancel-order-item'),
+          ? 'http://10.0.2.2:7094/api/OrderDetails/cancel-order-item'
+          : 'http://10.0.2.2:7094/api/OrderDetails/cancel-order-item'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },

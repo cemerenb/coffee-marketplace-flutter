@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 class ForgotUserPassword {
   ForgotUserPassword();
 
-  static const baseUrl = 'http://192.168.1.38:7094/api/User/';
+  static const baseUrl = 'http://10.0.2.2:7094/api/User/';
 
   Future<(bool success, String message)> forgotUserPassword(
     String email,
@@ -17,17 +17,9 @@ class ForgotUserPassword {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
       log("Device is physical ${androidInfo.isPhysicalDevice.toString()}");
 
-      final url = Uri.parse('${baseUrl}forgot-password');
-
-      final response = await http.post(
-        url,
-        headers: <String, String>{
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(<String, String>{
-          'email': email,
-        }),
-      );
+      final response = await http.post(Uri.parse(androidInfo.isPhysicalDevice
+          ? 'http://10.0.2.2:7094/api/User/forgot-password?email=$email'
+          : 'http://10.0.2.2:7094/api/User/forgot-password?email=$email'));
 
       log(response.statusCode.toString());
 

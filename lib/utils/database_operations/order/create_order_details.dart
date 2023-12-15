@@ -21,8 +21,8 @@ class CreateOrderDetails {
     log("Device is physical ${androidInfo.isPhysicalDevice.toString()}");
     final response = await http.post(
       Uri.parse(androidInfo.isPhysicalDevice
-          ? 'http://192.168.1.38:7094/api/OrderDetails/create-order-details'
-          : 'http://192.168.1.38:7094/api/OrderDetails/create-order-details'),
+          ? 'http://10.0.2.2:7094/api/OrderDetails/create-order-details'
+          : 'http://10.0.2.2:7094/api/OrderDetails/create-order-details'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },

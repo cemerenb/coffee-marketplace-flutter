@@ -1,4 +1,4 @@
-import 'package:coffee/pages/login/widgets/company/forgot_password_get_email.dart';
+import 'package:coffee/pages/login/widgets/customer/forgot_password_get_email.dart';
 import 'package:flutter/material.dart';
 
 import '../../login_page.dart';

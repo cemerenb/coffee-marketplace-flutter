@@ -18,8 +18,8 @@ class StoreNotifier extends ChangeNotifier {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
       log("Device is physical ${androidInfo.isPhysicalDevice.toString()}");
       final response = await http.get(Uri.parse(androidInfo.isPhysicalDevice
-          ? 'http://192.168.1.38:7094/api/Store/get-all'
-          : 'http://192.168.1.38:7094/api/Store/get-all'));
+          ? 'http://10.0.2.2:7094/api/Store/get-all'
+          : 'http://10.0.2.2:7094/api/Store/get-all'));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);

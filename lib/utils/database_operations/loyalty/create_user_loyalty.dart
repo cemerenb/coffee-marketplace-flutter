@@ -22,8 +22,8 @@ class CreateUserLoyalty {
 
     final response = await http.post(
       Uri.parse(androidInfo.isPhysicalDevice
-          ? 'http://192.168.1.38:7094/api/UserPoints/create-user-point'
-          : 'http://192.168.1.38:7094/api/UserPoints/create-user-point'),
+          ? 'http://10.0.2.2:7094/api/UserPoints/create-user-point'
+          : 'http://10.0.2.2:7094/api/UserPoints/create-user-point'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },

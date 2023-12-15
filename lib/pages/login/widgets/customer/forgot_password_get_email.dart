@@ -1,4 +1,4 @@
-import 'package:coffee/pages/login/widgets/company/enter_reset_token.dart';
+import 'package:coffee/pages/login/widgets/customer/enter_reset_token.dart';
 import 'package:coffee/utils/database_operations/forgot_password/forgot_user_password.dart';
 import 'package:coffee/widgets/dialogs.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +13,12 @@ class ForgotPasswordGetEmail extends StatefulWidget {
 TextEditingController controllerEmail = TextEditingController();
 
 class _ForgotPasswordGetEmailState extends State<ForgotPasswordGetEmail> {
+  @override
+  void dispose() {
+    controllerEmail.clear();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

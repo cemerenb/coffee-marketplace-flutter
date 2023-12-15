@@ -8,8 +8,8 @@ Future<String> getUser(String email) async {
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
     log("Device is physical ${androidInfo.isPhysicalDevice.toString()}");
     final response = await http.get(Uri.parse(androidInfo.isPhysicalDevice
-        ? 'http://192.168.1.38:7094/api/User/get-users-name?email=$email'
-        : 'http://192.168.1.38:7094/api/User/get-users-name?email=$email'));
+        ? 'http://10.0.2.2:7094/api/User/get-users-name?email=$email'
+        : 'http://10.0.2.2:7094/api/User/get-users-name?email=$email'));
 
     if (response.statusCode == 200) {
       log(response.statusCode.toString());

@@ -14,8 +14,8 @@ class DeleteFromCart {
     log("Device is physical ${androidInfo.isPhysicalDevice.toString()}");
     final response = await http.post(
       Uri.parse(androidInfo.isPhysicalDevice
-          ? 'http://192.168.1.38:7094/api/Cart/delete'
-          : 'http://192.168.1.38:7094/api/Cart/delete'),
+          ? 'http://10.0.2.2:7094/api/Cart/delete'
+          : 'http://10.0.2.2:7094/api/Cart/delete'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },

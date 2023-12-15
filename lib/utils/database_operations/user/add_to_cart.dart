@@ -29,8 +29,8 @@ Future<(bool, String)> addToCart(
     // Make a POST request to the API
     final http.Response response = await http.post(
       Uri.parse(androidInfo.isPhysicalDevice
-          ? 'http://192.168.1.38:7094/api/Cart/add'
-          : 'http://192.168.1.38:7094/api/Cart/add'),
+          ? 'http://10.0.2.2:7094/api/Cart/add'
+          : 'http://10.0.2.2:7094/api/Cart/add'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },

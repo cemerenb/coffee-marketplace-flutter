@@ -24,8 +24,8 @@ class UpdateStoreApi {
     log("Device is physical ${androidInfo.isPhysicalDevice.toString()}");
     final response = await http.put(
       Uri.parse(androidInfo.isPhysicalDevice
-          ? 'http://192.168.1.38:7094/api/Store/update'
-          : 'http://192.168.1.38:7094/api/Store/update'),
+          ? 'http://10.0.2.2:7094/api/Store/update'
+          : 'http://10.0.2.2:7094/api/Store/update'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },

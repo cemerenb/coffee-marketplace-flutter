@@ -4,20 +4,28 @@ import 'dart:developer';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:http/http.dart' as http;
 
-class ForgotStorePassword {
-  ForgotStorePassword();
+class CheckUserToken {
+  CheckUserToken();
 
-  Future<(bool success, String message)> forgotUserPassword(
+  Future<(bool success, String message)> checkToken(
     String email,
+    String token,
   ) async {
     try {
       DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
       log("Device is physical ${androidInfo.isPhysicalDevice.toString()}");
 
-      final response = await http.post(Uri.parse(androidInfo.isPhysicalDevice
-          ? 'http://10.0.2.2:7094/api/Store/forgot-password?email=$email'
-          : 'http://10.0.2.2:7094/api/Store/forgot-password?email=$email'));
+      final response = await http.post(
+        Uri.parse(androidInfo.isPhysicalDevice
+            ? 'http://10.0.2.2:7094/api/User/check-reset-token'
+            : 'http://10.0.2.2:7094/api/User/check-reset-token'),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(
+            <String, String>{'email': email, 'passwordResetToken': token}),
+      );
 
       log(response.statusCode.toString());
 

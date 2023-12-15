@@ -12,8 +12,8 @@ Future<void> fetchMenuData() async {
   log("Device is physical ${androidInfo.isPhysicalDevice.toString()}");
   try {
     final response = await http.get(Uri.parse(androidInfo.isPhysicalDevice
-        ? 'http://192.168.1.38:7094/api/Menu/get-all'
-        : 'http://192.168.1.38:7094/api/Menu/get-all'));
+        ? 'http://10.0.2.2:7094/api/Menu/get-all'
+        : 'http://10.0.2.2:7094/api/Menu/get-all'));
 
     if (response.statusCode == 200) {
       log(response.statusCode.toString());

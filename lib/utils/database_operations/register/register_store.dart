@@ -21,8 +21,8 @@ class StoreRegistrationApi {
     log("Device is physical ${androidInfo.isPhysicalDevice.toString()}");
     final response = await http.post(
       Uri.parse(androidInfo.isPhysicalDevice
-          ? 'http://192.168.1.38:7094/api/Store/register'
-          : 'http://192.168.1.38:7094/api/Store/register'),
+          ? 'http://10.0.2.2:7094/api/Store/register'
+          : 'http://10.0.2.2:7094/api/Store/register'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },
