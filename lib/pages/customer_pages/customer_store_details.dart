@@ -419,7 +419,7 @@ class _StoreDetailsState extends State<StoreDetails> {
                                     menuItem.storeEmail) {
                               log("Item store not match with cart items");
                             } else {
-                              await addToCart(menuItem.storeEmail, widget.email,
+                              await addToCart(context, menuItem.storeEmail,
                                   menuItem.menuItemId);
                               if (mounted) {
                                 await context.read<CartNotifier>().getCart();
@@ -461,7 +461,7 @@ class _StoreDetailsState extends State<StoreDetails> {
 
   Future<void> removeFromCart(
       String storeEmail, String userEmail, String menuItemId) async {
-    await DeleteFromCart().deleteFromCart(storeEmail, userEmail, menuItemId);
+    await DeleteFromCart().deleteFromCart(context, storeEmail, menuItemId);
     if (context.mounted) {
       context.read<CartNotifier>().getCart();
       showSnackbar(context, "Item deleted from cart");

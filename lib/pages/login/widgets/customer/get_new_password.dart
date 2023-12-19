@@ -136,6 +136,7 @@ class _GetNewPasswordState extends State<GetNewPassword> {
                           ),
                           onPressed: () async {
                             bool isCompleted = false;
+                            // ignore: unused_local_variable
                             String response = "";
                             if (!Validators.minLengthCorrect(
                                 controllerPassword.text, 8)) {

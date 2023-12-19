@@ -19,7 +19,7 @@ class _SettingsState extends State<Settings> {
       body: Center(
         child: IconButton(
             onPressed: () {
-              logOut(context);
+              logOut(context, false);
             },
             icon: const Icon(Icons.logout)),
       ),

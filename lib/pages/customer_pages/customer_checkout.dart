@@ -109,7 +109,6 @@ class _CheckOutPageState extends State<CheckOutPage> {
                                     store.storeEmail == widget.storeEmail)
                                 .first
                                 .storeEmail,
-                            email,
                             orderNote.text,
                             orderId,
                             itemCount,
@@ -164,7 +163,6 @@ class _CheckOutPageState extends State<CheckOutPage> {
       (isCompleted, responseMessage) = await CreateOrderDetails().createOrder(
           context,
           storeEmail,
-          userEmail,
           orderId,
           cartNotifier.cart[i].menuItemId,
           cartNotifier.cart[i].itemCount);
@@ -180,8 +178,8 @@ class _CheckOutPageState extends State<CheckOutPage> {
   Future<bool> removeFromCart(String storeEmail, String userEmail) async {
     var cartNotifier = context.read<CartNotifier>();
     for (var i = 0; i < cartNotifier.cart.length; i++) {
-      await DeleteFromCart().deleteFromCart(
-          storeEmail, userEmail, cartNotifier.cart[i].menuItemId);
+      await DeleteFromCart()
+          .deleteFromCart(context, storeEmail, cartNotifier.cart[i].menuItemId);
       log(cartNotifier.cart.length.toString());
     }
 

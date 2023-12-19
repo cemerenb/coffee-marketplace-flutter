@@ -4,6 +4,7 @@ import 'package:coffee/utils/database_operations/loyalty/create_user_loyalty.dar
 import 'package:coffee/utils/database_operations/loyalty/update_user_loyalty_points.dart';
 import 'package:coffee/utils/database_operations/order/cancel_order_item.dart';
 import 'package:coffee/utils/database_operations/order/update_order_status.dart';
+import 'package:coffee/utils/get_user/get_token.dart';
 import 'package:coffee/utils/notifiers/loyalty_program_notifier.dart';
 import 'package:coffee/utils/notifiers/loyalty_user.dart';
 import 'package:coffee/utils/notifiers/order_notifier.dart';
@@ -46,7 +47,7 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
     var menuNotifier = context.read<MenuNotifier>();
     var rulesNotifier = context.read<LoyaltyNotifier>();
     var userLoyaltyNotifier = context.read<LoyaltyUserNotifier>();
-    orderNotifier.fetchOrderData();
+    orderNotifier.fetchOrderData(context);
     orderDetailsNotifier.fetchOrderDetailsData();
     menuNotifier.fetchMenuUserData();
     rulesNotifier.getRules();
@@ -197,7 +198,10 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
                                 await UpdateOrderStatusApi()
                                     .updateOrderStatusStore(
                                         context, widget.orderId, 6);
-                                await orderNotifier.fetchCompanyOrderData();
+                                if (mounted) {
+                                  await orderNotifier
+                                      .fetchCompanyOrderData(context);
+                                }
                                 isLoading2 = false;
                                 setState(() {});
                               },
@@ -253,10 +257,7 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
                                       .where((o) => o.orderId == widget.orderId)
                                       .first
                                       .userEmail,
-                                  orderNotifier.order
-                                      .where((o) => o.orderId == widget.orderId)
-                                      .first
-                                      .storeEmail,
+                                  await getToken(),
                                   0,
                                   0);
                             }
@@ -268,19 +269,28 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
                           if (orderStatus == 1 && mounted) {
                             await UpdateOrderStatusApi().updateOrderStatusStore(
                                 context, widget.orderId, 2);
-                            await orderNotifier.fetchCompanyOrderData();
+                            if (mounted) {
+                              await orderNotifier
+                                  .fetchCompanyOrderData(context);
+                            }
                             setState(() {});
                           }
                           if (orderStatus == 2 && mounted) {
                             await UpdateOrderStatusApi().updateOrderStatusStore(
                                 context, widget.orderId, 3);
-                            await orderNotifier.fetchCompanyOrderData();
+                            if (mounted) {
+                              await orderNotifier
+                                  .fetchCompanyOrderData(context);
+                            }
                             setState(() {});
                           }
                           if (orderStatus == 3 && mounted) {
                             await UpdateOrderStatusApi().updateOrderStatusStore(
                                 context, widget.orderId, 4);
-                            await orderNotifier.fetchCompanyOrderData();
+                            if (mounted) {
+                              await orderNotifier
+                                  .fetchCompanyOrderData(context);
+                            }
                             isLoading3 = true;
                             if (mounted &&
                                 rulesNotifier.rules
@@ -461,10 +471,6 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
                                       .where((o) => o.orderId == widget.orderId)
                                       .first
                                       .userEmail,
-                                  orderNotifier.order
-                                      .where((o) => o.orderId == widget.orderId)
-                                      .first
-                                      .storeEmail,
                                   point,
                                   userLoyaltyNotifier.userPoints
                                       .where((o) =>
@@ -1114,11 +1120,6 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
                                   (isCompleted, response) =
                                       await CancelOrderItem().cancelOrderItem(
                                           context,
-                                          orderDetailsNotifier.orderDetails
-                                              .where((o) =>
-                                                  o.orderId == widget.orderId)
-                                              .toList()[index]
-                                              .storeEmail,
                                           orderDetailsNotifier.orderDetails
                                               .where((o) =>
                                                   o.orderId == widget.orderId)

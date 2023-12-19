@@ -91,7 +91,7 @@ class _AddNewProductState extends State<AddNewProduct> {
                               priceController.text.isNotEmpty) {
                             var (isSuccess, responseMessage) =
                                 await CreateProductApi().createProduct(
-                                    widget.email,
+                                    context,
                                     productNameController.text,
                                     descriptionController.text,
                                     imageUrl,

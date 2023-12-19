@@ -505,8 +505,8 @@ class _CompanyLoyaltySettingsState extends State<CompanyLoyaltySettings> {
                       isLoading = true;
                       setState(() {});
                       (isCompleted, response) = await SetLoyaltyRules()
-                          .setRules(context, 0, widget.email, goal, selection1,
-                              selection2, selection3, selection4);
+                          .setRules(context, 0, goal, selection1, selection2,
+                              selection3, selection4);
                       if (isCompleted) {
                         await rulesNotifier.getRules();
                         isLoading = false;

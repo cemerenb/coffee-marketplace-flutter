@@ -2,9 +2,7 @@ import 'dart:developer';
 
 import 'package:coffee/pages/login/login_page.dart';
 import 'package:coffee/pages/login/widgets/company/company_get_new_password.dart';
-import 'package:coffee/pages/login/widgets/customer/get_new_password.dart';
 import 'package:coffee/utils/database_operations/forgot_password/check_store_token.dart';
-import 'package:coffee/utils/database_operations/forgot_password/check_user_token.dart';
 import 'package:coffee/widgets/dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_verification_code/flutter_verification_code.dart';
@@ -92,6 +90,7 @@ class _CompanyEnterTokenState extends State<CompanyEnterToken> {
                     setState(() {});
                   } else {
                     bool isCompleted = false;
+                    // ignore: unused_local_variable
                     String response = "";
                     (isCompleted, response) = await CheckStoreToken()
                         .checkToken(widget.email, code.toUpperCase());

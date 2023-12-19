@@ -222,7 +222,6 @@ class _PreviewStoreState extends State<PreviewStore> {
             widget.longitude.isNotEmpty) {
           await UpdateStoreApi().updateStore(
               context,
-              widget.email,
               widget.openingTime,
               widget.closingTime,
               widget.logoImage,

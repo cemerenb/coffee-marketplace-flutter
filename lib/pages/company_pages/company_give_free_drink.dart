@@ -25,7 +25,7 @@ class _GiveFreeDrinkState extends State<GiveFreeDrink> {
   void initState() {
     var orderNotifier = context.read<OrderNotifier>();
     var pointNotifier = context.read<LoyaltyUserNotifier>();
-    orderNotifier.fetchCompanyOrderData();
+    orderNotifier.fetchCompanyOrderData(context);
     pointNotifier.getPoints();
     getUserName();
     super.initState();
@@ -110,8 +110,8 @@ class _GiveFreeDrinkState extends State<GiveFreeDrink> {
                     int userGained = user.totalGained;
                     if (mounted) {
                       (isCompleted, response) = await UpdateUserPoint()
-                          .updateUserPoint(context, widget.email, storeEmail,
-                              userPoint, userGained + 1);
+                          .updateUserPoint(
+                              context, widget.email, userPoint, userGained + 1);
                       if (isCompleted) {
                         Dialogs.showTransectionCompleted(
                             context, response, storeEmail);

@@ -21,7 +21,6 @@ class CompanyLoginApi {
     context.read<StoreNotifier>();
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-    log("Device is physical ${androidInfo.isPhysicalDevice.toString()}");
     final response = await http.post(
       Uri.parse(androidInfo.isPhysicalDevice
           ? 'http://10.0.2.2:7094/api/Store/login'
@@ -34,32 +33,28 @@ class CompanyLoginApi {
         'storePassword': password,
       }),
     );
-    log(response.statusCode.toString());
-    log(response.body);
+
     if (response.statusCode == 200 && context.mounted) {
-      log('Successfully login');
+      log('Successfully login ${response.body}');
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      if (prefs.getString('email') == null &&
-          prefs.getString('password') == null) {
-        await prefs.setString('email', email);
-        await prefs.setString(
-          'password',
-          password,
-        );
-        if (context.mounted) {
-          emailController.text = "";
-          passwordController.text = "";
-          Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                builder: (context) => OrdersListView(
-                  email: email,
-                ),
+      await prefs.setString('accessToken', response.body.split("-").first);
+      await prefs.setString('refreshToken', response.body.split("-").last);
+      await prefs.setString('accountType', 'company');
+      await prefs.setString('email', email);
+      if (context.mounted) {
+        emailController.text = "";
+        passwordController.text = "";
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => OrdersListView(
+                email: email,
               ),
-              (route) => false);
-        }
+            ),
+            (route) => false);
       }
+
       return true;
     } else if (response.statusCode != 200 && context.mounted) {
       _showErrorDialog(context, response.body);

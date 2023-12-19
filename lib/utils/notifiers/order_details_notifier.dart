@@ -13,7 +13,7 @@ class OrderDetailsNotifier extends ChangeNotifier {
     try {
       DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      log("Device is physical ${androidInfo.isPhysicalDevice.toString()}");
+
       final response = await http.get(Uri.parse(androidInfo.isPhysicalDevice
           ? 'http://10.0.2.2:7094/api/OrderDetails/get-order-details'
           : 'http://10.0.2.2:7094/api/OrderDetails/get-order-details'));

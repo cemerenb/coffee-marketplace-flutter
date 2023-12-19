@@ -260,7 +260,7 @@ class _OrdersListViewState extends State<OrdersListView> {
         await context.read<MenuNotifier>().fetchMenuUserData();
       }
       if (mounted) {
-        await context.read<OrderNotifier>().fetchCompanyOrderData();
+        await orderNotifier.fetchCompanyOrderData(context);
       }
 
       if (orderNotifier.order.isNotEmpty) {
@@ -268,13 +268,11 @@ class _OrdersListViewState extends State<OrdersListView> {
 
         if (orderNotifier.order.isNotEmpty) {
           if (mounted) {
-            context.read<OrderNotifier>().fetchCompanyOrderData();
+            context.read<OrderNotifier>().fetchCompanyOrderData(context);
           }
           if (mounted) {
             setState(() {});
           }
-
-          log("order data fetched");
         }
         if (mounted) {
           setState(() {});
@@ -317,6 +315,8 @@ class _OrdersListViewState extends State<OrdersListView> {
                       log(widget.email);
                       log(orderNotifier.order
                           .where((order) => order.storeEmail == widget.email)
+                          .toList()
+                          .length
                           .toString());
                       setState(() {});
                     },

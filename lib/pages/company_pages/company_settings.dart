@@ -141,7 +141,7 @@ class _StoreInfoPageState extends State<StoreInfoPage> {
                               borderRadius: BorderRadius.circular(15)),
                           child: IconButton(
                               onPressed: () {
-                                logOut(context);
+                                logOut(context, true);
                                 setState(() {});
                               },
                               icon: const Icon(Icons.logout_outlined)),
@@ -244,26 +244,14 @@ class _StoreInfoPageState extends State<StoreInfoPage> {
                             .storeIsOn ==
                         1) {
                       (isCompleted, responseMessage) = await ToggleStoreStatus()
-                          .toggleStoreStatus(
-                              context,
-                              storeNotifier.stores
-                                  .where((s) => s.storeEmail == widget.email)
-                                  .first
-                                  .storeEmail,
-                              0);
+                          .toggleStoreStatus(context, 0);
                       log(isCompleted.toString());
                       log(responseMessage);
                       await storeNotifier.fetchStoreUserData();
                       setState(() {});
                     } else {
                       (isCompleted, responseMessage) = await ToggleStoreStatus()
-                          .toggleStoreStatus(
-                              context,
-                              storeNotifier.stores
-                                  .where((s) => s.storeEmail == widget.email)
-                                  .first
-                                  .storeEmail,
-                              1);
+                          .toggleStoreStatus(context, 1);
                       await storeNotifier.fetchStoreUserData();
                       log(isCompleted.toString());
                       log(responseMessage);

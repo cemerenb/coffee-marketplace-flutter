@@ -20,7 +20,7 @@ class RegistrationApi {
       String confirmPassword) async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-    log("Device is physical ${androidInfo.isPhysicalDevice.toString()}");
+
     final response = await http.post(
       Uri.parse(androidInfo.isPhysicalDevice
           ? 'http://10.0.2.2:7094/api/User/register'

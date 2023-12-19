@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:coffee/pages/Login/widgets/customer/dont_have_account.dart';
-import 'package:coffee/pages/company_pages/company_orders_page.dart';
 import 'package:coffee/pages/login/widgets/company/dont_have_account.dart';
 import 'package:coffee/pages/login/widgets/customer/forgot_password_get_email.dart';
 import 'package:coffee/pages/login/widgets/company/login_page_area.dart';
@@ -11,7 +10,6 @@ import 'package:coffee/pages/login/widgets/customer/login_welcome_text.dart';
 import 'package:coffee/utils/notifiers/store_notifier.dart';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../utils/database_operations/login/login_company.dart';
 import '../../utils/database_operations/login/login_user.dart';
@@ -31,6 +29,14 @@ final TextEditingController companyPasswordController = TextEditingController();
 
 class _LoginPageState extends State<LoginPage> {
   @override
+  void dispose() {
+    emailController.clear();
+    passwordController.clear();
+    companyEmailController.clear();
+    companyPasswordController.clear();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(children: [
@@ -171,14 +177,13 @@ class _PersonLoginPageState extends State<PersonLoginPage> {
                         isLoggingIn = true;
                       });
 
-                      isCompleted = await LoginApi().loginUser(context,
-                          emailController.text, passwordController.text);
-                      if (isCompleted) {
-                        await StoreNotifier().fetchStoreUserData();
-                      } else {
-                        isLoggingIn = false;
-                        setState(() {});
+                      await StoreNotifier().fetchStoreUserData();
+                      if (mounted) {
+                        isCompleted = await LoginApi().loginUser(context,
+                            emailController.text, passwordController.text);
                       }
+                      isLoggingIn = isCompleted;
+                      setState(() {});
                     },
                   ),
           ),
@@ -227,7 +232,24 @@ class _CompanyLoginPageState extends State<CompanyLoginPage> {
             child: isLoggingIn
                 ? const Center(child: CircularProgressIndicator())
                 : MaterialButton(
-                    onPressed: onCompanyLoginPressed,
+                    onPressed: () async {
+                      bool isCompleted = false;
+
+                      setState(() {
+                        isLoggingIn = true;
+                      });
+
+                      isCompleted = await CompanyLoginApi().loginCompany(
+                          context,
+                          companyEmailController.text,
+                          companyPasswordController.text);
+                      if (isCompleted) {
+                        await StoreNotifier().fetchStoreUserData();
+                      } else {
+                        isLoggingIn = false;
+                        setState(() {});
+                      }
+                    },
                     child: const Text(
                       'Login',
                       style: TextStyle(color: Colors.white, fontSize: 18),
@@ -241,42 +263,5 @@ class _CompanyLoginPageState extends State<CompanyLoginPage> {
         const DontHaveAnAcoountTextButtonCompany()
       ],
     );
-  }
-
-  void onCompanyLoginPressed() async {
-    setState(() {
-      isLoggingIn = true;
-    });
-
-    final success = await CompanyLoginApi().loginCompany(
-      context,
-      companyEmailController.text,
-      companyPasswordController.text,
-    );
-
-    if (!success) {
-      setState(() {
-        isLoggingIn = false;
-      });
-      return;
-    }
-
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString('email', companyEmailController.text);
-    prefs.setString('password', companyPasswordController.text);
-    prefs.setString('accountType', 'company');
-    if (context.mounted) {
-      Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-              builder: (context) => OrdersListView(
-                    email: companyEmailController.text,
-                  )),
-          (route) => false);
-    }
-
-    setState(() {
-      isLoggingIn = false;
-    });
   }
 }

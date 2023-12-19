@@ -6,7 +6,7 @@ Future<String> getUser(String email) async {
   try {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-    log("Device is physical ${androidInfo.isPhysicalDevice.toString()}");
+
     final response = await http.get(Uri.parse(androidInfo.isPhysicalDevice
         ? 'http://10.0.2.2:7094/api/User/get-users-name?email=$email'
         : 'http://10.0.2.2:7094/api/User/get-users-name?email=$email'));

@@ -248,7 +248,7 @@ class _CartPageState extends State<CartPage> {
 
   Future<void> removeFromCart(
       String storeEmail, String userEmail, String menuItemId) async {
-    await DeleteFromCart().deleteFromCart(storeEmail, userEmail, menuItemId);
+    await DeleteFromCart().deleteFromCart(context, storeEmail, menuItemId);
     if (context.mounted) {
       context.read<CartNotifier>().getCart();
       showSnackbar(context, "Item deleted from cart");

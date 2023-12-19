@@ -68,14 +68,14 @@ class _UpdateLoyaltyState extends State<UpdateLoyalty> {
                 onChanged: (value) {
                   if (value) {
                     statusValue = 1;
-                    ToggleLoyaltyStatus().toggleLoyaltyStatus(
-                        context, widget.email, statusValue);
+                    ToggleLoyaltyStatus()
+                        .toggleLoyaltyStatus(context, statusValue);
                     rulesNotifier.getRules();
                     setState(() {});
                   } else {
                     statusValue = 0;
-                    ToggleLoyaltyStatus().toggleLoyaltyStatus(
-                        context, widget.email, statusValue);
+                    ToggleLoyaltyStatus()
+                        .toggleLoyaltyStatus(context, statusValue);
                     rulesNotifier.getRules();
                     setState(() {});
                   }
@@ -246,8 +246,8 @@ class _UpdateLoyaltyState extends State<UpdateLoyalty> {
                       isLoading = true;
                       setState(() {});
                       (isCompleted, response) = await UpdateLoyaltyRules()
-                          .updateRules(context, statusValue, widget.email, goal,
-                              selection1, selection2, selection3, selection4);
+                          .updateRules(context, statusValue, goal, selection1,
+                              selection2, selection3, selection4);
                       if (isCompleted) {
                         await rulesNotifier.getRules();
                         isLoading = false;

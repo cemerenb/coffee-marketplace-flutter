@@ -18,9 +18,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'utils/database_operations/login/login_company.dart';
-import 'utils/database_operations/login/login_user.dart';
-
 enum PageEnum { loginPage, companyHomePage, customerHomePage }
 
 late String email;
@@ -104,6 +101,8 @@ class _PageNavigatorState extends State<PageNavigator> {
   Position? currentPosition;
   @override
   Widget build(BuildContext context) {
+    var storeNotifier = context.read<StoreNotifier>();
+    storeNotifier.fetchStoreUserData();
     return FutureBuilder(
       future: checkUser(context),
       builder: (context, snapshot) {
@@ -129,29 +128,26 @@ class _PageNavigatorState extends State<PageNavigator> {
     log("latitude : ${prefs.getDouble("latitude")}");
     log("longitude : ${prefs.getDouble("longitude")}");
     final userEmail = prefs.getString('email');
-    final userPassword = prefs.getString('password');
+    final accessToken = prefs.getString('accessToken');
     final accountType = prefs.getString('accountType');
     StoreNotifier().fetchStoreUserData();
     log(userEmail.toString());
-    log(userPassword.toString());
+    log(accessToken.toString());
     log(accountType.toString());
 
     if (accountType == 'customer' &&
         userEmail != null &&
-        userPassword != null &&
+        accountType != null &&
         context.mounted) {
-      if (await LoginApi().loginUser(context, userEmail, userPassword)) {
-        page = PageEnum.customerHomePage;
-      }
+      page = PageEnum.customerHomePage;
+
       email = userEmail;
     } else if (accountType == 'company' &&
         userEmail != null &&
-        userPassword != null &&
+        accessToken != null &&
         context.mounted) {
-      if (await CompanyLoginApi()
-          .loginCompany(context, userEmail, userPassword)) {
-        page = PageEnum.companyHomePage;
-      }
+      page = PageEnum.companyHomePage;
+
       email = userEmail;
     } else {
       page = PageEnum.loginPage;

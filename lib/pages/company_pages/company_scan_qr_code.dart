@@ -124,7 +124,7 @@ class _CompanyScanQrCodeState extends State<CompanyScanQrCode> {
     });
     controller.scannedDataStream.listen((scanData) async {
       if (scanData.code!.isNotEmpty && mounted) {
-        await orderNotifier.fetchCompanyOrderData();
+        await orderNotifier.fetchCompanyOrderData(context);
         await pointNotifier.getPoints();
         if (mounted) {
           setState(() {

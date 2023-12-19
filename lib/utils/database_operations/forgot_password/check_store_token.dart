@@ -14,7 +14,6 @@ class CheckStoreToken {
     try {
       DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      log("Device is physical ${androidInfo.isPhysicalDevice.toString()}");
 
       final response = await http.post(
         Uri.parse(androidInfo.isPhysicalDevice

@@ -225,7 +225,7 @@ class _StoresListViewState extends State<StoresListView> {
                                           context.read<OrderNotifier>();
                                           await context
                                               .read<OrderNotifier>()
-                                              .fetchOrderData();
+                                              .fetchOrderData(context);
                                           if (mounted) {
                                             context.read<StoreNotifier>();
                                             await context
@@ -326,7 +326,7 @@ class _StoresListViewState extends State<StoresListView> {
     if (mounted) {
       isLocationLoading = false;
       var orderNotifier = context.read<OrderNotifier>();
-      await context.read<OrderNotifier>().fetchOrderData();
+      await context.read<OrderNotifier>().fetchOrderData(context);
       if (orderNotifier.order.isNotEmpty) {
         isLoading = false;
         if (mounted) {
@@ -335,11 +335,10 @@ class _StoresListViewState extends State<StoresListView> {
 
         if (orderNotifier.order.isNotEmpty) {
           orderStatus = orderNotifier.order.last.orderStatus;
-          if (context.mounted) {
-            context.read<OrderNotifier>().fetchOrderData();
+          if (mounted) {
+            context.read<OrderNotifier>().fetchOrderData(context);
+            setState(() {});
           }
-
-          setState(() {});
         }
         setState(() {});
         return true;
@@ -645,7 +644,7 @@ class _StoresListViewState extends State<StoresListView> {
                     shadowColor: Colors.transparent),
                 onPressed: () async {
                   context.read<OrderNotifier>();
-                  await context.read<OrderNotifier>().fetchOrderData();
+                  await context.read<OrderNotifier>().fetchOrderData(context);
                   if (mounted) {
                     context.read<StoreNotifier>();
                     await context.read<StoreNotifier>().fetchStoreUserData();

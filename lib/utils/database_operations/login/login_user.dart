@@ -33,7 +33,6 @@ class LoginApi {
     });
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-    log("Device is physical ${androidInfo.isPhysicalDevice.toString()}");
     if (context.mounted) {
       await context.read<StoreNotifier>().fetchStoreUserData();
     }
@@ -51,12 +50,13 @@ class LoginApi {
     );
 
     if (response.statusCode == 200 && context.mounted) {
-      log('Successfully login');
-      context.read<OrderNotifier>().fetchOrderData();
+      log('Successfully login ${response.body}');
+      context.read<OrderNotifier>().fetchOrderData(context);
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('email', email);
-      await prefs.setString('password', password);
+      await prefs.setString('accessToken', response.body.split("-").first);
+      await prefs.setString('refreshToken', response.body.split("-").last);
       await prefs.setString('accountType', 'customer');
+      await prefs.setString('email', email);
       if (context.mounted) {
         emailController.text = "";
         passwordController.text = "";

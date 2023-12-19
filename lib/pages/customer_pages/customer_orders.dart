@@ -135,7 +135,10 @@ class _CustomerOrdersPageState extends State<CustomerOrdersPage> {
                                               .fetchMenuUserData();
                                           await storeNotifier
                                               .fetchStoreUserData();
-                                          await orderNotifier.fetchOrderData();
+                                          if (mounted) {
+                                            await orderNotifier
+                                                .fetchOrderData(context);
+                                          }
                                           await orderDetailsNotifier
                                               .fetchOrderDetailsData();
                                           if (mounted) {
@@ -225,9 +228,9 @@ class _CustomerOrdersPageState extends State<CustomerOrdersPage> {
   Future<bool> checkOrder() async {
     if (mounted) {
       var orderNotifier = context.read<OrderNotifier>();
-      await orderNotifier.fetchOrderData();
+      await orderNotifier.fetchOrderData(context);
       if (mounted) {
-        await context.read<OrderNotifier>().fetchOrderData();
+        await context.read<OrderNotifier>().fetchOrderData(context);
       }
     }
     return false;

@@ -38,7 +38,7 @@ class _CustomerOrderDetailsState extends State<CustomerOrderDetails> {
     var orderDetailsNotifier = context.read<OrderDetailsNotifier>();
     var ratingNotifier = context.read<RatingNotifier>();
     ratingNotifier.fetchRatingsData();
-    orderNotifier.fetchOrderData();
+    orderNotifier.fetchOrderData(context);
     for (var i = 0;
         i <
             orderDetailsNotifier.orderDetails
@@ -202,7 +202,9 @@ class _CustomerOrderDetailsState extends State<CustomerOrderDetails> {
                           .storeEmail,
                       userEmail,
                       widget.orderId);
-                  await orderNotifier.fetchOrderData();
+                  if (mounted) {
+                    await orderNotifier.fetchOrderData(context);
+                  }
                   await ratingNotifier.fetchRatingsData();
 
                   setState(() {});
@@ -804,7 +806,6 @@ class _CustomerOrderDetailsState extends State<CustomerOrderDetails> {
                                             .createRating(
                                                 context,
                                                 storeEmail,
-                                                userEmail,
                                                 orderId,
                                                 selection,
                                                 comment.text);

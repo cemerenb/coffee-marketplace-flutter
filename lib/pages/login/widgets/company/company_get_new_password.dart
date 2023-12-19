@@ -1,5 +1,4 @@
 import 'package:coffee/pages/login/login_page.dart';
-import 'package:coffee/utils/database_operations/forgot_password/change_password_request.dart';
 import 'package:coffee/utils/database_operations/forgot_password/change_store_password_request.dart';
 import 'package:coffee/utils/validators.dart';
 import 'package:coffee/widgets/dialogs.dart';
@@ -138,6 +137,7 @@ class _StoreGetNewPasswordState extends State<StoreGetNewPassword> {
                           ),
                           onPressed: () async {
                             bool isCompleted = false;
+                            // ignore: unused_local_variable
                             String response = "";
                             if (!Validators.minLengthCorrect(
                                 controllerPassword.text, 8)) {

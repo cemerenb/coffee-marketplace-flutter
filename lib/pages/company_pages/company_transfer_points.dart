@@ -75,7 +75,6 @@ class _TransferPointsState extends State<TransferPoints> {
                         .updateUserPoint(
                             context,
                             widget.email,
-                            storeEmail,
                             userPoint,
                             pointNotifier.userPoints
                                 .where((p) =>

@@ -90,6 +90,7 @@ class _EnterTokenState extends State<EnterToken> {
                     setState(() {});
                   } else {
                     bool isCompleted = false;
+                    // ignore: unused_local_variable
                     String response = "";
                     (isCompleted, response) = await CheckUserToken()
                         .checkToken(widget.email, code.toUpperCase());
