@@ -42,6 +42,8 @@ class CompanyLoginApi {
       await prefs.setString('refreshToken', response.body.split("-").last);
       await prefs.setString('accountType', 'company');
       await prefs.setString('email', email);
+      log(response.body.split("-").first);
+      log(response.body.split("-").last);
       if (context.mounted) {
         emailController.text = "";
         passwordController.text = "";

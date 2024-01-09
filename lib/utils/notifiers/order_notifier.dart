@@ -82,13 +82,13 @@ class OrderNotifier extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchCompanyOrderData(BuildContext context) async {
+  Future<void> fetchCompanyOrderData() async {
     try {
       DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      final prefs = await SharedPreferences.getInstance();
 
       final String token = await getToken();
+      log(token);
       final response = await http.get(Uri.parse(androidInfo.isPhysicalDevice
           ? 'http://10.0.2.2:7094/api/Order/get-store-orders?AccessToken=$token'
           : 'http://10.0.2.2:7094/api/Order/get-store-orders?AccessToken=$token'));
@@ -108,35 +108,6 @@ class OrderNotifier extends ChangeNotifier {
             orderTotalPrice: orderData['orderTotalPrice'],
           );
         }).toList();
-      }
-      if (response.statusCode == 210 && context.mounted) {
-        await Dialogs.showErrorDialog(
-            context, "Session has expired please log in again");
-        await prefs.remove('email');
-        await prefs.remove('accessToken');
-        await prefs.remove('accountType');
-        await prefs.remove('refreshToken');
-        if (context.mounted) {
-          Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                builder: (context) => LoginPage(isSwitched: true),
-              ),
-              (route) => false);
-        }
-      }
-      if (response.statusCode == 211 && context.mounted) {
-        bool isCompleted = false;
-        String response = "";
-        (isCompleted, response) =
-            await UpdateRefreshToken().updateRefreshToken(context);
-        if (isCompleted) {
-          await prefs.remove("accessToken");
-          await prefs.setString("accessToken", response);
-        }
-        if (context.mounted) {
-          fetchCompanyOrderData(context);
-        }
       } else {
         log('Error: ${response.statusCode}');
         notifyListeners();

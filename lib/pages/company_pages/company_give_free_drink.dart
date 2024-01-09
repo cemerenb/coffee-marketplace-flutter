@@ -25,7 +25,7 @@ class _GiveFreeDrinkState extends State<GiveFreeDrink> {
   void initState() {
     var orderNotifier = context.read<OrderNotifier>();
     var pointNotifier = context.read<LoyaltyUserNotifier>();
-    orderNotifier.fetchCompanyOrderData(context);
+    orderNotifier.fetchCompanyOrderData();
     pointNotifier.getPoints();
     getUserName();
     super.initState();

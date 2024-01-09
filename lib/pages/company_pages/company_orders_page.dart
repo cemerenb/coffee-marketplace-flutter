@@ -44,6 +44,8 @@ class _OrdersListViewState extends State<OrdersListView> {
     super.initState();
     context.read<OrderDetailsNotifier>().fetchOrderDetailsData();
     context.read<MenuNotifier>().fetchMenuUserData();
+    var orderNotifier = context.read<OrderNotifier>();
+    orderNotifier.fetchCompanyOrderData();
     log("init");
     timer = Timer.periodic(
       const Duration(seconds: 3),
@@ -260,7 +262,7 @@ class _OrdersListViewState extends State<OrdersListView> {
         await context.read<MenuNotifier>().fetchMenuUserData();
       }
       if (mounted) {
-        await orderNotifier.fetchCompanyOrderData(context);
+        await orderNotifier.fetchCompanyOrderData();
       }
 
       if (orderNotifier.order.isNotEmpty) {
@@ -268,7 +270,7 @@ class _OrdersListViewState extends State<OrdersListView> {
 
         if (orderNotifier.order.isNotEmpty) {
           if (mounted) {
-            context.read<OrderNotifier>().fetchCompanyOrderData(context);
+            context.read<OrderNotifier>().fetchCompanyOrderData();
           }
           if (mounted) {
             setState(() {});

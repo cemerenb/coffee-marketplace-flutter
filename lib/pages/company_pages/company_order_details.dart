@@ -199,8 +199,7 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
                                     .updateOrderStatusStore(
                                         context, widget.orderId, 6);
                                 if (mounted) {
-                                  await orderNotifier
-                                      .fetchCompanyOrderData(context);
+                                  await orderNotifier.fetchCompanyOrderData();
                                 }
                                 isLoading2 = false;
                                 setState(() {});
@@ -270,8 +269,7 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
                             await UpdateOrderStatusApi().updateOrderStatusStore(
                                 context, widget.orderId, 2);
                             if (mounted) {
-                              await orderNotifier
-                                  .fetchCompanyOrderData(context);
+                              await orderNotifier.fetchCompanyOrderData();
                             }
                             setState(() {});
                           }
@@ -279,8 +277,7 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
                             await UpdateOrderStatusApi().updateOrderStatusStore(
                                 context, widget.orderId, 3);
                             if (mounted) {
-                              await orderNotifier
-                                  .fetchCompanyOrderData(context);
+                              await orderNotifier.fetchCompanyOrderData();
                             }
                             setState(() {});
                           }
@@ -288,8 +285,7 @@ class _CompanyOrderDetailsState extends State<CompanyOrderDetails> {
                             await UpdateOrderStatusApi().updateOrderStatusStore(
                                 context, widget.orderId, 4);
                             if (mounted) {
-                              await orderNotifier
-                                  .fetchCompanyOrderData(context);
+                              await orderNotifier.fetchCompanyOrderData();
                             }
                             isLoading3 = true;
                             if (mounted &&
