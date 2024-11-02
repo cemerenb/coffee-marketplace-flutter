@@ -1,4 +1,4 @@
-# coffee
+# coffee_marketplace_app
 
 A new Flutter project.
 

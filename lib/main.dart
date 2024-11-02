@@ -1,200 +1,125 @@
-import 'dart:io';
-import 'dart:developer';
-
-import 'package:coffee/pages/company_pages/company_orders_page.dart';
-import 'package:coffee/pages/customer_pages/customer_list_stores.dart';
-import 'package:coffee/pages/login/login_page.dart';
-import 'package:coffee/utils/notifiers/cart_notifier.dart';
-import 'package:coffee/utils/notifiers/loyalty_program_notifier.dart';
-import 'package:coffee/utils/notifiers/loyalty_user.dart';
-import 'package:coffee/utils/notifiers/menu_notifier.dart';
-import 'package:coffee/utils/notifiers/order_details_notifier.dart';
-import 'package:coffee/utils/notifiers/order_notifier.dart';
-import 'package:coffee/utils/notifiers/rating_notifier.dart';
-import 'package:coffee/utils/notifiers/store_notifier.dart';
-
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-enum PageEnum { loginPage, companyHomePage, customerHomePage }
-
-late String email;
 void main() {
-  HttpOverrides.global = MyHttpOverrides();
-  WidgetsFlutterBinding.ensureInitialized();
-
   runApp(const MyApp());
 }
 
-final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey();
-
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider<CartNotifier>(
-          create: (_) => CartNotifier(),
-        ),
-        ChangeNotifierProvider<MenuNotifier>(
-          create: (_) => MenuNotifier(),
-        ),
-        ChangeNotifierProvider<StoreNotifier>(
-          create: (_) => StoreNotifier(),
-        ),
-        ChangeNotifierProvider<OrderNotifier>(
-          create: (_) => OrderNotifier(),
-        ),
-        ChangeNotifierProvider<OrderDetailsNotifier>(
-          create: (_) => OrderDetailsNotifier(),
-        ),
-        ChangeNotifierProvider<RatingNotifier>(
-          create: (_) => RatingNotifier(),
-        ),
-        ChangeNotifierProvider<LoyaltyNotifier>(
-            create: (_) => LoyaltyNotifier()),
-        ChangeNotifierProvider<LoyaltyUserNotifier>(
-            create: (_) => LoyaltyUserNotifier())
-      ],
-      child: MaterialApp(
-          title: 'Flutter Demo',
-          scaffoldMessengerKey: scaffoldMessengerKey,
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.black,
-              primary: Colors.black,
-            ),
-            useMaterial3: true,
-          ),
-          home: const PageNavigator()),
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        // This is the theme of your application.
+        //
+        // TRY THIS: Try running your application with "flutter run". You'll see
+        // the application has a purple toolbar. Then, without quitting the app,
+        // try changing the seedColor in the colorScheme below to Colors.green
+        // and then invoke "hot reload" (save your changes or press the "hot
+        // reload" button in a Flutter-supported IDE, or press "r" if you used
+        // the command line to start the app).
+        //
+        // Notice that the counter didn't reset back to zero; the application
+        // state is not lost during the reload. To reset the state, use hot
+        // restart instead.
+        //
+        // This works for code too, not just values: Most code changes can be
+        // tested with just a hot reload.
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
 
-class MyHttpOverrides extends HttpOverrides {
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  // This widget is the home page of your application. It is stateful, meaning
+  // that it has a State object (defined below) that contains fields that affect
+  // how it looks.
+
+  // This class is the configuration for the state. It holds the values (in this
+  // case the title) provided by the parent (in this case the App widget) and
+  // used by the build method of the State. Fields in a Widget subclass are
+  // always marked "final".
+
+  final String title;
+
   @override
-  HttpClient createHttpClient(SecurityContext? context) {
-    return super.createHttpClient(context)
-      ..badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
-  }
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class PageNavigator extends StatefulWidget {
-  const PageNavigator({super.key});
+class _MyHomePageState extends State<MyHomePage> {
+  int _counter = 0;
 
-  @override
-  State<PageNavigator> createState() => _PageNavigatorState();
-}
-
-class _PageNavigatorState extends State<PageNavigator> {
-  PageEnum page = PageEnum.loginPage;
-  Position? currentPosition;
-  @override
-  Widget build(BuildContext context) {
-    var storeNotifier = context.read<StoreNotifier>();
-    storeNotifier.fetchStoreUserData();
-    return FutureBuilder(
-      future: checkUser(context),
-      builder: (context, snapshot) {
-        return pageSelector();
-      },
-    );
-  }
-
-  Future<void> checkUser(context) async {
-    await _handleLocationPermission();
-    await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    ).then((Position position) {
-      currentPosition = position;
-    }).catchError((e) {
-      log(e.toString());
+  void _incrementCounter() {
+    setState(() {
+      // This call to setState tells the Flutter framework that something has
+      // changed in this State, which causes it to rerun the build method below
+      // so that the display can reflect the updated values. If we changed
+      // _counter without calling setState(), then the build method would not be
+      // called again, and so nothing would appear to happen.
+      _counter++;
     });
-
-    final prefs = await SharedPreferences.getInstance();
-
-    await prefs.setDouble("latitude", currentPosition!.latitude.toDouble());
-    await prefs.setDouble("longitude", currentPosition!.longitude.toDouble());
-    log("latitude : ${prefs.getDouble("latitude")}");
-    log("longitude : ${prefs.getDouble("longitude")}");
-    final userEmail = prefs.getString('email');
-    final accessToken = prefs.getString('accessToken');
-    final accountType = prefs.getString('accountType');
-    StoreNotifier().fetchStoreUserData();
-    log(userEmail.toString());
-    log(accessToken.toString());
-    log(accountType.toString());
-
-    if (accountType == 'customer' &&
-        userEmail != null &&
-        accountType != null &&
-        context.mounted) {
-      page = PageEnum.customerHomePage;
-
-      email = userEmail;
-    } else if (accountType == 'company' &&
-        userEmail != null &&
-        accessToken != null &&
-        context.mounted) {
-      page = PageEnum.companyHomePage;
-
-      email = userEmail;
-    } else {
-      page = PageEnum.loginPage;
-    }
   }
 
-  Future<bool> _handleLocationPermission() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text(
-              'Location services are disabled. Please enable the services')));
-      return false;
-    }
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Location permissions are denied')));
-        return false;
-      }
-    }
-    if (permission == LocationPermission.deniedForever && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text(
-              'Location permissions are permanently denied, we cannot request permissions.')));
-      return false;
-    }
-    return true;
-  }
-
-  Widget pageSelector() {
-    switch (page) {
-      case PageEnum.loginPage:
-        return LoginPage(isSwitched: false);
-
-      case PageEnum.customerHomePage:
-        return const StoresListView();
-
-      case PageEnum.companyHomePage:
-        return OrdersListView(
-          email: email,
-        );
-    }
+  @override
+  Widget build(BuildContext context) {
+    // This method is rerun every time setState is called, for instance as done
+    // by the _incrementCounter method above.
+    //
+    // The Flutter framework has been optimized to make rerunning build methods
+    // fast, so that you can just rebuild anything that needs updating rather
+    // than having to individually change instances of widgets.
+    return Scaffold(
+      appBar: AppBar(
+        // TRY THIS: Try changing the color here to a specific color (to
+        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
+        // change color while the other colors stay the same.
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        // Here we take the value from the MyHomePage object that was created by
+        // the App.build method, and use it to set our appbar title.
+        title: Text(widget.title),
+      ),
+      body: Center(
+        // Center is a layout widget. It takes a single child and positions it
+        // in the middle of the parent.
+        child: Column(
+          // Column is also a layout widget. It takes a list of children and
+          // arranges them vertically. By default, it sizes itself to fit its
+          // children horizontally, and tries to be as tall as its parent.
+          //
+          // Column has various properties to control how it sizes itself and
+          // how it positions its children. Here we use mainAxisAlignment to
+          // center the children vertically; the main axis here is the vertical
+          // axis because Columns are vertical (the cross axis would be
+          // horizontal).
+          //
+          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
+          // action in the IDE, or press "p" in the console), to see the
+          // wireframe for each widget.
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const Text(
+              'You have pushed the button this many times:',
+            ),
+            Text(
+              '$_counter',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _incrementCounter,
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
+      ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
   }
 }
